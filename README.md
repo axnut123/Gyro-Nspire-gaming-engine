@@ -8,6 +8,8 @@ git中暂不上传tns文件，请去我的x下载，以后的版本将会上传t
 ！！注意！！
 必须要有ti_system库和ti_draw库，否则无法运行！
 其他说明已经在tns文件的第一页写出，自行阅读。
+其他：
+源代码不可以在外部更改后输入tns文件（我还没试过，因此不确定），请在计算器中更改代码。
 English:
 In Git, .tns files will not be uploaded for now. Please download them from my [X]. Future versions will include .tns files.
 
@@ -21,3 +23,5 @@ Environment:
 You must have the ti_system library and ti_draw library installed, or the program will not run.
 
 Additional instructions are provided on the first page of the .tns file. Please read them yourself.
+others:
+Do not modify source code on any other editor except the calculator.To modify source code,do it on your calculator.
