@@ -9,17 +9,33 @@ from ti_system import *
 from time import *
 import sys
 #==========================
-key="0";mapslt=0;psx=95;psy=95;v_hev=0;gmver="Gyro 16 Build(0030)";wpnslt=0
+key="0";mapslt=0;psx=95;psy=95;v_hev=0;gmver="Gyro 16 Build(0032)";wpnslt=0
 weapon_crb=0;weapon_physcnn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0
 ammo9max=150;ammo357max=16;inclip9=0;inclip357=0;reload9=0;reload357=0
+def vwindow(x,y,w,h,wintp):#built-in function,for display window.
+  set_color(135,135,135)
+  if wintp==1:
+    fill_rect(x,y,w,h)
+    set_color(255,255,255)
+    draw_text(x+20,y+20,"Vgui window")
+    return 0
+  else:
+    print("[ERROR]Window type is not defined.")
+    return 1
 def func_title(x,y,r,g,b,text):#built-in function,for display a title.
   set_color(r,g,b)
   draw_text(x,y,text)
+  print("[INFO]Title displayed.")
   return 0
-def func_trigger(minx,miny,maxx,maxy):#built-in function,for trigger a specific event.
+def func_trigger(minx,miny,maxx,maxy,trgtp):#built-in function,for trigger a specific event.
   if psx>=minx and psx<=maxx and psy>=miny and psy<=maxy:
-    func_title(120,80,255,0,0,"Trigger")
-    return 0
+    if trgip==1:
+      func_title(120,80,255,0,0,"Trigger")
+      print("[INFO]Trigger executed.")
+      return 0
+    else:
+      print("[ERROR]Trigger is not defined.")
+      return 1
   else:pass
 def event_ammopick(type,amount):#built-in function,for picking up the ammunation box event
   global ammo9,ammo9max,ammo357,ammo357max
