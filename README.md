@@ -1,7 +1,6 @@
 # Gyro
 A gaming engine based on Ti calculator,writed on py.
 chinese：
-git中暂不上传tns文件，请去我的x下载，以后的版本将会上传tns。
 安装：
 把tns放入传输软件后即安装。
 环境：
@@ -11,7 +10,6 @@ git中暂不上传tns文件，请去我的x下载，以后的版本将会上传t
 其他：
 源代码不可以在外部更改后输入tns文件（我还没试过，因此不确定），请在计算器中更改代码。
 English:
-In Git, .tns files will not be uploaded for now. Please download them from my [X]. Future versions will include .tns files.
 
 Installation:
 
