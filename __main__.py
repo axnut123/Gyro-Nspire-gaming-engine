@@ -1,7 +1,6 @@
 #COPYRIGHT (C) Haoriwa 2022 - 2024
 #All rights reserved.
 # the license is under LICENSE.txt *
-#Gyro main part.
 #==========================
 from random import *
 from ti_draw import *
@@ -9,15 +8,17 @@ from ti_system import *
 from time import *
 import sys
 #==========================
-key="0";mapslt=0;psx=95;psy=95;v_hev=0;gmver="Gyro 16 Build(0032)";wpnslt=0
-weapon_crb=0;weapon_physcnn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0
+key="0";mapslt=0;psx=95;psy=95;v_hev=0;gmver="Gyro 16 Build(0034)";wpnslt=0
+item_suit=0;weapon_crb=0;weapon_physcnn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0
 ammo9max=150;ammo357max=16;inclip9=0;inclip357=0;reload9=0;reload357=0
 def vwindow(x,y,w,h,wintp):#built-in function,for display window.
   set_color(135,135,135)
+  global mapslt
   if wintp==1:
     fill_rect(x,y,w,h)
     set_color(255,255,255)
     draw_text(x+20,y+20,"Vgui window")
+    print("[INFO]Vgui window render request sent to client.")
     return 0
   else:
     print("[ERROR]Window type is not defined.")
@@ -28,9 +29,18 @@ def func_title(x,y,r,g,b,text):#built-in function,for display a title.
   print("[INFO]Title displayed.")
   return 0
 def func_trigger(minx,miny,maxx,maxy,trgtp):#built-in function,for trigger a specific event.
+  global mapslt#map selection needs global var
   if psx>=minx and psx<=maxx and psy>=miny and psy<=maxy:
-    if trgip==1:
+    if trgtp==1:
       func_title(120,80,255,0,0,"Trigger")
+      print("[INFO]Trigger executed.")
+      return 0
+    elif trgtp==2:
+      mapslt=1
+      print("[INFO]Trigger executed.")
+      return 0
+    elif trgtp==3:
+      mapslt=0
       print("[INFO]Trigger executed.")
       return 0
     else:
@@ -73,14 +83,20 @@ def consolelog(type):#built-in function,for console output
   elif type==3:
     print("[INFO]Exit success,code:0")
   elif type==4:
-    print("[WARN]Undefined map code,loded default map")
+    print("[INFO]All assets are ready to use.")
   elif type==5:
     print("[INFO]Game start")
   elif type==6:
-    print("[INFO]Map loded")
+    print("[INFO]Map loaded")
   elif type==7:
     print("[INFO]Player died.")
   return type
+def c0a0():#map define,a debug map.
+  set_color(10,180,10)
+  fill_rect(0,0,500,300)
+  set_color(140,140,140)
+  fill_rect(60,35,60,35)
+  return 0
 def c1a0():#map define,i would say it is .bsp file =)
   set_color(200,200,90)
   fill_rect(0,0,500,300)
@@ -103,22 +119,6 @@ def c1a0():#map define,i would say it is .bsp file =)
   draw_line(-25,25,15,25)
   set_color(160,10,10)
   fill_rect(45,10,15,10)
-  return(0)
-def undefmp():#built-in map define,when map not found,this function will replace undefined map.
-  x=0
-  y=0
-  set_color(255,0,255)
-  fill_rect(x,y,170,140)
-  x+=170
-  set_color(0,0,0)
-  fill_rect(x,y,170,140)
-  y+=140
-  x=0
-  set_color(0,0,0)
-  fill_rect(x,y,170,140)
-  x+=170
-  set_color(255,0,255)
-  fill_rect(x,y,170,140)
   return(0)
 def vg0():#pause menu,built-in function
       set_color(120,120,120)
@@ -332,18 +332,6 @@ def mainmenu():#main menu function
   draw_text(150,17,gmver)
   set_pen("thin","solid")
   return(0)
-def mapsltpls(minx,miny,maxx,maxy):#built-in function,if in the trigger area,var will plus 1
-  global psx,psy,mapslt
-  if psx>=minx and psx<=maxx and psy>=miny and psy<=maxy:
-    mapslt+=1
-  else:...
-  return 0
-def mapsltmns(minx,miny,maxx,maxy):#same as function above,but minus
-  global psx,psy,mapslt
-  if psx>=minx and psx<=maxx and psy>=miny and psy<=maxy:
-    mapslt-=1
-  else:...
-  return(0)
 def opening():#the engine opening
   fill_rect(0,0,500,300)
   set_color(10,210,140)
@@ -363,16 +351,21 @@ def opening():#the engine opening
   draw_text(10,160,gmver)
   sleep(3)
   return 0
-def mapstat():#built-in function,for change level
+def mapstat():#built-in function,for map render,trigger and other stuff.
   global mapslt
   if mapslt==0:
     c1a0()
-    mapsltpls(0,0,20,50)
+    func_trigger(0,0,20,50,2)
+    return 0
+  if mapslt==1:
+    c0a0()
+    func_trigger(125,75,100,100,3)
+    return 0
   else:
-    undefmp()
-  return 0
+    print("[ERROR]Map define not found or trigger is not defined.")
+    return 1
 v_live=10
-def vhud():#built-in function,for hev hud
+def v_hud():#built-in function,for hev hud
   set_color(200,150,50)
   if v_hev!=0:
     draw_text(80,190,v_hev)
@@ -399,11 +392,11 @@ def main():#main function
     else:
       ...
   clear()
+  consolelog(4)
   while True:
-    global v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357
+    global v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
     consolelog(1)
     mapstat()
-    vhud()
     if wpnslt==1 or wpnslt==2:
       pass
     elif wpnslt==3 and weapon_pst==1:
@@ -425,14 +418,16 @@ def main():#main function
     else:pass
     set_color(0,0,0)
     fill_rect(psx,psy,5,5)
-    if v_live>=20:
-      set_color(200,150,50)
-      draw_text(20,190,v_live)
-      draw_text(20,200,"HEALTH")
-    else:
-      set_color(250,100,10)
-      draw_text(20,190,v_live)
-      draw_text(20,200,"HEALTH")
+    if item_suit==1:
+      v_hud()
+      if v_live>=20:
+        set_color(200,150,50)
+        draw_text(20,190,v_live)
+        draw_text(20,200,"HEALTH")
+      else:
+        set_color(250,100,10)
+        draw_text(20,190,v_live)
+        draw_text(20,200,"HEALTH")
     set_color(0,0,0)
     fill_rect(psx,psy,5,5)
     if v_live==0:
@@ -482,7 +477,7 @@ def main():#main function
           v_live=v_live-10
           break
         elif k=="h":
-          event_ammopick(1,28)
+          event_ammopick(1,18)
           event_ammopick(2,12)
           break
         elif k=="u":
@@ -584,6 +579,7 @@ def main():#main function
           weapon_physcnn=1
           weapon_pst=1
           weapon_357=1
+          item_suit=1
         elif k=="1":
           set_color(120,120,120)
           fill_rect(30,0,15,15)
@@ -674,7 +670,7 @@ def main():#main function
                 k=get_key()
                 if k=="enter":
                   clear()
-                  undefmp()
+                  fill_rect(500,500,1,1)
                   break
                 elif k=="q":
                   consolelog(3)
@@ -687,7 +683,7 @@ def main():#main function
   return 0
 print("[INFO]Attempting to start.")
 if (__name__=="__main__"):#int main()
-  print("[INFO]Sucessfully connected.")
+  print("[INFO]Successfully connected.")
   print("Current version:",gmver)
   consolelog(2)
   opening()
