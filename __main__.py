@@ -1,27 +1,32 @@
 #COPYRIGHT (C) Haoriwa 2022 - 2024
 #All rights reserved.
 # the license is under LICENSE.txt *
-#==========================
 from random import *
 from ti_draw import *
 from ti_system import *
 from time import *
 import sys
-#==========================
-key="0";mapslt=0;psx=95;psy=95;v_hev=0;gmver="Gyro 16 Build(0034)";wpnslt=0
+erxt=0;g="0";key="0";mapslt=0;psx=95;psy=95;v_hev=0;gmver="Gyro 18 Build(0040)";wpnslt=0
 item_suit=0;weapon_crb=0;weapon_physcnn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0
-ammo9max=150;ammo357max=16;inclip9=0;inclip357=0;reload9=0;reload357=0
-def vwindow(x,y,w,h,wintp):#built-in function,for display window.
+ammo9max=180;ammo357max=12;inclip9=0;inclip357=0;reload9=0;reload357=0
+def extchk():#built-in function,for command "enableforceexitonerror".
+  global erxt
+  if erxt==1:
+    print("[DEBUG]Error or warning encounted,stopped game")
+    sys.exit()
+  else:pass
+def vwindow(x,y,wintp):#built-in function,for display window.
   set_color(135,135,135)
   global mapslt
   if wintp==1:
-    fill_rect(x,y,w,h)
+    fill_rect(x,y,120,40)
     set_color(255,255,255)
-    draw_text(x+20,y+20,"Vgui window")
+    draw_text(x+10,y+20,"Vgui window")
     print("[INFO]Vgui window render request sent to client.")
     return 0
   else:
     print("[ERROR]Window type is not defined.")
+    extchk()
     return 1
 def func_title(x,y,r,g,b,text):#built-in function,for display a title.
   set_color(r,g,b)
@@ -45,6 +50,7 @@ def func_trigger(minx,miny,maxx,maxy,trgtp):#built-in function,for trigger a spe
       return 0
     else:
       print("[ERROR]Trigger is not defined.")
+      extchk()
       return 1
   else:pass
 def event_ammopick(type,amount):#built-in function,for picking up the ammunation box event
@@ -362,7 +368,8 @@ def mapstat():#built-in function,for map render,trigger and other stuff.
     func_trigger(125,75,100,100,3)
     return 0
   else:
-    print("[ERROR]Map define not found or trigger is not defined.")
+    print("[ERROR]mapstat function cannot find defined type.")
+    extchk()
     return 1
 v_live=10
 def v_hud():#built-in function,for hev hud
@@ -377,7 +384,7 @@ def main():#main function
   draw_text(10,100,"enter:start")
   draw_text(10,120,"a:quick start")
   draw_text(10,140,"esc:quit")
-  while True:
+  while True:#main menu
     k=get_key()
     if k=="enter":
       gmanintro()
@@ -389,18 +396,17 @@ def main():#main function
       break
     elif k=="esc":
       sys.exit()
-    else:
-      ...
+    else:pass
   clear()
   consolelog(4)
-  while True:
+  while True:#game logic loop
     global v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
     consolelog(1)
-    mapstat()
+    mapstat()#logic check in here,define your trigger in this function.
     if wpnslt==1 or wpnslt==2:
       pass
     elif wpnslt==3 and weapon_pst==1:
-      if ammo9>=10:
+      if ammo9>=18:
         set_color(200,150,50)
       else:
         set_color(255,100,50)
@@ -408,7 +414,7 @@ def main():#main function
       draw_text(210,190,inclip9)
       draw_text(250,190,ammo9)
     elif wpnslt==4 and weapon_357==1:
-      if ammo357>=10:
+      if ammo357>=6:
         set_color(200,150,50)
       else:
         set_color(250,100,50)
@@ -443,7 +449,7 @@ def main():#main function
            v_live = 100
            break
     else:pass
-    k=get_key()
+    k=get_key()#game loop
     for key in ["g","d","j","l","r","esc","z","h","s","t","u","1","2","0","up","down","left","right"]:
       while k!=key:
         k=get_key()
@@ -478,7 +484,7 @@ def main():#main function
           break
         elif k=="h":
           event_ammopick(1,18)
-          event_ammopick(2,12)
+          event_ammopick(2,6)
           break
         elif k=="u":
           v_live+=10
@@ -581,6 +587,10 @@ def main():#main function
           weapon_357=1
           item_suit=1
         elif k=="1":
+          if item_suit==1:
+            pass
+          else:
+            break
           set_color(120,120,120)
           fill_rect(30,0,15,15)
           set_color(200,150,50)
@@ -621,6 +631,10 @@ def main():#main function
               break
             else:pass
         elif k=="2":
+          if item_suit==1:
+            pass
+          else:
+            break
           set_color(120,120,120)
           fill_rect(30,0,15,15)
           set_color(200,150,50)
@@ -662,7 +676,7 @@ def main():#main function
             else:pass
           break
         elif k=="m":
-          while True:
+          while True:#pause menu
             vg0();ky="0"
             k=get_key()
             for ky in["enter","m","q"]:
@@ -676,6 +690,8 @@ def main():#main function
                   consolelog(3)
                   sys.exit()
                   break
+                elif k=="g":
+                  vwindow(50,50,0)
               break
             break
           break
@@ -685,6 +701,32 @@ print("[INFO]Attempting to start.")
 if (__name__=="__main__"):#int main()
   print("[INFO]Successfully connected.")
   print("Current version:",gmver)
+  print("current resulotion:",get_screen_dim())
+  while g!="run":
+    g=str(input("Console_"))
+    if g=="run":
+      break
+    elif g=="help":
+      print("Gyro engine help:\nrun:start game.\nhelp:get help.\nquit:stop game.\nsetgeomet:set a new resolution for screen.\nenableforceexitonerror:forcely stop game when encounting an error.")
+    elif g=="quit":
+      quit()#This is an error exploit,not a bug.
+      break
+    elif g=="setgeomet":
+      x1=int(input("xmin"))
+      y1=int(input("ymin"))
+      x2=int(input("xmax"))
+      y2=int(input("ymax"))
+      set_window(x1,x2,y1,y2)
+      del x1,x2,y1,y2
+      break
+      print("[CONSOLE]Resolution is now:",get_screen_dim())
+    elif g=="enableforceexitonerror":
+      erxt=1
+      print("[CONSOLE]Exit when error enabled.")
+      break
+    else:
+      print("[CONSOLE]Unknown command:",g,".type help to get help.")
+  del g
   consolelog(2)
   opening()
   consolelog(5)
