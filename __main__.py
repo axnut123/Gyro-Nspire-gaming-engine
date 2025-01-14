@@ -6,13 +6,13 @@ from ti_draw import *
 from ti_system import *
 from time import *
 import sys
-erxt=0;g="0";key="0";mapslt=0;psx=95;psy=95;v_hev=0;gmver="Gyro 18 Build(0040)";wpnslt=0
+erxt=0;g="0";key="0";mapslt=0;psx=95;psy=95;v_hev=0;gmver="Gyro 18 Build(0043)";wpnslt=0
 item_suit=0;weapon_crb=0;weapon_physcnn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0
 ammo9max=180;ammo357max=12;inclip9=0;inclip357=0;reload9=0;reload357=0
 def extchk():#built-in function,for command "enableforceexitonerror".
   global erxt
   if erxt==1:
-    print("[DEBUG]Error or warning encounted,stopped game")
+    print("[DEBUG]Error or warning encounted,stopped engine.")
     sys.exit()
   else:pass
 def vwindow(x,y,wintp):#built-in function,for display window.
@@ -83,7 +83,7 @@ def weaponclip(type):#built-in function,for detect clips in gun.
   return 0
 def consolelog(type):#built-in function,for console output
   if type==1:
-    print("[INFO]Screen refreshed")
+    pass
   elif type==2:
     print("[INFO]Start the opening")
   elif type==3:
@@ -379,7 +379,7 @@ def v_hud():#built-in function,for hev hud
     draw_text(80,200,"SUIT")
   return 0
 def main():#main function
-  global mapslt,psx,psy,weapon_crb
+  global mapslt,psx,psy,weapon_crb,prvpsx,prvpsy
   mainmenu()
   draw_text(10,100,"enter:start")
   draw_text(10,120,"a:quick start")
@@ -400,7 +400,7 @@ def main():#main function
   clear()
   consolelog(4)
   while True:#game logic loop
-    global v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
+    global inclp,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
     consolelog(1)
     mapstat()#logic check in here,define your trigger in this function.
     if wpnslt==1 or wpnslt==2:
@@ -697,18 +697,17 @@ def main():#main function
           break
       break
   return 0
-print("[INFO]Attempting to start.")
 if (__name__=="__main__"):#int main()
-  print("[INFO]Successfully connected.")
-  print("Current version:",gmver)
-  print("current resulotion:",get_screen_dim())
+  print("[PRE-LOAD]Starting console and engine.\n[PRE-LOAD]current resolution:",get_screen_dim())
   while g!="run":
     g=str(input("Console_"))
     if g=="run":
+      print("[CONSOLE]Running engine.")
       break
     elif g=="help":
-      print("Gyro engine help:\nrun:start game.\nhelp:get help.\nquit:stop game.\nsetgeomet:set a new resolution for screen.\nenableforceexitonerror:forcely stop game when encounting an error.")
+      print("Gyro engine help:\nrun:start engine.\nhelp:get help.\nquit:stop engine and console.\nsetgeomet:set a new resolution for screen.\nenableforceexitonerror:forcely stop whole engine when encounting any error and warn.\nversion:get engine version and credits.")
     elif g=="quit":
+      del g
       quit()#This is an error exploit,not a bug.
       break
     elif g=="setgeomet":
@@ -724,9 +723,14 @@ if (__name__=="__main__"):#int main()
       erxt=1
       print("[CONSOLE]Exit when error enabled.")
       break
+    elif g=="version":
+      e=get_platform()
+      print("Gyro 2D Gaming engine.\n",gmver,"\nComplied in 2025/01/07\nMade by Alex_Nute aka axnut123.\nMade in China.\nCurrent platform:",e)
+      del e
     else:
       print("[CONSOLE]Unknown command:",g,".type help to get help.")
   del g
+  print("[CONSOLE]Console is being closed.\n[INFO]Engine is now started.")
   consolelog(2)
   opening()
   consolelog(5)
