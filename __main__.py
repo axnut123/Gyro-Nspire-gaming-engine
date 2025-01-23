@@ -6,9 +6,12 @@ from ti_draw import *
 from ti_system import *
 from time import *
 import sys
-erxt=0;g="0";key="0";mapslt=0;psx=95;psy=95;v_hev=0;gmver="Gyro 18 Build(0043)";wpnslt=0
+erxt=0;g="0";key="0";mapslt=0;psx=95;psy=95;v_hev=0;gmver="Gyro 18 Build(0045)";wpnslt=0
 item_suit=0;weapon_crb=0;weapon_physcnn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0
 ammo9max=180;ammo357max=12;inclip9=0;inclip357=0;reload9=0;reload357=0
+def quit():#built-in function, in nspire cx ii python the quit function is not defined.
+  sys.exit()
+  return 0
 def extchk():#built-in function,for command "enableforceexitonerror".
   global erxt
   if erxt==1:
@@ -691,6 +694,7 @@ def main():#main function
                   sys.exit()
                   break
                 elif k=="g":
+                  vwindow(50,50,1)
                   vwindow(50,50,0)
               break
             break
@@ -725,7 +729,7 @@ if (__name__=="__main__"):#int main()
       break
     elif g=="version":
       e=get_platform()
-      print("Gyro 2D Gaming engine.\n",gmver,"\nComplied in 2025/01/07\nMade by Alex_Nute aka axnut123.\nMade in China.\nCurrent platform:",e)
+      print("Gyro 2D Gaming engine.\n",gmver,"\nComplied in 2025/01/20\nMade by Alex_Nute aka axnut123.\nMade in China.\nCurrent platform:",e,"\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
       del e
     else:
       print("[CONSOLE]Unknown command:",g,".type help to get help.")
