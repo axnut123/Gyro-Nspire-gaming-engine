@@ -6,7 +6,7 @@ from ti_draw import *
 from ti_system import *
 from time import *
 import sys
-erxt=0;g="0";key="0";mapslt=0;psx=95;psy=95;v_hev=0;gmver="Gyro 18 Build(0045)";wpnslt=0
+erxt=0;g="0";key="0";mapslt=0;psx=95;psy=95;v_hev=0;gmver="Gyro 19 Build(0049)";wpnslt=0
 item_suit=0;weapon_crb=0;weapon_physcnn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0
 ammo9max=180;ammo357max=12;inclip9=0;inclip357=0;reload9=0;reload357=0
 def quit():#built-in function, in nspire cx ii python the quit function is not defined.
@@ -142,12 +142,14 @@ def gmanintlol():#an opening function.
   r=0
   b=0
   g=0
-  set_color(0,0,0)
-  fill_rect(0,0,500,300)
   for i in range(255):
-    draw_text(120,120,"HALF-LIFE²")
+    set_color(0,0,0)
+    fill_rect(0,0,500,300)
     r+=1;b+=1;g+=1
     set_color(r,g,b)
+    draw_text(120,120,"HALF-LIFE²")
+    paint_buffer()
+    clear()
   sleep(1)
   set_color(0,0,0)
   fill_rect(0,0,500,300)
@@ -155,6 +157,7 @@ def gmanintlol():#an opening function.
   draw_text(120,120,"HALF-LIFE²")
   set_color(210,210,255)
   draw_text(20,180,"Go fuck your self!")
+  paint_buffer()
   sleep(0.7)
   set_color(0,0,0)
   r=0
@@ -165,18 +168,21 @@ def gmanintlol():#an opening function.
     set_color(210,210,255)
     r+=10;b+=10;g+=10
     set_color(r,g,b)
+    paint_buffer()
     sleep(0.01)
   set_pen("thin","solid")
   return 0
 def gmanintro():#opening
   r=0;g=0;b=0;x=0;y=0;x1=0;y1=0
   set_pen("thin","solid")
-  set_color(r,g,b)
-  fill_rect(0,0,500,300)
   for i in range(255):
-    draw_text(120,120,"HALF-LIFE²")
+    set_color(0,0,0)
+    fill_rect(0,0,500,300)
     r+=1;b+=1;g+=1
     set_color(r,g,b)
+    draw_text(120,120,"HALF-LIFE²")
+    paint_buffer()
+    clear()
   sleep(3)
   set_color(0,0,0)
   fill_rect(0,0,500,300)
@@ -184,6 +190,7 @@ def gmanintro():#opening
   draw_text(120,120,"HALF-LIFE²")
   set_color(210,210,255)
   draw_text(20,180,"Rise and shine mister Freeman,rise and shine.")
+  paint_buffer()
   sleep(3)
   set_color(0,0,0)
   r=0
@@ -196,6 +203,7 @@ def gmanintro():#opening
     r+=10;b+=10;g+=10
     set_color(r,g,b)
     sleep(0.01)
+  paint_buffer()
   sleep(1)
   for i in range(25):
     fill_rect(0,0,500,300)
@@ -203,6 +211,7 @@ def gmanintro():#opening
     set_color(r,g,b)
     sleep(0.01)
   set_color(255,255,255)
+  paint_buffer()
   for i in range(50):
     draw_line(x,y,x1,y)
     x=randint(0,500);x1=x+30
@@ -210,19 +219,21 @@ def gmanintro():#opening
   set_color(210,210,255)
   draw_text(20,180,"No one deserving to sleeping on the job,")
   draw_text(20,190,"but the effort for the world have gone to waste untill...")
-  sleep(3)
   draw_text(20,200,"emm...")
-  sleep(5)
+  paint_buffer()
+  sleep(7)
   set_color(0,0,0)
   fill_rect(0,0,500,300)
   set_color(210,210,255)
   draw_text(20,180,"Well,let's just say your hour has come again.")
+  paint_buffer()
   sleep(5)
   set_color(0,0,0)
   fill_rect(0,0,500,300)
   set_color(210,210,255)
   draw_text(20,180,"The right man in the wrong place")
   draw_text(20,190,"will make the whole world difference")
+  paint_buffer()
   sleep(5)
   r=0
   g=0
@@ -235,6 +246,7 @@ def gmanintro():#opening
     r+=10;b+=10;g+=10
     set_color(r,g,b)
     sleep(0.01)
+    paint_buffer()
   sleep(2)
   for i in range(25):
     fill_rect(0,0,500,300)
@@ -243,6 +255,7 @@ def gmanintro():#opening
     sleep(0.01)
   set_color(210,210,255)
   draw_text(20,180,"So.Wake up,mr.Freeman.")
+  paint_buffer()
   sleep(3)
   set_color(255,255,255)
   for i in range(50):
@@ -251,6 +264,7 @@ def gmanintro():#opening
     y=randint(0,300);
   set_color(210,210,255)
   draw_text(20,190,"wake up and smell the ashes...")
+  paint_buffer()
   sleep(2)
   for i in range(25):
     fill_rect(0,0,500,300)
@@ -259,6 +273,7 @@ def gmanintro():#opening
     r+=10;b+=10;g+=10
     set_color(r,g,b)
     sleep(0.01)
+    paint_buffer()
   sleep(1)
   clear()
   return(0)
@@ -345,6 +360,7 @@ def opening():#the engine opening
   fill_rect(0,0,500,300)
   set_color(10,210,140)
   draw_text(80,120,"Made By: Alex_Nute")
+  paint_buffer()
   sleep(2)
   set_color(0,0,0)
   fill_rect(0,0,500,300)
@@ -358,7 +374,8 @@ def opening():#the engine opening
   draw_text(10,130,"is copyright for Texas Instruments.Using this")
   draw_text(10,145,"software represents you agreed our terms.")
   draw_text(10,160,gmver)
-  sleep(3)
+  paint_buffer()
+  sleep(1.5)
   return 0
 def mapstat():#built-in function,for map render,trigger and other stuff.
   global mapslt
@@ -374,7 +391,6 @@ def mapstat():#built-in function,for map render,trigger and other stuff.
     print("[ERROR]mapstat function cannot find defined type.")
     extchk()
     return 1
-v_live=10
 def v_hud():#built-in function,for hev hud
   set_color(200,150,50)
   if v_hev!=0:
@@ -382,11 +398,13 @@ def v_hud():#built-in function,for hev hud
     draw_text(80,200,"SUIT")
   return 0
 def main():#main function
-  global mapslt,psx,psy,weapon_crb,prvpsx,prvpsy
+  global mapslt,psx,psy,weapon_crb
+  use_buffer()
   mainmenu()
   draw_text(10,100,"enter:start")
   draw_text(10,120,"a:quick start")
   draw_text(10,140,"esc:quit")
+  paint_buffer()
   while True:#main menu
     k=get_key()
     if k=="enter":
@@ -398,7 +416,8 @@ def main():#main function
       v_live=100
       break
     elif k=="esc":
-      sys.exit()
+      consolelog(3)
+      quit()
     else:pass
   clear()
   consolelog(4)
@@ -445,6 +464,7 @@ def main():#main function
       set_color(255,255,255)
       draw_text(20,80,"You died,press e and move to revive")
       k=get_key()
+      paint_buffer()
       consolelog(7)
       while get_key()!="esc":
          k=get_key()
@@ -511,6 +531,7 @@ def main():#main function
             set_pen("thick","solid")
             draw_line(psx,psy,psx,psy-35)
             set_pen("thin","solid")
+          paint_buffer()
           sleep(0.1)
           break
         elif k=="down":
@@ -532,6 +553,7 @@ def main():#main function
             set_pen("thick","solid")
             draw_line(psx,psy,psx,psy+35)
             set_pen("thin","solid")
+          paint_buffer()
           sleep(0.1)
           break
         elif k=="left":
@@ -553,6 +575,7 @@ def main():#main function
             set_pen("thick","solid")
             draw_line(psx,psy,psx-35,psy)
             set_pen("thin","solid")
+          paint_buffer()
           sleep(0.1)
           break
         elif k=="right":
@@ -574,6 +597,7 @@ def main():#main function
             set_pen("thick","solid")
             draw_line(psx,psy,psx+35,psy)
             set_pen("thin","solid")
+          paint_buffer()
           sleep(0.1)
           break
         elif k=="g":
@@ -613,6 +637,7 @@ def main():#main function
             set_color(200,150,50)
             draw_text(31,145,"GRAVITY GUN")
           k=get_key()
+          paint_buffer()
           while k!="0":
             k=get_key()
             if k=="0":
@@ -656,6 +681,7 @@ def main():#main function
             fill_rect(55,100,125,50)
             set_color(200,150,50)
             draw_text(56,142,".357 MAGNUM")
+          paint_buffer()
           k=get_key()
           while k!="0":
             k=get_key()
@@ -677,10 +703,12 @@ def main():#main function
               fill_rect(psx,psy,5,5)
               break
             else:pass
+            paint_buffer()
           break
         elif k=="m":
           while True:#pause menu
             vg0();ky="0"
+            paint_buffer()
             k=get_key()
             for ky in["enter","m","q"]:
               while k!=ky:
@@ -696,9 +724,11 @@ def main():#main function
                 elif k=="g":
                   vwindow(50,50,1)
                   vwindow(50,50,0)
+                  paint_buffer()
               break
             break
           break
+        paint_buffer()
       break
   return 0
 if (__name__=="__main__"):#int main()
@@ -709,10 +739,11 @@ if (__name__=="__main__"):#int main()
       print("[CONSOLE]Running engine.")
       break
     elif g=="help":
-      print("Gyro engine help:\nrun:start engine.\nhelp:get help.\nquit:stop engine and console.\nsetgeomet:set a new resolution for screen.\nenableforceexitonerror:forcely stop whole engine when encounting any error and warn.\nversion:get engine version and credits.")
+      print("Gyro engine help:\nrun:start engine.\nhelp:get help.\nquit:stop engine and console.\nsetgeomet:set a new resolution for screen.\nenableforceexitonerror:forcely stop whole engine when encounting any error and warn.\nversion:get engine version and credits.\nhwinfo:get hardware info.\ncls:clear screen.")
     elif g=="quit":
       del g
-      quit()#This is an error exploit,not a bug.
+      consolelog(3)
+      quit()
       break
     elif g=="setgeomet":
       x1=int(input("xmin"))
@@ -729,8 +760,13 @@ if (__name__=="__main__"):#int main()
       break
     elif g=="version":
       e=get_platform()
-      print("Gyro 2D Gaming engine.\n",gmver,"\nComplied in 2025/01/20\nMade by Alex_Nute aka axnut123.\nMade in China.\nCurrent platform:",e,"\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
+      print("Gyro 2D Gaming engine.\n",gmver,"\nComplied in 2025/02/05\nMade by Alex_Nute aka axnut123.\nMade in China.\nCurrent platform:",e,"\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
       del e
+    elif g=="hwinfo":
+      print("clock",clock())
+      print("cpu tick",ticks_cpu())
+    elif g=="cls":
+      clear_history()
     else:
       print("[CONSOLE]Unknown command:",g,".type help to get help.")
   del g
