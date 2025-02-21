@@ -6,11 +6,12 @@ from ti_draw import *
 from ti_system import *
 from time import *
 import sys
-erxt=0;g="0";key="0";mapslt=0;psx=95;psy=95;v_hev=0;gmver="Gyro 19 Build(0049)";wpnslt=0
+import gc
+erxt=0;g="0";key="0";mapslt=0;psx=95;psy=95;v_hev=0;gmver="Gyro 20 Build(0055)";wpnslt=0
 item_suit=0;weapon_crb=0;weapon_physcnn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0
-ammo9max=180;ammo357max=12;inclip9=0;inclip357=0;reload9=0;reload357=0
-def quit():#built-in function, in nspire cx ii python the quit function is not defined.
-  sys.exit()
+ammo9max=180;ammo357max=12;inclip9=0;inclip357=0;reload9=0;reload357=0;vtk=False;modenb=False
+def quit(c=0):#built-in function, in nspire cx ii python the quit function is not defined.
+  sys.exit(c)
   return 0
 def extchk():#built-in function,for command "enableforceexitonerror".
   global erxt
@@ -398,6 +399,7 @@ def v_hud():#built-in function,for hev hud
     draw_text(80,200,"SUIT")
   return 0
 def main():#main function
+  debugs=False
   global mapslt,psx,psy,weapon_crb
   use_buffer()
   mainmenu()
@@ -425,7 +427,7 @@ def main():#main function
     global inclp,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
     consolelog(1)
     mapstat()#logic check in here,define your trigger in this function.
-    if wpnslt==1 or wpnslt==2:
+    if wpnslt==1 or wpnslt==2:#ammunation management.
       pass
     elif wpnslt==3 and weapon_pst==1:
       if ammo9>=18:
@@ -446,7 +448,7 @@ def main():#main function
     else:pass
     set_color(0,0,0)
     fill_rect(psx,psy,5,5)
-    if item_suit==1:
+    if item_suit==1:#hud
       v_hud()
       if v_live>=20:
         set_color(200,150,50)
@@ -458,7 +460,7 @@ def main():#main function
         draw_text(20,200,"HEALTH")
     set_color(0,0,0)
     fill_rect(psx,psy,5,5)
-    if v_live==0:
+    if v_live<=0:#death detecting
       set_color(210,10,10)
       fill_rect(0,0,500,300)
       set_color(255,255,255)
@@ -472,11 +474,30 @@ def main():#main function
            v_live = 100
            break
     else:pass
-    k=get_key()#game loop
+    k=get_key()#key detect loop
     for key in ["g","d","j","l","r","esc","z","h","s","t","u","1","2","0","up","down","left","right"]:
       while k!=key:
         k=get_key()
-        if k=="l":
+        if debugs==True:
+          clear()
+          mapstat()
+          set_color(0,0,0)
+          draw_text(10,20,"mem free:"+str(gc.mem_free()))
+          draw_text(10,35,"mem alloc:"+str(gc.mem_alloc()))
+          draw_text(10,55,"cpu tick:"+str(ticks_cpu()))
+          draw_text(10,70,"local time:"+str(localtime()))
+          draw_text(10,85,"player pos:"+str(psx)+","+str(psy))
+          draw_text(10,100,"map id:"+str(mapslt))
+          fill_rect(psx,psy,5,5)
+          paint_buffer()
+        if k=="u":
+          if debugs==False:
+            debugs=True
+            print("[INFO]Debug drawing enabled")
+          else:
+            debugs=False
+            print("[INFO]Debug drawing disabled")
+        elif k=="l":
           psx+=5
           clear()
           fill_rect(psx,psy,5,5)
@@ -731,16 +752,37 @@ def main():#main function
         paint_buffer()
       break
   return 0
-if (__name__=="__main__"):#int main()
+if (__name__=="__main__"):#all program start here.
   print("[PRE-LOAD]Starting console and engine.\n[PRE-LOAD]current resolution:",get_screen_dim())
-  while g!="run":
+  while g!="run"or g!="start":
     g=str(input("Console_"))
-    if g=="run":
+    if g=="run"or g=="start":
       print("[CONSOLE]Running engine.")
       break
-    elif g=="help":
-      print("Gyro engine help:\nrun:start engine.\nhelp:get help.\nquit:stop engine and console.\nsetgeomet:set a new resolution for screen.\nenableforceexitonerror:forcely stop whole engine when encounting any error and warn.\nversion:get engine version and credits.\nhwinfo:get hardware info.\ncls:clear screen.")
-    elif g=="quit":
+    elif g=="modinit":
+      if vtk!=True:
+        import gyro_addon_main1 as tk
+        vtk=True
+        print("[INFO]Mod init success.")
+      else:
+        print("[WARN]Mod init completed")
+    elif g=="runmod":
+      if vtk==True:
+        modenb=True
+        print("[INFO]Mod is running")
+        break
+      else:
+        print("[ERROR]Mod script not found")
+    elif g=="modver":
+      if vtk==True:
+        print(tk.mod_info(0))
+      else:
+        print("[ERROR]Mod is not found.")
+    elif g=="help 1":
+      print("Gyro engine help page 1:\nrun:start engine.\nhelp <page(1/2)>:get help.\nquit:stop engine and console.\nsetgeomet:set a new resolution for screen.\nenableforceexitonerror:forcely stop whole engine when encounting any error and warn.\nversion:get engine version and credits.\nhwinfo:get hardware info.\ncls:clear screen.")
+    elif g=="help 2":
+      print("Gyro engine help page2:\nmodinit:init installed mod.\nrunmod:start mod.\nmodver:get version for mod.")
+    elif g=="quit"or g=="stop"or g=="exit":
       del g
       consolelog(3)
       quit()
@@ -760,18 +802,25 @@ if (__name__=="__main__"):#int main()
       break
     elif g=="version":
       e=get_platform()
-      print("Gyro 2D Gaming engine.\n",gmver,"\nComplied in 2025/02/05\nMade by Alex_Nute aka axnut123.\nMade in China.\nCurrent platform:",e,"\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
+      print("Gyro 2D Gaming engine.\n",gmver,"\nComplied in 2025/02/20\nMade by Alex_Nute aka axnut123.\nMade in China.\nCurrent platform:",e,"\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
       del e
     elif g=="hwinfo":
-      print("clock",clock())
+      print("mem free",str(gc.mem_free()))
+      print("mem alloc",str(gc.mem_alloc()))
       print("cpu tick",ticks_cpu())
+    elif g=="help":
+      print("Usage: help <1or2>. example: help 1 for page 1.")
     elif g=="cls":
       clear_history()
     else:
-      print("[CONSOLE]Unknown command:",g,".type help to get help.")
+      print("[CONSOLE]Unknown command:",g,".type help <page(1/2)> to get help.")
   del g
   print("[CONSOLE]Console is being closed.\n[INFO]Engine is now started.")
   consolelog(2)
   opening()
   consolelog(5)
-  main()
+  if modenb==True:
+    clear()
+    tk.mod_main()
+  else:
+    main()
