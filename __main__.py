@@ -7,7 +7,7 @@ from ti_system import *
 from time import *
 import sys
 import gc
-erxt=0;g="0";key="0";mapslt=0;psx=95;psy=95;v_hev=0;gmver="Gyro 20 Build(0055)";wpnslt=0
+debugs=False;erxt=0;g="0";key="0";mapslt=0;psx=95;psy=95;v_hev=0;gmver="Gyro 20 Build(0059)";wpnslt=0
 item_suit=0;weapon_crb=0;weapon_physcnn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0
 ammo9max=180;ammo357max=12;inclip9=0;inclip357=0;reload9=0;reload357=0;vtk=False;modenb=False
 def quit(c=0):#built-in function, in nspire cx ii python the quit function is not defined.
@@ -21,27 +21,42 @@ def extchk():#built-in function,for command "enableforceexitonerror".
   else:pass
 def vwindow(x,y,wintp):#built-in function,for display window.
   set_color(135,135,135)
-  global mapslt
+  global mapslt,debugs
   if wintp==1:
     fill_rect(x,y,120,40)
     set_color(255,255,255)
     draw_text(x+10,y+20,"Vgui window")
     print("[INFO]Vgui window render request sent to client.")
     return 0
+  elif wintp==2:
+    if debugs==True:
+      set_color(0,0,0)
+      draw_text(10,20,"mem free:"+str(gc.mem_free()))
+      draw_text(10,35,"mem alloc:"+str(gc.mem_alloc()))
+      draw_text(10,55,"cpu tick:"+str(ticks_cpu()))
+      draw_text(10,70,"local time:"+str(localtime()))
+      draw_text(10,85,"player pos:"+str(psx)+","+str(psy))
+      draw_text(10,100,"map id:"+str(mapslt))
+      paint_buffer()
   else:
     print("[ERROR]Window type is not defined.")
     extchk()
     return 1
-def func_title(x,y,r,g,b,text):#built-in function,for display a title.
-  set_color(r,g,b)
-  draw_text(x,y,text)
-  print("[INFO]Title displayed.")
-  return 0
+def func_title(x,y,texttp):#built-in function,for display a title.
+  if texttp==1:
+    set_color(255,0,0)
+    draw_text(x,y,"Trigger")
+    print("[INFO]Title displayed.")
+    return 0
+  else:
+    print("[INFO]Title type not defined.")
+    extchk()
+    return 1
 def func_trigger(minx,miny,maxx,maxy,trgtp):#built-in function,for trigger a specific event.
   global mapslt#map selection needs global var
   if psx>=minx and psx<=maxx and psy>=miny and psy<=maxy:
     if trgtp==1:
-      func_title(120,80,255,0,0,"Trigger")
+      func_title(120,80,1)
       print("[INFO]Trigger executed.")
       return 0
     elif trgtp==2:
@@ -135,7 +150,7 @@ def vg0():#pause menu,built-in function
       fill_rect(0,0,500,300)
       set_color(255,255,255)
       draw_text(10,80,"HALF-LIFE²")
-      draw_text(10,100,"enter:resume")
+      draw_text(10,100,"m:resume")
       draw_text(10,120,"q:quit game")
       draw_text(150,17,gmver)
       return 0
@@ -399,8 +414,7 @@ def v_hud():#built-in function,for hev hud
     draw_text(80,200,"SUIT")
   return 0
 def main():#main function
-  debugs=False
-  global mapslt,psx,psy,weapon_crb
+  global mapslt,psx,psy,weapon_crb,debugs,inclp,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
   use_buffer()
   mainmenu()
   draw_text(10,100,"enter:start")
@@ -424,7 +438,6 @@ def main():#main function
   clear()
   consolelog(4)
   while True:#game logic loop
-    global inclp,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
     consolelog(1)
     mapstat()#logic check in here,define your trigger in this function.
     if wpnslt==1 or wpnslt==2:#ammunation management.
@@ -478,18 +491,10 @@ def main():#main function
     for key in ["g","d","j","l","r","esc","z","h","s","t","u","1","2","0","up","down","left","right"]:
       while k!=key:
         k=get_key()
-        if debugs==True:
-          clear()
-          mapstat()
-          set_color(0,0,0)
-          draw_text(10,20,"mem free:"+str(gc.mem_free()))
-          draw_text(10,35,"mem alloc:"+str(gc.mem_alloc()))
-          draw_text(10,55,"cpu tick:"+str(ticks_cpu()))
-          draw_text(10,70,"local time:"+str(localtime()))
-          draw_text(10,85,"player pos:"+str(psx)+","+str(psy))
-          draw_text(10,100,"map id:"+str(mapslt))
-          fill_rect(psx,psy,5,5)
-          paint_buffer()
+        mapstat()
+        set_color(0,0,0)
+        fill_rect(psx,psy,5,5)
+        vwindow(0,0,2)
         if k=="u":
           if debugs==False:
             debugs=True
@@ -497,6 +502,7 @@ def main():#main function
           else:
             debugs=False
             print("[INFO]Debug drawing disabled")
+            break
         elif k=="l":
           psx+=5
           clear()
@@ -731,10 +737,14 @@ def main():#main function
             vg0();ky="0"
             paint_buffer()
             k=get_key()
-            for ky in["enter","m","q"]:
+            for ky in["m","q"]:
               while k!=ky:
+                clear()
+                vg0()
                 k=get_key()
-                if k=="enter":
+                vwindow(0,0,2)
+                paint_buffer()
+                if k=="m":
                   clear()
                   fill_rect(500,500,1,1)
                   break
@@ -742,10 +752,13 @@ def main():#main function
                   consolelog(3)
                   sys.exit()
                   break
-                elif k=="g":
-                  vwindow(50,50,1)
-                  vwindow(50,50,0)
-                  paint_buffer()
+                elif k=="u":
+                  if debugs==False:
+                    debugs=True
+                    print("[INFO]Debug drawing enabled")
+                  else:
+                    debugs=False
+                    print("[INFO]Debug drawing disabled")
               break
             break
           break
@@ -759,13 +772,18 @@ if (__name__=="__main__"):#all program start here.
     if g=="run"or g=="start":
       print("[CONSOLE]Running engine.")
       break
+    elif g=="disablemod":
+      sys.modules.pop("gyro_addon_main1")
+      vtk=False
+      modenb=False
+      print("[INFO]Mod disabled.")
     elif g=="modinit":
       if vtk!=True:
         import gyro_addon_main1 as tk
         vtk=True
         print("[INFO]Mod init success.")
       else:
-        print("[WARN]Mod init completed")
+        print("[WARN]Mod already init.")
     elif g=="runmod":
       if vtk==True:
         modenb=True
@@ -781,7 +799,7 @@ if (__name__=="__main__"):#all program start here.
     elif g=="help 1":
       print("Gyro engine help page 1:\nrun:start engine.\nhelp <page(1/2)>:get help.\nquit:stop engine and console.\nsetgeomet:set a new resolution for screen.\nenableforceexitonerror:forcely stop whole engine when encounting any error and warn.\nversion:get engine version and credits.\nhwinfo:get hardware info.\ncls:clear screen.")
     elif g=="help 2":
-      print("Gyro engine help page2:\nmodinit:init installed mod.\nrunmod:start mod.\nmodver:get version for mod.")
+      print("Gyro engine help page2:\nmodinit:init installed mod.\nrunmod:start mod.\nmodver:get version for mod.\ndisablemod:disable mod.(pop)")
     elif g=="quit"or g=="stop"or g=="exit":
       del g
       consolelog(3)
@@ -802,7 +820,7 @@ if (__name__=="__main__"):#all program start here.
       break
     elif g=="version":
       e=get_platform()
-      print("Gyro 2D Gaming engine.\n",gmver,"\nComplied in 2025/02/20\nMade by Alex_Nute aka axnut123.\nMade in China.\nCurrent platform:",e,"\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
+      print("Gyro 2D Gaming engine.\n",gmver,"\nComplied in 2025/02/26\nMade by Alex_Nute aka axnut123.\nMade in China.\nCurrent platform:",e,"\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
       del e
     elif g=="hwinfo":
       print("mem free",str(gc.mem_free()))
