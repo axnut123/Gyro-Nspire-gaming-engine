@@ -7,7 +7,8 @@ from ti_system import *
 from time import *
 import sys
 import gc
-debugs=False;erxt=0;g="0";key="0";mapslt=0;psx=95;psy=95;v_hev=0;gmver="Gyro 20 Build(0059)";wpnslt=0
+import micropython as mp
+debugs=False;erxt=0;g="0";key="0";mapslt=0;psx=95;psy=95;v_hev=0;gmver="Gyro 20 Build(0060)";wpnslt=0
 item_suit=0;weapon_crb=0;weapon_physcnn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0
 ammo9max=180;ammo357max=12;inclip9=0;inclip357=0;reload9=0;reload357=0;vtk=False;modenb=False
 def quit(c=0):#built-in function, in nspire cx ii python the quit function is not defined.
@@ -33,10 +34,12 @@ def vwindow(x,y,wintp):#built-in function,for display window.
       set_color(0,0,0)
       draw_text(10,20,"mem free:"+str(gc.mem_free()))
       draw_text(10,35,"mem alloc:"+str(gc.mem_alloc()))
-      draw_text(10,55,"cpu tick:"+str(ticks_cpu()))
-      draw_text(10,70,"local time:"+str(localtime()))
-      draw_text(10,85,"player pos:"+str(psx)+","+str(psy))
-      draw_text(10,100,"map id:"+str(mapslt))
+      draw_text(10,55,"stack use:"+str(mp.stack_use()))
+      draw_text(10,70,"pystack use:"+str(mp.pystack_use()))
+      draw_text(10,85,"cpu tick:"+str(ticks_cpu()))
+      draw_text(10,100,"local time:"+str(localtime()))
+      draw_text(10,115,"player pos:"+str(psx)+","+str(psy))
+      draw_text(10,130,"map id:"+str(mapslt))
       paint_buffer()
   else:
     print("[ERROR]Window type is not defined.")
@@ -825,7 +828,10 @@ if (__name__=="__main__"):#all program start here.
     elif g=="hwinfo":
       print("mem free",str(gc.mem_free()))
       print("mem alloc",str(gc.mem_alloc()))
+      print("stack use",str(mp.stack_use()))
+      print("pystack use",str(mp.pystack_use()))
       print("cpu tick",ticks_cpu())
+      print("local time",str(localtime()))
     elif g=="help":
       print("Usage: help <1or2>. example: help 1 for page 1.")
     elif g=="cls":
