@@ -8,12 +8,11 @@ from time import *
 import sys
 import gc
 import micropython as mp
-debugs=False;erxt=0;g="0";key="0";mapslt=0;psx=95;psy=95;v_hev=0;gmver="Gyro 20 Build(0061)";wpnslt=0
+debugs=False;erxt=0;g="0";key="0";mapslt=0;psx=95;psy=95;v_hev=0;gmver="Gyro 20 Build(0062)";wpnslt=0
 item_suit=0;weapon_crb=0;weapon_physcnn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0
 ammo9max=180;ammo357max=12;inclip9=0;inclip357=0;reload9=0;reload357=0;vtk=False;modenb=False
 def quit(c=0):#built-in function, in nspire cx ii python the quit function is not defined.
-  sys.exit(c)
-  return 0
+  raise SystemExit(c)
 def extchk():#built-in function,for command "enableforceexitonerror".
   global erxt
   if erxt==1:
@@ -823,7 +822,6 @@ if (__name__=="__main__"):#all program start here.
       set_window(x1,x2,y1,y2)
       del x1,x2,y1,y2
       break
-      print("[CONSOLE]Resolution is now:",get_screen_dim())
     elif g=="enableforceexitonerror":
       erxt=1
       print("[CONSOLE]Exit when error enabled.")
