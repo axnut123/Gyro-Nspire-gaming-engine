@@ -8,7 +8,7 @@ from time import *
 import sys
 import gc
 import micropython as mp
-debugs=False;erxt=0;g="0";key="0";mapslt=0;psx=95;psy=95;v_hev=0;gmver="Gyro 20 Build(0060)";wpnslt=0
+debugs=False;erxt=0;g="0";key="0";mapslt=0;psx=95;psy=95;v_hev=0;gmver="Gyro 20 Build(0061)";wpnslt=0
 item_suit=0;weapon_crb=0;weapon_physcnn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0
 ammo9max=180;ammo357max=12;inclip9=0;inclip357=0;reload9=0;reload357=0;vtk=False;modenb=False
 def quit(c=0):#built-in function, in nspire cx ii python the quit function is not defined.
@@ -41,6 +41,17 @@ def vwindow(x,y,wintp):#built-in function,for display window.
       draw_text(10,115,"player pos:"+str(psx)+","+str(psy))
       draw_text(10,130,"map id:"+str(mapslt))
       paint_buffer()
+  elif wintp==3:
+    set_color(250,250,250)
+    draw_text(10,80,"HALF-LIFE²")
+    draw_text(10,100,"m:resume")
+    draw_text(10,120,"q:quit game")
+  elif wintp==4:
+    set_color(250,250,250)
+    draw_text(10,100,"enter:start")
+    draw_text(10,120,"a:quick start")
+    draw_text(10,140,"esc:quit")
+    paint_buffer()
   else:
     print("[ERROR]Window type is not defined.")
     extchk()
@@ -149,14 +160,12 @@ def c1a0():#map define,i would say it is .bsp file =)
   fill_rect(45,10,15,10)
   return(0)
 def vg0():#pause menu,built-in function
-      set_color(120,120,120)
-      fill_rect(0,0,500,300)
-      set_color(255,255,255)
-      draw_text(10,80,"HALF-LIFE²")
-      draw_text(10,100,"m:resume")
-      draw_text(10,120,"q:quit game")
-      draw_text(150,17,gmver)
-      return 0
+  set_color(120,120,120)
+  fill_rect(0,0,500,300)
+  set_color(255,255,255)
+  draw_text(150,17,gmver)
+  vwindow(0,0,3)
+  return 0
 def gmanintlol():#an opening function.
   r=0
   b=0
@@ -420,9 +429,7 @@ def main():#main function
   global mapslt,psx,psy,weapon_crb,debugs,inclp,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
   use_buffer()
   mainmenu()
-  draw_text(10,100,"enter:start")
-  draw_text(10,120,"a:quick start")
-  draw_text(10,140,"esc:quit")
+  vwindow(0,0,4)
   paint_buffer()
   while True:#main menu
     k=get_key()
@@ -823,7 +830,7 @@ if (__name__=="__main__"):#all program start here.
       break
     elif g=="version":
       e=get_platform()
-      print("Gyro 2D Gaming engine.\n",gmver,"\nComplied in 2025/02/26\nMade by Alex_Nute aka axnut123.\nMade in China.\nCurrent platform:",e,"\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
+      print("Gyro 2D Gaming engine.\n",gmver,"\nComplied in 2025/03/13\nMade by Alex_Nute aka axnut123.\nMade in China.\nCurrent platform:",e,"\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
       del e
     elif g=="hwinfo":
       print("mem free",str(gc.mem_free()))
