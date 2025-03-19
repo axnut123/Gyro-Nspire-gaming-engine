@@ -3,13 +3,12 @@
 # the license is under LICENSE.txt *
 from random import *
 from ti_draw import *
-from ti_system import *
 from time import *
-import sys
-import gc
+from ti_system import *
+import sys,gc
 import micropython as mp
-debugs=False;erxt=0;g="0";key="0";mapslt=0;psx=95;psy=95;v_hev=0;gmver="Gyro 20 Build(0062)";wpnslt=0
-item_suit=0;weapon_crb=0;weapon_physcnn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0
+debugs=False;erxt=0;g="0";key="0";mapslt=0;psx=95;psy=95;v_hev=0;gmver="Gyro 20 Build(0064)";wpnslt=0
+item_suit=0;weapon_crb=0;weapon_physcnn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0;v_live=100
 ammo9max=180;ammo357max=12;inclip9=0;inclip357=0;reload9=0;reload357=0;vtk=False;modenb=False
 def quit(c=0):#built-in function, in nspire cx ii python the quit function is not defined.
   raise SystemExit(c)
@@ -17,11 +16,10 @@ def extchk():#built-in function,for command "enableforceexitonerror".
   global erxt
   if erxt==1:
     print("[DEBUG]Error or warning encounted,stopped engine.")
-    sys.exit()
-  else:pass
-def vwindow(x,y,wintp):#built-in function,for display window.
+    quit(1)
+def vwindow(x,y,wintp):#built-in function,for display window, gui elements.
   set_color(135,135,135)
-  global mapslt,debugs
+  global mapslt,debugs,v_live,v_hev,wpnslt,ammo9,ammo357,inclip9,inclip357,weapon_pst,weapon_crb,weapon_physcnn,weapon_357
   if wintp==1:
     fill_rect(x,y,120,40)
     set_color(255,255,255)
@@ -51,6 +49,52 @@ def vwindow(x,y,wintp):#built-in function,for display window.
     draw_text(10,120,"a:quick start")
     draw_text(10,140,"esc:quit")
     paint_buffer()
+  elif wintp==5:
+    set_color(120,120,120)
+    fill_rect(30,0,15,15)
+    set_color(200,150,50)
+    draw_text(31,13,"1")
+    set_color(120,120,120)
+    fill_rect(55,0,15,15)
+    set_color(200,150,50)
+    draw_text(56,13,"2")
+  elif wintp==6:
+    set_color(200,150,50)
+    if v_hev!=0:
+      draw_text(80,190,v_hev)
+      draw_text(80,200,"SUIT")
+    if v_live>=20:
+      set_color(200,150,50)
+      draw_text(20,190,v_live)
+      draw_text(20,200,"HEALTH")
+    else:
+      set_color(250,100,10)
+      draw_text(20,190,v_live)
+      draw_text(20,200,"HEALTH")
+  elif wintp==7:
+    set_color(210,10,10)
+    fill_rect(0,0,500,300)
+    set_color(255,255,255)
+    draw_text(20,80,"You died,press e and move to revive")
+  elif wintp==8:
+    if wpnslt==1 or wpnslt==2:#ammunation management.
+      pass
+    elif wpnslt==3 and weapon_pst==1:
+      if ammo9>=18:
+        set_color(200,150,50)
+      else:
+        set_color(255,100,50)
+      draw_text(210,200,"AMMO")
+      draw_text(210,190,inclip9)
+      draw_text(250,190,ammo9)
+    elif wpnslt==4 and weapon_357==1:
+      if ammo357>=6:
+        set_color(200,150,50)
+      else:
+        set_color(250,100,50)
+      draw_text(210,200,"AMMO")
+      draw_text(210,190,inclip357)
+      draw_text(250,190,ammo357)
   else:
     print("[ERROR]Window type is not defined.")
     extchk()
@@ -84,7 +128,6 @@ def func_trigger(minx,miny,maxx,maxy,trgtp):#built-in function,for trigger a spe
       print("[ERROR]Trigger is not defined.")
       extchk()
       return 1
-  else:pass
 def event_ammopick(type,amount):#built-in function,for picking up the ammunation box event
   global ammo9,ammo9max,ammo357,ammo357max
   if type==1:
@@ -103,7 +146,6 @@ def weaponclip(type):#built-in function,for detect clips in gun.
       ammo9-=18
       inclip9+=18
       reload9=1
-    else:pass
   elif type==2:
     if inclip357==0 and ammo357>=6:
       reload357=0
@@ -111,7 +153,6 @@ def weaponclip(type):#built-in function,for detect clips in gun.
       ammo357-=6
       inclip357+=6
       reload357=1
-    else:pass
   return 0
 def consolelog(type):#built-in function,for console output
   if type==1:
@@ -324,8 +365,6 @@ def mainmenu():#main menu function
     rgbr+=10;posy+=10
     if rgbr >= 240:
       break
-    else:
-      pass
   set_color(220,220,220)
   for i in range(100):
     fill_circle(randint(0,500),randint(0,100),1)
@@ -346,8 +385,6 @@ def mainmenu():#main menu function
       g=randint(200,255)
       set_color(g,g,0)
       draw_line(randint(0,500),300,randint(0,500),randint(0,20))
-    else:
-      pass
   set_color(10,10,10)
   for i in range(1,30):#stage1
     set_color(10,10,10)
@@ -418,14 +455,8 @@ def mapstat():#built-in function,for map render,trigger and other stuff.
     print("[ERROR]mapstat function cannot find defined type.")
     extchk()
     return 1
-def v_hud():#built-in function,for hev hud
-  set_color(200,150,50)
-  if v_hev!=0:
-    draw_text(80,190,v_hev)
-    draw_text(80,200,"SUIT")
-  return 0
 def main():#main function
-  global mapslt,psx,psy,weapon_crb,debugs,inclp,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
+  global mapslt,psx,v_live,v_hev,psy,weapon_crb,debugs,inclp,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
   use_buffer()
   mainmenu()
   vwindow(0,0,4)
@@ -443,50 +474,21 @@ def main():#main function
     elif k=="esc":
       consolelog(3)
       quit()
-    else:pass
   clear()
   consolelog(4)
   while True:#game logic loop
     consolelog(1)
     mapstat()#logic check in here,define your trigger in this function.
-    if wpnslt==1 or wpnslt==2:#ammunation management.
-      pass
-    elif wpnslt==3 and weapon_pst==1:
-      if ammo9>=18:
-        set_color(200,150,50)
-      else:
-        set_color(255,100,50)
-      draw_text(210,200,"AMMO")
-      draw_text(210,190,inclip9)
-      draw_text(250,190,ammo9)
-    elif wpnslt==4 and weapon_357==1:
-      if ammo357>=6:
-        set_color(200,150,50)
-      else:
-        set_color(250,100,50)
-      draw_text(210,200,"AMMO")
-      draw_text(210,190,inclip357)
-      draw_text(250,190,ammo357)
-    else:pass
+    vwindow(0,0,8)
     set_color(0,0,0)
     fill_rect(psx,psy,5,5)
     if item_suit==1:#hud
-      v_hud()
-      if v_live>=20:
-        set_color(200,150,50)
-        draw_text(20,190,v_live)
-        draw_text(20,200,"HEALTH")
-      else:
-        set_color(250,100,10)
-        draw_text(20,190,v_live)
-        draw_text(20,200,"HEALTH")
+      vwindow(0,0,6)
+      paint_buffer()
     set_color(0,0,0)
     fill_rect(psx,psy,5,5)
     if v_live<=0:#death detecting
-      set_color(210,10,10)
-      fill_rect(0,0,500,300)
-      set_color(255,255,255)
-      draw_text(20,80,"You died,press e and move to revive")
+      vwindow(0,0,7)
       k=get_key()
       paint_buffer()
       consolelog(7)
@@ -495,7 +497,6 @@ def main():#main function
          if k=="e":
            v_live = 100
            break
-    else:pass
     k=get_key()#key detect loop
     for key in ["g","d","j","l","r","esc","z","h","s","t","u","1","2","0","up","down","left","right"]:
       while k!=key:
@@ -503,6 +504,9 @@ def main():#main function
         mapstat()
         set_color(0,0,0)
         fill_rect(psx,psy,5,5)
+        if item_suit==1:
+          vwindow(0,0,6)
+          vwindow(0,0,8)
         vwindow(0,0,2)
         if k=="u":
           if debugs==False:
@@ -532,23 +536,26 @@ def main():#main function
           clear()
           fill_rect(psx,psy,5,5)
           break
-        elif k=="z":
-          v_hev=v_hev-10
+        elif k=="t":
+          v_hev+=10
           break
         elif k=="s":
           v_hev+=10
           break
-        elif k=="t":
-          v_live=v_live-10
+        elif k=="z":
+          v_live-=10
           break
         elif k=="h":
           event_ammopick(1,18)
           event_ammopick(2,6)
           break
-        elif k=="u":
+        elif k=="y":
           v_live+=10
           break
-        elif k=="up":
+        elif k=="tab":
+          gc.collect()
+          break
+        elif k=="up":#maybe create a new function to recall the effects.
           if wpnslt==3 and reload9==0 and weapon_pst==1 and inclip9!=0:
             inclip9-=1
             weaponclip(1)
@@ -654,14 +661,7 @@ def main():#main function
             pass
           else:
             break
-          set_color(120,120,120)
-          fill_rect(30,0,15,15)
-          set_color(200,150,50)
-          draw_text(31,13,"1")
-          set_color(120,120,120)
-          fill_rect(55,0,15,15)
-          set_color(200,150,50)
-          draw_text(56,13,"2")
+          vwindow(0,0,5)
           if weapon_crb==1:
             set_color(120,120,120)
             fill_rect(30,30,80,50)
@@ -699,14 +699,7 @@ def main():#main function
             pass
           else:
             break
-          set_color(120,120,120)
-          fill_rect(30,0,15,15)
-          set_color(200,150,50)
-          draw_text(31,13,"1")
-          set_color(120,120,120)
-          fill_rect(55,0,15,15)
-          set_color(200,150,50)
-          draw_text(56,13,"2")
+          vwindow(0,0,5)
           if weapon_pst==1:
             set_color(120,120,120)
             fill_rect(55,30,80,50)
@@ -759,7 +752,7 @@ def main():#main function
                   break
                 elif k=="q":
                   consolelog(3)
-                  sys.exit()
+                  quit(0)
                   break
                 elif k=="u":
                   if debugs==False:
@@ -774,7 +767,7 @@ def main():#main function
         paint_buffer()
       break
   return 0
-if (__name__=="__main__"):#all program start here.
+if (__name__=="__main__"):#all program starts from here.
   print("[PRE-LOAD]Starting console and engine.\n[PRE-LOAD]current resolution:",get_screen_dim())
   while g!="run"or g!="start":
     g=str(input("Console_"))
@@ -828,7 +821,7 @@ if (__name__=="__main__"):#all program start here.
       break
     elif g=="version":
       e=get_platform()
-      print("Gyro 2D Gaming engine.\n",gmver,"\nComplied in 2025/03/13\nMade by Alex_Nute aka axnut123.\nMade in China.\nCurrent platform:",e,"\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
+      print("Gyro 2D Gaming engine.\n",gmver,"\nComplied in 2025/03/19\nMade by Alex_Nute aka axnut123.\nMade in China.\nCurrent platform:",e,"\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
       del e
     elif g=="hwinfo":
       print("mem free",str(gc.mem_free()))
@@ -845,6 +838,7 @@ if (__name__=="__main__"):#all program start here.
       print("[CONSOLE]Unknown command:",g,".type help <page(1/2)> to get help.")
   del g
   print("[CONSOLE]Console is being closed.\n[INFO]Engine is now started.")
+  gc.collect()
   consolelog(2)
   opening()
   consolelog(5)
