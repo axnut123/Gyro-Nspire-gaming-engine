@@ -7,7 +7,7 @@ from time import *
 from ti_system import *
 import sys,gc
 import micropython as mp
-debugs=False;erxt=0;g="0";key="0";mapslt=0;psx=95;psy=95;v_hev=0;gmver="Gyro 20 Build(0064)";wpnslt=0
+debugs=False;erxt=0;g="0";key="0";mapslt=0;psx=95;psy=95;v_hev=0;gmver="Gyro 21 Build(0066)";wpnslt=0
 item_suit=0;weapon_crb=0;weapon_physcnn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0;v_live=100
 ammo9max=180;ammo357max=12;inclip9=0;inclip357=0;reload9=0;reload357=0;vtk=False;modenb=False
 def quit(c=0):#built-in function, in nspire cx ii python the quit function is not defined.
@@ -349,77 +349,52 @@ def mainmenu():#main menu function
   posy=20;rgbr=10;rgbb=100;posx=0;w=0;h=0;g=0;b=0;r=0
   set_pen("medium","solid")
   a=0
-  def fillwindow(bx,by):
-    set_color(210,210,0)
-    by+=2
-    bx+=6
-    fill_rect(bx,by,2,2);bx+=6;fill_rect(bx,by,2,2)
-    by+=4
-    bx-=6
-    fill_rect(bx,by,2,2);bx+=6;fill_rect(bx,by,2,2)
   set_color(0,0,100)
   fill_rect(0,0,500,300)
   for i in range(1,200):
     fill_rect(0,posy,500,300)
     set_color(rgbr,0,rgbb)
-    rgbr+=10;posy+=10
+    rgbr+=10;posy+=11.3
     if rgbr >= 240:
       break
+  set_color(215,0,100)
+  fill_rect(0,205,500,300)
   set_color(220,220,220)
   for i in range(100):
     fill_circle(randint(0,500),randint(0,100),1)
-  fill_circle(100,50,10);l=0;m=0;set_pen("thin","solid")
+  fill_circle(100,50,5);l=0;m=0;set_pen("thin","solid")
   for i in range(2):
     draw_line(l,m,m,l)
     l=randint(60,80);m=randint(20,60)
   set_pen("thick","solid")
   set_color(0,0,100)
-  fill_circle(105,50,7)
+  fill_circle(103,50,4)
   set_color(250,250,0);posx=-30
-  for i in range(6):
-    g=randint(200,255);b=randint(0,255);r=randint(0,255)
-    set_color(g,g,0)
-    draw_line(randint(0,500),300,randint(0,500),randint(0,20))
-  if a==1:
-    for i in range(6):
-      g=randint(200,255)
-      set_color(g,g,0)
-      draw_line(randint(0,500),300,randint(0,500),randint(0,20))
-  set_color(10,10,10)
-  for i in range(1,30):#stage1
-    set_color(10,10,10)
-    fill_rect(posx,posy,20,h)
-    set_color(255,0,0)
-    ax=posx;ay=posy
-    ax+=4;ay-=4
-    fill_rect(ax,ay,2,2)
-    fillwindow(posx,posy)
-    h=randint(40,60);posx+=20;posy=randint(120,160)
-  set_color(10,10,10);fill_rect(-20,160,520,520);posy=160;posx=-20
-  set_color(110,110,110)
-  for i in range(1,30):#stage2
-    set_color(110,110,110)
-    fill_rect(posx,posy,20,h)
-    fillwindow(posx,posy)
-    h=randint(20,40);posx+=20;posy=randint(160,180)
-  set_color(110,110,110)
-  fill_rect(-20,180,520,520)
-  set_color(150,150,150);posy=180;posx=-20
-  for i in range(1,30):#stage3
-    set_color(150,150,150)
-    fill_rect(posx,posy,20,h)
-    fillwindow(posx,posy)
-    h=randint(20,40);posx+=20;posy=randint(180,200)
-  set_color(150,150,150)
-  fill_rect(-20,200,520,520)
-  set_color(220,220,0);posy=140;posx=0
+  set_color(58,58,150)
+  fill_rect(220+20,0,37,300)
+  set_color(55,55,105)
+  fill_rect(239+20,69,18,57)
+  set_color(54,54,145)
+  fill_rect(242+21,69,5,57);posy=72
+  for i in range(5):
+    fill_rect(239+20,posy,17,5)
+    posy+=11
+  set_color(5,10,100)
+  set_pen("thin","solid")
+  for i in range(randint(7,10)):
+    draw_line(239,randint(82,95),randint(181,230),300)
+    draw_line(279,randint(82,95),randint(280,330),300)
+  set_color(55,55,163)
+  fill_rect(242+20,49,18,57)
+  fill_rect(265,106,5,13)
+  fill_rect(265+9,106,5,20)
   set_color(255,0,0)
-  fill_circle(randint(20,300),randint(2,120),2)
+  fill_circle(randint(20,210),randint(2,180),2)
   set_color(255,255,255)
   draw_text(10,80,"HALF-LIFE²")
   draw_text(150,17,gmver)
   set_pen("thin","solid")
-  return(0)
+  return 0
 def opening():#the engine opening
   fill_rect(0,0,500,300)
   set_color(10,210,140)
@@ -475,6 +450,7 @@ def main():#main function
       consolelog(3)
       quit()
   clear()
+  gc.collect()
   consolelog(4)
   while True:#game logic loop
     consolelog(1)
@@ -484,13 +460,11 @@ def main():#main function
     fill_rect(psx,psy,5,5)
     if item_suit==1:#hud
       vwindow(0,0,6)
-      paint_buffer()
     set_color(0,0,0)
     fill_rect(psx,psy,5,5)
     if v_live<=0:#death detecting
       vwindow(0,0,7)
       k=get_key()
-      paint_buffer()
       consolelog(7)
       while get_key()!="esc":
          k=get_key()
@@ -537,7 +511,7 @@ def main():#main function
           fill_rect(psx,psy,5,5)
           break
         elif k=="t":
-          v_hev+=10
+          v_hev-=10
           break
         elif k=="s":
           v_hev+=10
@@ -554,6 +528,7 @@ def main():#main function
           break
         elif k=="tab":
           gc.collect()
+          print("[DEBUG]gc collect completed.")
           break
         elif k=="up":#maybe create a new function to recall the effects.
           if wpnslt==3 and reload9==0 and weapon_pst==1 and inclip9!=0:
@@ -648,19 +623,16 @@ def main():#main function
             weaponclip(1)
           elif wpnslt==4:
             weaponclip(2)
-          else:pass
           break
-        elif k=="0":
+        elif k=="menu":
           weapon_crb=1
           weapon_physcnn=1
           weapon_pst=1
           weapon_357=1
           item_suit=1
         elif k=="1":
-          if item_suit==1:
-            pass
-          else:
-            break
+          if item_suit==1:pass
+          else:break
           vwindow(0,0,5)
           if weapon_crb==1:
             set_color(120,120,120)
@@ -693,12 +665,9 @@ def main():#main function
               mapstat()
               fill_rect(psx,psy,5,5)
               break
-            else:pass
         elif k=="2":
-          if item_suit==1:
-            pass
-          else:
-            break
+          if item_suit==1:pass
+          else:break
           vwindow(0,0,5)
           if weapon_pst==1:
             set_color(120,120,120)
@@ -731,7 +700,6 @@ def main():#main function
               mapstat()
               fill_rect(psx,psy,5,5)
               break
-            else:pass
             paint_buffer()
           break
         elif k=="m":
@@ -821,7 +789,7 @@ if (__name__=="__main__"):#all program starts from here.
       break
     elif g=="version":
       e=get_platform()
-      print("Gyro 2D Gaming engine.\n",gmver,"\nComplied in 2025/03/19\nMade by Alex_Nute aka axnut123.\nMade in China.\nCurrent platform:",e,"\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
+      print("Gyro 2D Gaming engine.\n",gmver,"\nComplied in 2025/03/21\nMade by Alex_Nute aka axnut123.\nMade in China.\nCurrent platform:",e,"\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
       del e
     elif g=="hwinfo":
       print("mem free",str(gc.mem_free()))
