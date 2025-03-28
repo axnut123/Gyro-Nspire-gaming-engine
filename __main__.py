@@ -1,4 +1,4 @@
-#COPYRIGHT (C) Haoriwa 2022 - 2024
+#COPYRIGHT (C) Haoriwa 2022 - 2025
 #All rights reserved.
 # the license is under LICENSE.txt *
 from random import *
@@ -7,9 +7,13 @@ from time import *
 from ti_system import *
 import sys,gc
 import micropython as mp
-debugs=False;erxt=0;g="0";key="0";mapslt=0;psx=95;psy=95;v_hev=0;gmver="Gyro 21 Build(0066)";wpnslt=0
+debugs=False;erxt=0;g="0";key="0";mapslt=0;psx=95;psy=95;v_hev=0;gmver="Gyro 22 Build(0071)";wpnslt=0
 item_suit=0;weapon_crb=0;weapon_physcnn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0;v_live=100
 ammo9max=180;ammo357max=12;inclip9=0;inclip357=0;reload9=0;reload357=0;vtk=False;modenb=False
+def resetgame():#built-in function,for soft reset.
+  global mapslt,psx,v_live,v_hev,psy,weapon_crb,debugs,inclp,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
+  mapslt=0;psx=95;psy=95;v_hev=0;wpnslt=0;item_suit=0;weapon_crb=0;weapon_physcnn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0;v_live=100;ammo9max=180;ammo357max=12;inclip9=0;inclip357=0;reload9=0;reload357=0
+  return 0
 def quit(c=0):#built-in function, in nspire cx ii python the quit function is not defined.
   raise SystemExit(c)
 def extchk():#built-in function,for command "enableforceexitonerror".
@@ -42,7 +46,8 @@ def vwindow(x,y,wintp):#built-in function,for display window, gui elements.
     set_color(250,250,250)
     draw_text(10,80,"HALF-LIFE²")
     draw_text(10,100,"m:resume")
-    draw_text(10,120,"q:quit game")
+    draw_text(10,120,"n:main menu")
+    draw_text(10,140,"q:quit game")
   elif wintp==4:
     set_color(250,250,250)
     draw_text(10,100,"enter:start")
@@ -95,6 +100,12 @@ def vwindow(x,y,wintp):#built-in function,for display window, gui elements.
       draw_text(210,200,"AMMO")
       draw_text(210,190,inclip357)
       draw_text(250,190,ammo357)
+  elif wintp==9:
+    set_color(0,0,0)
+    draw_rect(0,0,500,300)
+    set_color(250,250,250)
+    draw_text(135,125,"Loading...")
+    paint_buffer()
   else:
     print("[ERROR]Window type is not defined.")
     extchk()
@@ -155,8 +166,8 @@ def weaponclip(type):#built-in function,for detect clips in gun.
       reload357=1
   return 0
 def consolelog(type):#built-in function,for console output
-  if type==1:
-    pass
+  if type==1:pass
+#    print("[INFO]Screen updated.")
   elif type==2:
     print("[INFO]Start the opening")
   elif type==3:
@@ -198,7 +209,7 @@ def c1a0():#map define,i would say it is .bsp file =)
   draw_line(-25,25,15,25)
   set_color(160,10,10)
   fill_rect(45,10,15,10)
-  return(0)
+  return 0
 def vg0():#pause menu,built-in function
   set_color(120,120,120)
   fill_rect(0,0,500,300)
@@ -344,7 +355,7 @@ def gmanintro():#opening
     paint_buffer()
   sleep(1)
   clear()
-  return(0)
+  return 0
 def mainmenu():#main menu function
   posy=20;rgbr=10;rgbb=100;posx=0;w=0;h=0;g=0;b=0;r=0
   set_pen("medium","solid")
@@ -408,7 +419,7 @@ def opening():#the engine opening
   set_color(10,10,255)
   draw_text(185,80,"Gyro")
   set_color(255,255,255)
-  draw_text(10,100,"Copyright © Haoriwa 2022 - 2024, the Half-Life 2 is")
+  draw_text(10,100,"Copyright © Haoriwa 2022 - 2025, the Half-Life 2 is")
   draw_text(10,115,"copyright for Valve.The ti_draw,ti_system")
   draw_text(10,130,"is copyright for Texas Instruments.Using this")
   draw_text(10,145,"software represents you agreed our terms.")
@@ -431,28 +442,33 @@ def mapstat():#built-in function,for map render,trigger and other stuff.
     extchk()
     return 1
 def main():#main function
+  vwindow(0,0,9)
+  inmenu=True
   global mapslt,psx,v_live,v_hev,psy,weapon_crb,debugs,inclp,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
-  use_buffer()
-  mainmenu()
-  vwindow(0,0,4)
-  paint_buffer()
-  while True:#main menu
-    k=get_key()
-    if k=="enter":
-      gmanintro()
-      v_live=100
-      break
-    elif k=="a":
-      gmanintlol()
-      v_live=100
-      break
-    elif k=="esc":
-      consolelog(3)
-      quit()
-  clear()
-  gc.collect()
   consolelog(4)
   while True:#game logic loop
+    if inmenu==True:#menu guard
+      resetgame()
+      mainmenu()
+      vwindow(0,0,4)
+      paint_buffer()
+      while True:#main menu
+        k=get_key()
+        if k=="enter":
+          gmanintro()
+          inmenu=False
+          v_live=100
+          break
+        elif k=="a":
+          gmanintlol()
+          inmenu=False
+          v_live=100
+          break
+        elif k=="esc":
+          consolelog(3)
+          quit()
+      clear()
+      gc.collect()
     consolelog(1)
     mapstat()#logic check in here,define your trigger in this function.
     vwindow(0,0,8)
@@ -707,7 +723,7 @@ def main():#main function
             vg0();ky="0"
             paint_buffer()
             k=get_key()
-            for ky in["m","q"]:
+            for ky in["m","q","n"]:
               while k!=ky:
                 clear()
                 vg0()
@@ -721,6 +737,10 @@ def main():#main function
                 elif k=="q":
                   consolelog(3)
                   quit(0)
+                  break
+                elif k=="n":
+                  print("[INFO]Server stopped.")
+                  inmenu=True
                   break
                 elif k=="u":
                   if debugs==False:
@@ -743,7 +763,7 @@ if (__name__=="__main__"):#all program starts from here.
       print("[CONSOLE]Running engine.")
       break
     elif g=="disablemod":
-      sys.modules.pop("gyro_addon_main1")
+      sys.modules.pop("gyro_addon_main1",None)
       vtk=False
       modenb=False
       print("[INFO]Mod disabled.")
@@ -769,7 +789,7 @@ if (__name__=="__main__"):#all program starts from here.
     elif g=="help 1":
       print("Gyro engine help page 1:\nrun:start engine.\nhelp <page(1/2)>:get help.\nquit:stop engine and console.\nsetgeomet:set a new resolution for screen.\nenableforceexitonerror:forcely stop whole engine when encounting any error and warn.\nversion:get engine version and credits.\nhwinfo:get hardware info.\ncls:clear screen.")
     elif g=="help 2":
-      print("Gyro engine help page2:\nmodinit:init installed mod.\nrunmod:start mod.\nmodver:get version for mod.\ndisablemod:disable mod.(pop)")
+      print("Gyro engine help page2:\nmodinit:init installed mod.\nrunmod:start mod.\nmodver:get version for mod.\ndisablemod:disable mod.(pop)\nadjustthreshold:change the value for gc.threshold()")
     elif g=="quit"or g=="stop"or g=="exit":
       del g
       consolelog(3)
@@ -789,7 +809,7 @@ if (__name__=="__main__"):#all program starts from here.
       break
     elif g=="version":
       e=get_platform()
-      print("Gyro 2D Gaming engine.\n",gmver,"\nComplied in 2025/03/21\nMade by Alex_Nute aka axnut123.\nMade in China.\nCurrent platform:",e,"\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
+      print("Gyro 2D Gaming engine.\n",gmver,"\nComplied in 2025/03/27\nMade by Alex_Nute aka axnut123.\nMade in China.\nCurrent platform:",e,"\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
       del e
     elif g=="hwinfo":
       print("mem free",str(gc.mem_free()))
@@ -802,16 +822,22 @@ if (__name__=="__main__"):#all program starts from here.
       print("Usage: help <1or2>. example: help 1 for page 1.")
     elif g=="cls":
       clear_history()
+    elif g=="adjustthreshold":
+      b=int(input("gc.threshold:"))
+      gc.threshold(b)
+      print("[CONSOLE]New value given.")
+      del b
     else:
       print("[CONSOLE]Unknown command:",g,".type help <page(1/2)> to get help.")
   del g
   print("[CONSOLE]Console is being closed.\n[INFO]Engine is now started.")
   gc.collect()
   consolelog(2)
+  use_buffer()
   opening()
   consolelog(5)
+  clear()
   if modenb==True:
-    clear()
     tk.mod_main()
   else:
     main()
