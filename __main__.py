@@ -7,14 +7,15 @@ from time import *
 from ti_system import *
 import sys,gc
 import micropython as mp
-debugs=False;erxt=0;g="0";key="0";mapslt=0;psx=95;psy=95;v_hev=0;gmver="Gyro 22 Build(0071)";wpnslt=0
+debugs=False;erxt=0;g="0";key="0";mapslt=0;psx=95;psy=95;v_hev=0;gmver="Gyro 22 Build(0072)";wpnslt=0
 item_suit=0;weapon_crb=0;weapon_physcnn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0;v_live=100
 ammo9max=180;ammo357max=12;inclip9=0;inclip357=0;reload9=0;reload357=0;vtk=False;modenb=False
 def resetgame():#built-in function,for soft reset.
   global mapslt,psx,v_live,v_hev,psy,weapon_crb,debugs,inclp,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
   mapslt=0;psx=95;psy=95;v_hev=0;wpnslt=0;item_suit=0;weapon_crb=0;weapon_physcnn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0;v_live=100;ammo9max=180;ammo357max=12;inclip9=0;inclip357=0;reload9=0;reload357=0
+  print("[INFO]Game reset completed.")
   return 0
-def quit(c=0):#built-in function, in nspire cx ii python the quit function is not defined.
+def quit(c=None):#built-in function, in nspire cx ii python the quit function is not defined.
   raise SystemExit(c)
 def extchk():#built-in function,for command "enableforceexitonerror".
   global erxt
@@ -45,8 +46,8 @@ def vwindow(x,y,wintp):#built-in function,for display window, gui elements.
   elif wintp==3:
     set_color(250,250,250)
     draw_text(10,80,"HALF-LIFE²")
-    draw_text(10,100,"m:resume")
-    draw_text(10,120,"n:main menu")
+    draw_text(10,100,"esc:resume")
+    draw_text(10,120,"menu:main menu")
     draw_text(10,140,"q:quit game")
   elif wintp==4:
     set_color(250,250,250)
@@ -718,19 +719,19 @@ def main():#main function
               break
             paint_buffer()
           break
-        elif k=="m":
+        elif k=="esc":
           while True:#pause menu
             vg0();ky="0"
             paint_buffer()
             k=get_key()
-            for ky in["m","q","n"]:
+            for ky in["esc","q","menu"]:
               while k!=ky:
                 clear()
                 vg0()
                 k=get_key()
                 vwindow(0,0,2)
                 paint_buffer()
-                if k=="m":
+                if k=="esc":
                   clear()
                   fill_rect(500,500,1,1)
                   break
@@ -738,7 +739,7 @@ def main():#main function
                   consolelog(3)
                   quit(0)
                   break
-                elif k=="n":
+                elif k=="menu":
                   print("[INFO]Server stopped.")
                   inmenu=True
                   break
@@ -809,7 +810,7 @@ if (__name__=="__main__"):#all program starts from here.
       break
     elif g=="version":
       e=get_platform()
-      print("Gyro 2D Gaming engine.\n",gmver,"\nComplied in 2025/03/27\nMade by Alex_Nute aka axnut123.\nMade in China.\nCurrent platform:",e,"\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
+      print("Gyro 2D Gaming engine.\n",gmver,"\nComplied in 2025/04/06\nMade by Alex_Nute aka axnut123.\nMade in China.\nCurrent platform:",e,"\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
       del e
     elif g=="hwinfo":
       print("mem free",str(gc.mem_free()))
