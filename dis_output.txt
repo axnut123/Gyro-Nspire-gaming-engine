@@ -1,0 +1,1045 @@
+RESUME               
+LOAD_CONST           0
+LOAD_CONST           ('*',)
+IMPORT_NAME          random
+CALL_INTRINSIC_1     INTRINSIC_IMPORT_STAR
+POP_TOP              
+LOAD_CONST           0
+LOAD_CONST           ('*',)
+IMPORT_NAME          ti_draw
+CALL_INTRINSIC_1     INTRINSIC_IMPORT_STAR
+POP_TOP              
+LOAD_CONST           0
+LOAD_CONST           ('*',)
+IMPORT_NAME          time
+CALL_INTRINSIC_1     INTRINSIC_IMPORT_STAR
+POP_TOP              
+LOAD_CONST           0
+LOAD_CONST           ('*',)
+IMPORT_NAME          ti_system
+CALL_INTRINSIC_1     INTRINSIC_IMPORT_STAR
+POP_TOP              
+LOAD_CONST           0
+LOAD_CONST           None
+IMPORT_NAME          sys
+STORE_NAME           sys
+LOAD_CONST           0
+LOAD_CONST           None
+IMPORT_NAME          gc
+STORE_NAME           gc
+LOAD_CONST           0
+LOAD_CONST           None
+IMPORT_NAME          micropython
+STORE_NAME           mp
+LOAD_NAME            bool
+PUSH_NULL            
+LOAD_CONST           False
+CALL                 
+STORE_GLOBAL         dev
+LOAD_NAME            bool
+PUSH_NULL            
+LOAD_CONST           False
+CALL                 
+STORE_GLOBAL         dr
+LOAD_NAME            bool
+PUSH_NULL            
+LOAD_CONST           False
+CALL                 
+STORE_GLOBAL         debugs
+LOAD_NAME            int
+PUSH_NULL            
+LOAD_CONST           0
+CALL                 
+STORE_GLOBAL         erxt
+LOAD_NAME            str
+PUSH_NULL            
+LOAD_CONST           '0'
+CALL                 
+STORE_NAME           g
+LOAD_NAME            str
+PUSH_NULL            
+LOAD_CONST           '0'
+CALL                 
+STORE_NAME           key
+LOAD_NAME            int
+PUSH_NULL            
+LOAD_CONST           0
+CALL                 
+STORE_GLOBAL         mapslt
+LOAD_NAME            int
+PUSH_NULL            
+LOAD_CONST           95
+CALL                 
+STORE_GLOBAL         psx
+LOAD_NAME            int
+PUSH_NULL            
+LOAD_CONST           95
+CALL                 
+STORE_GLOBAL         psy
+LOAD_NAME            int
+PUSH_NULL            
+LOAD_CONST           0
+CALL                 
+STORE_GLOBAL         v_hev
+LOAD_NAME            str
+PUSH_NULL            
+LOAD_CONST           'Gyro 24 Build(0080)'
+CALL                 
+STORE_NAME           GAMEVER
+LOAD_NAME            int
+PUSH_NULL            
+LOAD_CONST           0
+CALL                 
+STORE_GLOBAL         wpnslt
+LOAD_NAME            int
+PUSH_NULL            
+LOAD_CONST           0
+CALL                 
+STORE_GLOBAL         item_suit
+LOAD_NAME            int
+PUSH_NULL            
+LOAD_CONST           0
+CALL                 
+STORE_GLOBAL         weapon_crb
+LOAD_NAME            int
+PUSH_NULL            
+LOAD_CONST           0
+CALL                 
+STORE_GLOBAL         weapon_physcnn
+LOAD_NAME            int
+PUSH_NULL            
+LOAD_CONST           0
+CALL                 
+STORE_GLOBAL         weapon_pst
+LOAD_NAME            int
+PUSH_NULL            
+LOAD_CONST           0
+CALL                 
+STORE_GLOBAL         weapon_357
+LOAD_NAME            int
+PUSH_NULL            
+LOAD_CONST           0
+CALL                 
+STORE_GLOBAL         ammo357
+LOAD_NAME            int
+PUSH_NULL            
+LOAD_CONST           0
+CALL                 
+STORE_GLOBAL         ammo9
+LOAD_NAME            int
+PUSH_NULL            
+LOAD_CONST           100
+CALL                 
+STORE_GLOBAL         v_live
+LOAD_NAME            int
+PUSH_NULL            
+LOAD_CONST           180
+CALL                 
+STORE_GLOBAL         ammo9max
+LOAD_NAME            int
+PUSH_NULL            
+LOAD_CONST           12
+CALL                 
+STORE_GLOBAL         ammo357max
+LOAD_NAME            int
+PUSH_NULL            
+LOAD_CONST           0
+CALL                 
+STORE_GLOBAL         inclip9
+LOAD_NAME            int
+PUSH_NULL            
+LOAD_CONST           0
+CALL                 
+STORE_GLOBAL         inclip357
+LOAD_NAME            int
+PUSH_NULL            
+LOAD_CONST           0
+CALL                 
+STORE_NAME           reload9
+LOAD_NAME            int
+PUSH_NULL            
+LOAD_CONST           0
+CALL                 
+STORE_NAME           reload357
+LOAD_NAME            bool
+PUSH_NULL            
+LOAD_CONST           False
+CALL                 
+STORE_NAME           vtk
+LOAD_NAME            bool
+PUSH_NULL            
+LOAD_CONST           False
+CALL                 
+STORE_NAME           modenb
+LOAD_NAME            int
+PUSH_NULL            
+LOAD_CONST           1
+CALL                 
+STORE_GLOBAL         emptysave
+LOAD_BUILD_CLASS     
+PUSH_NULL            
+LOAD_CONST           <code object Kernal at 0x00000205CDAD8E70, file "__main__.py", line 40>
+MAKE_FUNCTION        
+LOAD_CONST           'Kernal'
+CALL                 
+STORE_NAME           Kernal
+LOAD_BUILD_CLASS     
+PUSH_NULL            
+LOAD_CONST           <code object IO at 0x00000205CDA97630, file "__main__.py", line 79>
+MAKE_FUNCTION        
+LOAD_CONST           'IO'
+CALL                 
+STORE_NAME           IO
+LOAD_BUILD_CLASS     
+PUSH_NULL            
+LOAD_CONST           <code object ActionUI at 0x00000205CDA87CC0, file "__main__.py", line 151>
+MAKE_FUNCTION        
+LOAD_CONST           'ActionUI'
+CALL                 
+STORE_NAME           ActionUI
+LOAD_BUILD_CLASS     
+PUSH_NULL            
+LOAD_CONST           <code object StdUtil at 0x00000205CDADA500, file "__main__.py", line 272>
+MAKE_FUNCTION        
+LOAD_CONST           'StdUtil'
+CALL                 
+STORE_NAME           StdUtil
+LOAD_BUILD_CLASS     
+PUSH_NULL            
+LOAD_CONST           <code object Wbase at 0x00000205CDA87EE0, file "__main__.py", line 334>
+MAKE_FUNCTION        
+LOAD_CONST           'Wbase'
+CALL                 
+STORE_NAME           Wbase
+LOAD_BUILD_CLASS     
+PUSH_NULL            
+LOAD_CONST           <code object Assets at 0x00000205CDA8EE70, file "__main__.py", line 366>
+MAKE_FUNCTION        
+LOAD_CONST           'Assets'
+CALL                 
+STORE_NAME           Assets
+LOAD_CONST           <code object main at 0x00000205CDBE21E0, file "__main__.py", line 591>
+MAKE_FUNCTION        
+STORE_NAME           main
+LOAD_NAME            __name__
+LOAD_CONST           '__main__'
+COMPARE_OP           bool(==)
+EXTENDED_ARG         
+POP_JUMP_IF_FALSE    to L39
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           '[PRE-LOAD]Starting console and engine.'
+CALL                 
+POP_TOP              
+LOAD_NAME            g
+LOAD_CONST           'run'
+COMPARE_OP           bool(!=)
+POP_JUMP_IF_TRUE     to L1
+LOAD_NAME            g
+LOAD_CONST           'start'
+COMPARE_OP           bool(!=)
+EXTENDED_ARG         
+POP_JUMP_IF_FALSE    to L37
+LOAD_NAME            str
+PUSH_NULL            
+LOAD_NAME            input
+PUSH_NULL            
+LOAD_CONST           ']'
+CALL                 
+CALL                 
+STORE_NAME           g
+LOAD_NAME            g
+LOAD_CONST           'run'
+COMPARE_OP           bool(==)
+POP_JUMP_IF_TRUE     to L2
+LOAD_NAME            g
+LOAD_CONST           'start'
+COMPARE_OP           bool(==)
+POP_JUMP_IF_FALSE    to L3
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           '[CONSOLE]Running engine.'
+CALL                 
+POP_TOP              
+EXTENDED_ARG         
+JUMP_FORWARD         to L37
+LOAD_NAME            g
+LOAD_CONST           'disablemod'
+COMPARE_OP           bool(==)
+POP_JUMP_IF_FALSE    to L5
+NOP                  
+LOAD_NAME            sys
+LOAD_ATTR            modules
+LOAD_ATTR            pop + NULL|self
+LOAD_CONST           'gyro_addon_main1'
+LOAD_CONST           None
+CALL                 
+POP_TOP              
+LOAD_NAME            gc
+LOAD_ATTR            collect
+PUSH_NULL            
+CALL                 
+POP_TOP              
+LOAD_CONST           False
+STORE_NAME           vtk
+LOAD_CONST           False
+STORE_NAME           modenb
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           '[INFO]Mod disabled.'
+CALL                 
+POP_TOP              
+EXTENDED_ARG         
+JUMP_FORWARD         to L35
+LOAD_NAME            g
+LOAD_CONST           'modinit'
+COMPARE_OP           bool(==)
+POP_JUMP_IF_FALSE    to L8
+LOAD_NAME            vtk
+LOAD_CONST           True
+COMPARE_OP           bool(!=)
+POP_JUMP_IF_FALSE    to L7
+NOP                  
+LOAD_CONST           0
+LOAD_CONST           None
+IMPORT_NAME          gyro_addon_main1
+STORE_NAME           tk
+LOAD_CONST           True
+STORE_NAME           vtk
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           '[INFO]Mod init success.'
+CALL                 
+POP_TOP              
+EXTENDED_ARG         
+JUMP_FORWARD         to L35
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           '[WARN]Mod already init.'
+CALL                 
+POP_TOP              
+LOAD_NAME            Kernal
+LOAD_ATTR            ErrChk + NULL|self
+CALL                 
+POP_TOP              
+EXTENDED_ARG         
+JUMP_FORWARD         to L35
+LOAD_NAME            g
+LOAD_CONST           'runmod'
+COMPARE_OP           bool(==)
+POP_JUMP_IF_FALSE    to L10
+LOAD_NAME            vtk
+LOAD_CONST           True
+COMPARE_OP           bool(==)
+POP_JUMP_IF_FALSE    to L9
+LOAD_CONST           True
+STORE_NAME           modenb
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           '[INFO]Mod is running.'
+CALL                 
+POP_TOP              
+EXTENDED_ARG         
+JUMP_FORWARD         to L37
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           '[ERROR]Mod script not found.'
+CALL                 
+POP_TOP              
+LOAD_NAME            Kernal
+LOAD_ATTR            ErrChk + NULL|self
+CALL                 
+POP_TOP              
+EXTENDED_ARG         
+JUMP_FORWARD         to L35
+LOAD_NAME            g
+LOAD_CONST           'modver'
+COMPARE_OP           bool(==)
+POP_JUMP_IF_FALSE    to L12
+LOAD_NAME            vtk
+LOAD_CONST           True
+COMPARE_OP           bool(==)
+POP_JUMP_IF_FALSE    to L11
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_NAME            tk
+LOAD_ATTR            mod_info
+PUSH_NULL            
+LOAD_CONST           0
+CALL                 
+CALL                 
+POP_TOP              
+EXTENDED_ARG         
+JUMP_FORWARD         to L35
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           '[ERROR]Mod is not found.'
+CALL                 
+POP_TOP              
+LOAD_NAME            Kernal
+LOAD_ATTR            ErrChk + NULL|self
+CALL                 
+POP_TOP              
+EXTENDED_ARG         
+JUMP_FORWARD         to L35
+LOAD_NAME            g
+LOAD_CONST           'help 1'
+COMPARE_OP           bool(==)
+POP_JUMP_IF_FALSE    to L13
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           'Gyro engine help page 1:\nrun:start engine.\nhelp <page(1/2/3)>:get help.\nquit:stop engine and console.\nsetgeomet:set a new resolution for screen.\nforceexitonerror:forcely stop whole engine when encounting any error and warn.\nversion:get engine version and credits.\nhwinfo:get hardware info.\ncls:clear screen.'
+CALL                 
+POP_TOP              
+EXTENDED_ARG         
+JUMP_FORWARD         to L35
+LOAD_NAME            g
+LOAD_CONST           'help 2'
+COMPARE_OP           bool(==)
+POP_JUMP_IF_FALSE    to L14
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           'Gyro engine help page 2:\nloadgame:load game from saved file.\ndeletesave:delete saved game.\nmodinit:__init__ installed mod.\nrunmod:start mod.\nmodver:get version for mod.\ndisablemod:disable mod.(pop)\nadjustthreshold:change the value for gc.threshold()\ndev: toggle devloper mode.'
+CALL                 
+POP_TOP              
+EXTENDED_ARG         
+JUMP_FORWARD         to L35
+LOAD_NAME            g
+LOAD_CONST           'help 3'
+COMPARE_OP           bool(==)
+POP_JUMP_IF_FALSE    to L15
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           'Gyro engine help page 3:\nscuptoggle: toggle the output when screen \nupdate.\nexec:use exec() to execute python code.'
+CALL                 
+POP_TOP              
+EXTENDED_ARG         
+JUMP_FORWARD         to L35
+LOAD_NAME            g
+LOAD_CONST           'Kernal.quit'
+COMPARE_OP           bool(==)
+POP_JUMP_IF_TRUE     to L16
+LOAD_NAME            g
+LOAD_CONST           'stop'
+COMPARE_OP           bool(==)
+POP_JUMP_IF_TRUE     to L16
+LOAD_NAME            g
+LOAD_CONST           'exit'
+COMPARE_OP           bool(==)
+POP_JUMP_IF_TRUE     to L16
+LOAD_NAME            g
+LOAD_CONST           'esc'
+COMPARE_OP           bool(==)
+POP_JUMP_IF_FALSE    to L17
+DELETE_NAME          g
+LOAD_NAME            StdUtil
+LOAD_ATTR            ConsoleLog + NULL|self
+LOAD_CONST           3
+CALL                 
+POP_TOP              
+LOAD_NAME            Kernal
+LOAD_ATTR            quit + NULL|self
+CALL                 
+POP_TOP              
+EXTENDED_ARG         
+JUMP_FORWARD         to L37
+LOAD_NAME            g
+LOAD_CONST           'scuptoggle'
+COMPARE_OP           bool(==)
+POP_JUMP_IF_FALSE    to L19
+LOAD_GLOBAL          dr
+LOAD_CONST           False
+COMPARE_OP           bool(==)
+POP_JUMP_IF_FALSE    to L18
+LOAD_CONST           True
+STORE_GLOBAL         dr
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           '[CONSOLE]Enabled.'
+CALL                 
+POP_TOP              
+EXTENDED_ARG         
+JUMP_FORWARD         to L35
+LOAD_CONST           False
+STORE_GLOBAL         dr
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           '[CONSOLE]Disabled.'
+CALL                 
+POP_TOP              
+EXTENDED_ARG         
+JUMP_FORWARD         to L35
+LOAD_NAME            g
+LOAD_CONST           'setgeomet'
+COMPARE_OP           bool(==)
+POP_JUMP_IF_FALSE    to L21
+LOAD_NAME            int
+PUSH_NULL            
+LOAD_NAME            input
+PUSH_NULL            
+LOAD_CONST           'xmin'
+CALL                 
+CALL                 
+STORE_NAME           x1
+LOAD_NAME            int
+PUSH_NULL            
+LOAD_NAME            input
+PUSH_NULL            
+LOAD_CONST           'ymin'
+CALL                 
+CALL                 
+STORE_NAME           y1
+LOAD_NAME            int
+PUSH_NULL            
+LOAD_NAME            input
+PUSH_NULL            
+LOAD_CONST           'xmax'
+CALL                 
+CALL                 
+STORE_NAME           x2
+LOAD_NAME            int
+PUSH_NULL            
+LOAD_NAME            input
+PUSH_NULL            
+LOAD_CONST           'ymax'
+CALL                 
+CALL                 
+STORE_NAME           y2
+NOP                  
+LOAD_NAME            set_window
+PUSH_NULL            
+LOAD_NAME            x1
+LOAD_NAME            x2
+LOAD_NAME            y1
+LOAD_NAME            y2
+CALL                 
+POP_TOP              
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           '[INFO]Resolution set to:'
+LOAD_NAME            str
+PUSH_NULL            
+LOAD_NAME            x1
+CALL                 
+BINARY_OP            +
+LOAD_CONST           ','
+BINARY_OP            +
+LOAD_NAME            str
+PUSH_NULL            
+LOAD_NAME            y1
+CALL                 
+BINARY_OP            +
+LOAD_CONST           ','
+BINARY_OP            +
+LOAD_NAME            str
+PUSH_NULL            
+LOAD_NAME            x2
+CALL                 
+BINARY_OP            +
+LOAD_CONST           ','
+BINARY_OP            +
+LOAD_NAME            str
+PUSH_NULL            
+LOAD_NAME            y2
+CALL                 
+BINARY_OP            +
+CALL                 
+POP_TOP              
+DELETE_NAME          x1
+DELETE_NAME          x2
+DELETE_NAME          y1
+DELETE_NAME          y2
+EXTENDED_ARG         
+JUMP_FORWARD         to L37
+LOAD_NAME            g
+LOAD_CONST           'forceexitonerror'
+COMPARE_OP           bool(==)
+POP_JUMP_IF_FALSE    to L23
+LOAD_GLOBAL          erxt
+LOAD_CONST           1
+COMPARE_OP           bool(==)
+POP_JUMP_IF_FALSE    to L22
+LOAD_CONST           0
+STORE_GLOBAL         erxt
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           '[CONSOLE]Exit when error disabled.'
+CALL                 
+POP_TOP              
+EXTENDED_ARG         
+JUMP_FORWARD         to L35
+LOAD_CONST           1
+STORE_GLOBAL         erxt
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           '[CONSOLE]Exit when error enabled.'
+CALL                 
+POP_TOP              
+EXTENDED_ARG         
+JUMP_FORWARD         to L35
+LOAD_NAME            g
+LOAD_CONST           'version'
+COMPARE_OP           bool(==)
+POP_JUMP_IF_FALSE    to L24
+LOAD_NAME            get_platform
+PUSH_NULL            
+CALL                 
+STORE_NAME           e
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           'Gyro 2D Gaming engine.\n'
+LOAD_NAME            GAMEVER
+LOAD_CONST           '\nComplied in 2025/04/18\nMade by Alex_Nute aka axnut123.\nMade in China.\nCurrent platform:'
+LOAD_NAME            e
+LOAD_CONST           '\nyour Python version:'
+LOAD_NAME            sys
+LOAD_ATTR            version
+LOAD_CONST           '\nEngine built on Python 3.4.0'
+CALL                 
+POP_TOP              
+DELETE_NAME          e
+EXTENDED_ARG         
+JUMP_FORWARD         to L35
+LOAD_NAME            g
+LOAD_CONST           'hwinfo'
+COMPARE_OP           bool(==)
+POP_JUMP_IF_FALSE    to L25
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           'mem free'
+LOAD_NAME            str
+PUSH_NULL            
+LOAD_NAME            gc
+LOAD_ATTR            mem_free
+PUSH_NULL            
+CALL                 
+CALL                 
+CALL                 
+POP_TOP              
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           'mem alloc'
+LOAD_NAME            str
+PUSH_NULL            
+LOAD_NAME            gc
+LOAD_ATTR            mem_alloc
+PUSH_NULL            
+CALL                 
+CALL                 
+CALL                 
+POP_TOP              
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           'stack use'
+LOAD_NAME            str
+PUSH_NULL            
+LOAD_NAME            mp
+LOAD_ATTR            stack_use
+PUSH_NULL            
+CALL                 
+CALL                 
+CALL                 
+POP_TOP              
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           'pystack use'
+LOAD_NAME            str
+PUSH_NULL            
+LOAD_NAME            mp
+LOAD_ATTR            pystack_use
+PUSH_NULL            
+CALL                 
+CALL                 
+CALL                 
+POP_TOP              
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           'cpu tick'
+LOAD_NAME            ticks_cpu
+PUSH_NULL            
+CALL                 
+CALL                 
+POP_TOP              
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           'local time'
+LOAD_NAME            str
+PUSH_NULL            
+LOAD_NAME            localtime
+PUSH_NULL            
+CALL                 
+CALL                 
+CALL                 
+POP_TOP              
+JUMP_FORWARD         to L35
+LOAD_NAME            g
+LOAD_CONST           'deletesave'
+COMPARE_OP           bool(==)
+POP_JUMP_IF_FALSE    to L26
+LOAD_NAME            IO
+LOAD_ATTR            Delete + NULL|self
+CALL                 
+POP_TOP              
+JUMP_FORWARD         to L35
+LOAD_NAME            g
+LOAD_CONST           'loadgame'
+COMPARE_OP           bool(==)
+POP_JUMP_IF_FALSE    to L27
+LOAD_NAME            IO
+LOAD_ATTR            Load + NULL|self
+CALL                 
+POP_TOP              
+JUMP_FORWARD         to L35
+LOAD_NAME            g
+LOAD_CONST           'help'
+COMPARE_OP           bool(==)
+POP_JUMP_IF_FALSE    to L28
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           'Usage: help <1/2/3>. example: help 1 for page 1.'
+CALL                 
+POP_TOP              
+JUMP_FORWARD         to L35
+LOAD_NAME            g
+LOAD_CONST           'cls'
+COMPARE_OP           bool(==)
+POP_JUMP_IF_FALSE    to L29
+LOAD_NAME            clear_history
+PUSH_NULL            
+CALL                 
+POP_TOP              
+JUMP_FORWARD         to L35
+LOAD_NAME            g
+LOAD_CONST           'dev'
+COMPARE_OP           bool(==)
+POP_JUMP_IF_FALSE    to L31
+LOAD_GLOBAL          dev
+LOAD_CONST           False
+COMPARE_OP           bool(==)
+POP_JUMP_IF_FALSE    to L30
+LOAD_CONST           True
+STORE_GLOBAL         dev
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           '[CONSOLE]Dev mode enabled.'
+CALL                 
+POP_TOP              
+JUMP_FORWARD         to L35
+LOAD_CONST           False
+STORE_GLOBAL         dev
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           '[CONSOLE]Dev mode disabled'
+CALL                 
+POP_TOP              
+JUMP_FORWARD         to L35
+LOAD_NAME            g
+LOAD_CONST           'adjustthreshold'
+COMPARE_OP           bool(==)
+POP_JUMP_IF_FALSE    to L32
+NOP                  
+LOAD_NAME            int
+PUSH_NULL            
+LOAD_NAME            input
+PUSH_NULL            
+LOAD_CONST           'gc.threshold:'
+CALL                 
+CALL                 
+STORE_NAME           b
+LOAD_NAME            gc
+LOAD_ATTR            threshold
+PUSH_NULL            
+LOAD_NAME            int
+PUSH_NULL            
+LOAD_NAME            b
+CALL                 
+CALL                 
+POP_TOP              
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           '[CONSOLE]New value given.'
+CALL                 
+POP_TOP              
+JUMP_FORWARD         to L35
+LOAD_NAME            g
+LOAD_CONST           'exec'
+COMPARE_OP           bool(==)
+POP_JUMP_IF_FALSE    to L33
+LOAD_NAME            str
+PUSH_NULL            
+LOAD_NAME            input
+PUSH_NULL            
+LOAD_CONST           'execute:'
+CALL                 
+CALL                 
+STORE_NAME           g
+NOP                  
+LOAD_NAME            exec
+PUSH_NULL            
+LOAD_NAME            g
+CALL                 
+POP_TOP              
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           '[INFO]Executed code.'
+CALL                 
+POP_TOP              
+JUMP_FORWARD         to L35
+LOAD_NAME            g
+LOAD_CONST           ''
+COMPARE_OP           bool(==)
+POP_JUMP_IF_FALSE    to L34
+JUMP_FORWARD         to L35
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           '[CONSOLE]Unknown command:'
+LOAD_NAME            g
+LOAD_CONST           '.type help <page(1/2/3)> to get help.'
+CALL                 
+POP_TOP              
+LOAD_NAME            g
+LOAD_CONST           'run'
+COMPARE_OP           bool(!=)
+POP_JUMP_IF_FALSE    to L36
+EXTENDED_ARG         
+JUMP_BACKWARD        to L1
+LOAD_NAME            g
+LOAD_CONST           'start'
+COMPARE_OP           bool(!=)
+POP_JUMP_IF_FALSE    to L37
+EXTENDED_ARG         
+JUMP_BACKWARD        to L1
+DELETE_NAME          g
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           '[CONSOLE]Console is being closed.\n[INFO]Engine is now started.'
+CALL                 
+POP_TOP              
+LOAD_NAME            gc
+LOAD_ATTR            collect
+PUSH_NULL            
+CALL                 
+POP_TOP              
+LOAD_NAME            StdUtil
+LOAD_ATTR            ConsoleLog + NULL|self
+LOAD_CONST           2
+CALL                 
+POP_TOP              
+LOAD_NAME            use_buffer
+PUSH_NULL            
+CALL                 
+POP_TOP              
+LOAD_NAME            Kernal
+LOAD_ATTR            Opening + NULL|self
+CALL                 
+POP_TOP              
+LOAD_NAME            StdUtil
+LOAD_ATTR            ConsoleLog + NULL|self
+LOAD_CONST           5
+CALL                 
+POP_TOP              
+LOAD_NAME            modenb
+LOAD_CONST           True
+COMPARE_OP           bool(==)
+POP_JUMP_IF_FALSE    to L38
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           '[INFO]Trying to load mod script.'
+CALL                 
+POP_TOP              
+LOAD_NAME            tk
+LOAD_ATTR            mod_main
+PUSH_NULL            
+CALL                 
+POP_TOP              
+RETURN_CONST         None
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           '[INFO]Mod loader was not enabled,loading main script.'
+CALL                 
+POP_TOP              
+LOAD_NAME            main
+PUSH_NULL            
+CALL                 
+POP_TOP              
+RETURN_CONST         None
+RETURN_CONST         None
+PUSH_EXC_INFO        
+LOAD_NAME            Exception
+CHECK_EXC_MATCH      
+POP_JUMP_IF_FALSE    to L40
+STORE_NAME           e
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           '[ERROR]Mod cannot be poped, '
+LOAD_NAME            str
+PUSH_NULL            
+LOAD_NAME            e
+CALL                 
+BINARY_OP            +
+CALL                 
+POP_TOP              
+LOAD_NAME            Kernal
+LOAD_ATTR            ErrChk + NULL|self
+CALL                 
+POP_TOP              
+POP_EXCEPT           
+LOAD_CONST           None
+STORE_NAME           e
+DELETE_NAME          e
+EXTENDED_ARG         
+JUMP_BACKWARD_NO_INTERRUPT to L4
+LOAD_CONST           None
+STORE_NAME           e
+DELETE_NAME          e
+RERAISE              
+RERAISE              
+COPY                 
+POP_EXCEPT           
+RERAISE              
+PUSH_EXC_INFO        
+LOAD_NAME            Exception
+CHECK_EXC_MATCH      
+POP_JUMP_IF_FALSE    to L41
+STORE_NAME           e
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           '[ERROR]Unknown error occured. '
+LOAD_NAME            str
+PUSH_NULL            
+LOAD_NAME            e
+CALL                 
+BINARY_OP            +
+CALL                 
+POP_TOP              
+LOAD_NAME            Kernal
+LOAD_ATTR            ErrChk + NULL|self
+CALL                 
+POP_TOP              
+POP_EXCEPT           
+LOAD_CONST           None
+STORE_NAME           e
+DELETE_NAME          e
+EXTENDED_ARG         
+JUMP_BACKWARD_NO_INTERRUPT to L6
+LOAD_CONST           None
+STORE_NAME           e
+DELETE_NAME          e
+RERAISE              
+RERAISE              
+COPY                 
+POP_EXCEPT           
+RERAISE              
+PUSH_EXC_INFO        
+LOAD_NAME            Exception
+CHECK_EXC_MATCH      
+POP_JUMP_IF_FALSE    to L42
+STORE_NAME           e
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           '[ERROR]Setting was failed. '
+LOAD_NAME            str
+PUSH_NULL            
+LOAD_NAME            e
+CALL                 
+BINARY_OP            +
+CALL                 
+POP_TOP              
+LOAD_NAME            Kernal
+LOAD_ATTR            ErrChk + NULL|self
+CALL                 
+POP_TOP              
+POP_EXCEPT           
+LOAD_CONST           None
+STORE_NAME           e
+DELETE_NAME          e
+EXTENDED_ARG         
+JUMP_BACKWARD_NO_INTERRUPT to L20
+LOAD_CONST           None
+STORE_NAME           e
+DELETE_NAME          e
+RERAISE              
+RERAISE              
+COPY                 
+POP_EXCEPT           
+RERAISE              
+PUSH_EXC_INFO        
+LOAD_NAME            Exception
+CHECK_EXC_MATCH      
+POP_JUMP_IF_FALSE    to L43
+STORE_NAME           e
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           '[ERROR]Failed. '
+LOAD_NAME            str
+PUSH_NULL            
+LOAD_NAME            e
+CALL                 
+BINARY_OP            +
+CALL                 
+POP_TOP              
+POP_EXCEPT           
+LOAD_CONST           None
+STORE_NAME           e
+DELETE_NAME          e
+EXTENDED_ARG         
+JUMP_BACKWARD_NO_INTERRUPT to L35
+LOAD_CONST           None
+STORE_NAME           e
+DELETE_NAME          e
+RERAISE              
+RERAISE              
+COPY                 
+POP_EXCEPT           
+RERAISE              
+PUSH_EXC_INFO        
+LOAD_NAME            Exception
+CHECK_EXC_MATCH      
+POP_JUMP_IF_FALSE    to L44
+STORE_NAME           e
+LOAD_NAME            print
+PUSH_NULL            
+LOAD_CONST           '[ERROR]Unable to execute code. '
+LOAD_NAME            str
+PUSH_NULL            
+LOAD_NAME            e
+CALL                 
+BINARY_OP            +
+CALL                 
+POP_TOP              
+LOAD_NAME            Kernal
+LOAD_ATTR            ErrChk + NULL|self
+CALL                 
+POP_TOP              
+POP_EXCEPT           
+LOAD_CONST           None
+STORE_NAME           e
+DELETE_NAME          e
+EXTENDED_ARG         
+JUMP_BACKWARD_NO_INTERRUPT to L35
+LOAD_CONST           None
+STORE_NAME           e
+DELETE_NAME          e
+RERAISE              
+LOAD_NAME            SystemExit
+CHECK_EXC_MATCH      
+POP_JUMP_IF_FALSE    to L45
+POP_TOP              
+LOAD_NAME            StdUtil
+LOAD_ATTR            ConsoleLog + NULL|self
+LOAD_CONST           3
+CALL                 
+POP_TOP              
+DELETE_NAME          g
+LOAD_NAME            Kernal
+LOAD_ATTR            quit + NULL|self
+LOAD_CONST           0
+CALL                 
+POP_TOP              
+POP_EXCEPT           
+EXTENDED_ARG         
+JUMP_BACKWARD_NO_INTERRUPT to L35
+RERAISE              
+COPY                 
+POP_EXCEPT           
+RERAISE              
