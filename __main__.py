@@ -1,13 +1,17 @@
 #COPYRIGHT (C) Haoriwa 2022 - 2025
 #All rights reserved.
 # the license is under LICENSE.txt *
-from random import *
+#Do not be scared from "class", they are all
+#staticmethod, just use them like func.
+#Please use PascalCase to name func, class.
+from random import randint
 from ti_draw import *
 from time import *
 from ti_system import *
-import sys
-import gc
-import micropython as mp
+sys=__import__("sys")
+gc=__import__("gc")
+mp=__import__("micropython")#import done
+noclip=bool(False);
 dev=bool(False);
 dr=bool(False);
 debugs=bool(False);
@@ -18,7 +22,7 @@ mapslt=int(0);
 psx=int(95);
 psy=int(95);
 v_hev=int(0);
-GAMEVER=str("Gyro 24 Build(0080)");
+GAMEVER=str("Gyro 24 Build(0083)");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -43,11 +47,11 @@ class Kernal:#Code base class
   def quit(self=None):#built-in function, in nspire cx ii python the Kernal.quit function is not defined.
     raise SystemExit(self)
   @staticmethod
-  def ErrChk():#built-in function,for command "forceexitonerror".
+  def ErrChk(c=1):#built-in function,for command "forceexitonerror".
     global erxt
     if erxt==1:
       print("[DEBUG]Error or warning encounted,\nstopped engine.")
-      Kernal.quit(1)
+      Kernal.quit(c)
   @staticmethod
   def ResetGame():#built-in function,for soft reset.
     global mapslt,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
@@ -79,75 +83,121 @@ class Kernal:#Code base class
 class IO:#Input-Output class.
   def __init__(self):pass
   @staticmethod
-  def Save():#built-in function, for saving game.
+  def Save(custom=False,name="customFile",gamevar=0):#built-in function, for saving game.
     global emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
-    store_value("playery",psy)
-    store_value("playerx",psx)
-    store_value("v_hev",v_hev)
-    store_value("emptysave",0)
-    store_value("inclip9",inclip9)
-    store_value("inclip357",inclip357)
-    store_value("wpnslt",wpnslt)
-    store_value("v_live",v_live)
-    store_value("weapon_crb",weapon_crb)
-    store_value("weapon_physcnn",weapon_physcnn)
-    store_value("weapon_pst",weapon_pst)
-    store_value("weapon_357",weapon_357)
-    store_value("mapslt",mapslt)
-    store_value("ammo9",ammo9)
-    store_value("ammo357",ammo357)
-    store_value("item_suit",item_suit)
-    print("[IO]Game saved.")
-    return 0
-  @staticmethod
-  def Delete():#built-in function, for delete saved game.
-    global emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
-    store_value("playery",95)
-    store_value("playerx",95)
-    store_value("v_hev",0)
-    store_value("emptysave",1)
-    store_value("inclip9",0)
-    store_value("inclip357",0)
-    store_value("wpnslt",0)
-    store_value("v_live",100)
-    store_value("weapon_crb",0)
-    store_value("weapon_physcnn",0)
-    store_value("weapon_pst",0)
-    store_value("weapon_357",0)
-    store_value("mapslt",0)
-    store_value("ammo9",0)
-    store_value("ammo357",0)
-    store_value("item_suit",0)
-    print("[IO]File deleted.")
-    return 0
-  @staticmethod
-  def Load():#built-in function, for load a saved game.
-    global emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
-    mapslt=recall_value("mapslt")
-    emptysave=recall_value("emptysave")
-    wpnslt=recall_value("wpnslt")
-    weapon_357=recall_value("weapon_357")
-    weapon_pst=recall_value("weapon_pst")
-    ammo9=recall_value("ammo9")
-    ammo357=recall_value("ammo357")
-    psy=recall_value("playery")
-    psx=recall_value("playerx")
-    v_live=recall_value("v_live")
-    v_hev=recall_value("v_hev")
-    inclip9=recall_value("inclip9")
-    inclip357=recall_value("inclip357")
-    weapon_crb=recall_value("weapon_crb")
-    weapon_physcnn=recall_value("weapon_physcnn")
-    item_suit=recall_value("item_suit")
-    if v_live<=0:
-      print("[WARN]Game save is invalid with health:"+str(v_live)+". please reset current save.")
-      Kernal.ErrChk()
-    if emptysave==1:
-      print("[WARN]Trying to load an empty save.")
-      Kernal.ErrChk()
+    if custom==False:
+      try:
+        store_value("playery",psy)
+        store_value("playerx",psx)
+        store_value("v_hev",v_hev)
+        store_value("emptysave",0)
+        store_value("inclip9",inclip9)
+        store_value("inclip357",inclip357)
+        store_value("wpnslt",wpnslt)
+        store_value("v_live",v_live)
+        store_value("weapon_crb",weapon_crb)
+        store_value("weapon_physcnn",weapon_physcnn)
+        store_value("weapon_pst",weapon_pst)
+        store_value("weapon_357",weapon_357)
+        store_value("mapslt",mapslt)
+        store_value("ammo9",ammo9)
+        store_value("ammo357",ammo357)
+        store_value("item_suit",item_suit)
+        print("[IO]Game saved.")
+        return 0
+      except Exception as e:
+        print("[ERROR]Operation failed.",str(e))
+        Kernal.ErrChk()
+        return 1
     else:
-      print("[IO]Game loaded from save.")
-    return 0
+      try:
+        store_value(str(name),gamevar)
+        print("[IO]Saved file:"+str(name))
+        return 0
+      except Exception as e:
+        print("[ERROR]File operation on:"+str(name)+" failed.\n"+str(e))
+        Kernal.ErrChk()
+        return 1
+  @staticmethod
+  def Delete(custom=False,name="customFile",gamevar=None):#built-in function, for delete saved game.
+    global emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
+    if custom==False:
+      try:
+        store_value("playery",95)
+        store_value("playerx",95)
+        store_value("v_hev",0)
+        store_value("emptysave",1)
+        store_value("inclip9",0)
+        store_value("inclip357",0)
+        store_value("wpnslt",0)
+        store_value("v_live",100)
+        store_value("weapon_crb",0)
+        store_value("weapon_physcnn",0)
+        store_value("weapon_pst",0)
+        store_value("weapon_357",0)
+        store_value("mapslt",0)
+        store_value("ammo9",0)
+        store_value("ammo357",0)
+        store_value("item_suit",0)
+        print("[IO]File deleted.")
+        return 0
+      except Exception as e:
+        print("[ERROR]Operation failed.",str(e))
+        Kernal.ErrChk()
+        return 1
+    else:
+      try:
+        store_value(str(name),gamevar)
+        print("[IO]File operate success on:"+str(name))
+        return 0
+      except Exception as e:
+        print("[ERROR]File operate on:"+str(name)+" failed.\n"+str(e))
+        return 1
+  @staticmethod
+  def Load(custom=False,name="customFile",returnval=0):#built-in function, for load a saved game.
+    global emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
+    if custom==False:
+      try:
+        mapslt=recall_value("mapslt")
+        emptysave=recall_value("emptysave")
+        wpnslt=recall_value("wpnslt")
+        weapon_357=recall_value("weapon_357")
+        weapon_pst=recall_value("weapon_pst")
+        ammo9=recall_value("ammo9")
+        ammo357=recall_value("ammo357")
+        psy=recall_value("playery")
+        psx=recall_value("playerx")
+        v_live=recall_value("v_live")
+        v_hev=recall_value("v_hev")
+        inclip9=recall_value("inclip9")
+        inclip357=recall_value("inclip357")
+        weapon_crb=recall_value("weapon_crb")
+        weapon_physcnn=recall_value("weapon_physcnn")
+        item_suit=recall_value("item_suit")
+        if v_live<=0:
+          print("[WARN]Game save is invalid with health:"+str(v_live)+". please reset current save.")
+          Kernal.ErrChk()
+          return 2
+        if emptysave==1:
+          print("[WARN]Trying to load an empty save.")
+          Kernal.ErrChk()
+          return 2
+        else:
+          print("[IO]Game loaded from save.")
+          return 0
+      except Exception as e:
+        print("[ERROR]Operation failed.",str(e))
+        Kernal.ErrChk()
+        return 1
+    else:
+      try:
+        returnval=recall_value(str(name))
+        print("[IO]File operation on:"+str(name)+" success")
+        return returnval
+      except Exception as e:
+        print("[ERROR]File operation failed on:"+str(name)+".\n"+str(e))
+        Kernal.ErrChk()
+        return 1
 class ActionUI:#UI class
   def __init__(self):pass
   @staticmethod
@@ -211,7 +261,7 @@ class ActionUI:#UI class
       return 0
     elif wintp==6:
       set_color(200,150,50)
-      if v_hev!=0:
+      if v_hev!=0 or v_hev>=0:
         draw_text(80,190,v_hev)
         draw_text(80,200,"SUIT")
       if v_live>=20:
@@ -289,8 +339,17 @@ class StdUtil:#Builtins class, but more basic.
       print("[INFO]Player died.")
     return type
   @staticmethod
+  def ClipDetect(minx,miny,maxx,maxy,cltp):#built-in function, for clip brushes.
+    global psx,psy,noclip
+    if noclip==False:
+      if psx>=minx and psx<=maxx and psy>=miny and psy<=maxy:
+        if cltp==1:
+          return "cl"
+      else:
+        return "fl"
+  @staticmethod
   def Trigger(minx,miny,maxx,maxy,trgtp):#built-in function,for trigger a specific event.
-    global mapslt#map selection needs global var
+    global mapslt,psx,psy#map selection needs global var
     if psx>=minx and psx<=maxx and psy>=miny and psy<=maxy:
       if trgtp==1:
         ActionUI.Title(120,80,1)
@@ -598,6 +657,7 @@ def main():#main function
       Kernal.ResetGame()
       Assets.mainMenu()
       ActionUI.DispUi(0,0,4)
+      gc.collect()
       paint_buffer()
       while True:#main menu
         k=get_key()
@@ -667,22 +727,22 @@ def main():#main function
             debugs=False
             print("[INFO]Debug drawing disabled.")
             break
-        elif k=="l":
+        elif k=="right":
           psx+=5
           clear()
           fill_rect(psx,psy,5,5)
           break
-        elif k=="j":
+        elif k=="left":
           psx-=5
           clear()
           fill_rect(psx,psy,5,5)
           break
-        elif k=="d":
+        elif k=="up":
           psy-=5
           clear()
           fill_rect(psx,psy,5,5)
           break
-        elif k=="r":
+        elif k=="down":
           psy+=5
           clear()
           fill_rect(psx,psy,5,5)
@@ -707,7 +767,7 @@ def main():#main function
           gc.collect()
           print("[DEBUG]gc collect completed.")
           break
-        elif k=="up":#maybe create a new function to recall the effects.
+        elif k=="d":#maybe create a new function to recall the effects.
           if wpnslt==3 and reload9==0 and weapon_pst==1 and inclip9!=0:
             inclip9-=1
             Wbase.WeaponClip(1)
@@ -729,7 +789,7 @@ def main():#main function
           paint_buffer()
           sleep(0.1)
           break
-        elif k=="down":
+        elif k=="r":
           if wpnslt==3 and reload9==0 and weapon_pst==1 and inclip9!=0:
             inclip9-=1
             Wbase.WeaponClip(1)
@@ -751,7 +811,7 @@ def main():#main function
           paint_buffer()
           sleep(0.1)
           break
-        elif k=="left":
+        elif k=="j":
           if wpnslt==3 and reload9==0 and weapon_pst==1 and inclip9!=0:
             inclip9-=1
             Wbase.WeaponClip(1)
@@ -773,7 +833,7 @@ def main():#main function
           paint_buffer()
           sleep(0.1)
           break
-        elif k=="right":
+        elif k=="l":
           if wpnslt==3 and reload9==0 and weapon_pst==1 and inclip9!=0:
             inclip9-=1
             Wbase.WeaponClip(1)
@@ -941,6 +1001,7 @@ if (__name__=="__main__"):#all program starts from here.
     elif g=="disablemod":
       try:
         sys.modules.pop("gyro_addon_main1",None)
+        del tk
         gc.collect()
       except Exception as e:
         print("[ERROR]Mod cannot be poped, "+str(e))
@@ -951,9 +1012,9 @@ if (__name__=="__main__"):#all program starts from here.
     elif g=="modinit":
       if vtk!=True:
         try:
-          import gyro_addon_main1 as tk
+          tk=__import__("gyro_addon_main1")
         except Exception as e:
-          print("[ERROR]Unknown error occured. "+str(e))
+          print("[ERROR]Error occured. "+str(e))
           Kernal.ErrChk()
         vtk=True
         print("[INFO]Mod init success.")
@@ -980,7 +1041,7 @@ if (__name__=="__main__"):#all program starts from here.
       print("Gyro engine help page 2:\nloadgame:load game from saved file.\ndeletesave:delete saved game.\nmodinit:__init__ installed mod.\nrunmod:start mod.\nmodver:get version for mod.\ndisablemod:disable mod.(pop)\nadjustthreshold:change the value for gc.threshold()\ndev: toggle devloper mode.")
     elif g=="help 3":
       print("Gyro engine help page 3:\nscuptoggle: toggle the output when screen \nupdate.\nexec:use exec() to execute python code.")
-    elif g=="Kernal.quit"or g=="stop"or g=="exit"or g=="esc":
+    elif g=="quit"or g=="stop"or g=="exit"or g=="esc":
       del g
       StdUtil.ConsoleLog(3)
       Kernal.quit()
@@ -990,18 +1051,17 @@ if (__name__=="__main__"):#all program starts from here.
         dr=True;print("[CONSOLE]Enabled.")
       else:dr=False;print("[CONSOLE]Disabled.")
     elif g=="setgeomet":
-      x1=int(input("xmin"))
-      y1=int(input("ymin"))
-      x2=int(input("xmax"))
-      y2=int(input("ymax"))
       try:
+        x1=int(input("xmin"))
+        y1=int(input("ymin"))
+        x2=int(input("xmax"))
+        y2=int(input("ymax"))
         set_window(x1,x2,y1,y2)
         print("[INFO]Resolution set to:"+str(x1)+","+str(y1)+","+str(x2)+","+str(y2))
+        break
       except Exception as e:
         print("[ERROR]Setting was failed. "+str(e))
         Kernal.ErrChk()
-      del x1,x2,y1,y2
-      break
     elif g=="forceexitonerror":
       if erxt==1:
         erxt=0
@@ -1011,7 +1071,7 @@ if (__name__=="__main__"):#all program starts from here.
         print("[CONSOLE]Exit when error enabled.")
     elif g=="version":
       e=get_platform()
-      print("Gyro 2D Gaming engine.\n",GAMEVER,"\nComplied in 2025/04/18\nMade by Alex_Nute aka axnut123.\nMade in China.\nCurrent platform:",e,"\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
+      print("Gyro 2D Gaming engine.\n",GAMEVER,"\nDebugged in 2025/04/25\nMade by Alex_Nute aka axnut123.\nMade in China.\nCurrent platform:",e,"\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
       del e
     elif g=="hwinfo":
       print("mem free",str(gc.mem_free()))
