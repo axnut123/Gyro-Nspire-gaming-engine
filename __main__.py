@@ -11,18 +11,24 @@ from ti_system import *
 sys=__import__("sys")
 gc=__import__("gc")
 mp=__import__("micropython")#import done
+novid=bool(False);
+plr=int(0);
+plg=int(0);
+plb=int(0);
+plw=int(0);
+plh=int(0);
 noclip=bool(False);
 dev=bool(False);
 dr=bool(False);
 debugs=bool(False);
 erxt=int(0);
-g=str("0");
-key=str("0");
+g=str("");
+key=str("None");
 mapslt=int(0);
-psx=int(95);
-psy=int(95);
+psx=int(0);
+psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 24 Build(0083)");
+GAMEVER=str("Gyro 24 Build(0084)");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -55,7 +61,7 @@ class Kernal:#Code base class
   @staticmethod
   def ResetGame():#built-in function,for soft reset.
     global mapslt,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
-    mapslt=0;psx=95;psy=95;v_hev=0;wpnslt=0;item_suit=0;weapon_crb=0;weapon_physcnn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0;v_live=100;ammo9max=180;ammo357max=12;inclip9=0;inclip357=0;reload9=0;reload357=0
+    mapslt=0;plh=0;plw=0;plg=0;plb=0;plr=0;psx=0;psy=0;v_hev=0;wpnslt=0;item_suit=0;weapon_crb=0;weapon_physcnn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0;v_live=100;ammo9max=180;ammo357max=12;inclip9=0;inclip357=0;reload9=0;reload357=0
     print("[INFO]Game reset completed.")
     return 0
   @staticmethod
@@ -198,6 +204,82 @@ class IO:#Input-Output class.
         print("[ERROR]File operation failed on:"+str(name)+".\n"+str(e))
         Kernal.ErrChk()
         return 1
+class UniFX:#Universal VFX class.
+  def __init__(self):pass
+  @staticmethod
+  def LowHealth():#built-in function, vfx for low health.
+    set_color(190,20,20)
+    set_pen("thick","solid")
+    draw_rect(0,0,317,211)
+    set_pen("thin","solid")
+    return 0
+class Actors:#entity class.
+  def __init__(self):pass
+  class King:#Player class.
+    def __init__(self):pass
+    @staticmethod
+    def Draw():#built-in function, draw player.
+      global plr,plg,plb,psy,psx,plw,plh,v_live
+      set_color(plr,plg,plb)
+      if v_live<=0 or v_live==0:return 0
+      fill_rect(psx,psy,plw,plh)
+      return 0
+    @staticmethod
+    def Init(inittype,ar1=0,ar2=0,ar3=0):#built-in function,for init player vars
+      global plr,plg,plb,psy,psx,plw,plh,v_live,v_hev,ammo9,ammo357,inclip9,inclip357,item_suit,weapon_crb,weapon_pst,weapon_357,weapon_physcnn
+      if inittype==1:
+        plr=ar1
+        plg=ar2
+        plb=ar3
+        return 1
+      elif inittype==2:
+        psx=ar1
+        psy=ar2
+        return 2
+      elif inittype==3:
+        plw=ar1
+        plh=ar2
+        return 3
+      elif inittype==4:
+        v_live=ar1
+        return 4
+      elif inittype==5:
+        v_hev=ar1
+        return 5
+      elif inittype==6:
+        ammo9=ar1
+        inclip9=ar2
+        return 6
+      elif inittype==7:
+        ammo357=ar1
+        inclip357=ar2
+        return 7
+      elif inittype==8:
+        weapon_crb=ar1
+        return 8
+      elif inittype==9:
+        weapon_pst=ar1
+        return 9
+      elif inittype==10:
+        weapon_357=ar1
+        return 10
+      elif inittype==11:
+        weapon_physcnn=ar1
+        return 11
+      elif inittype==12:
+        item_suit=ar1
+        return 12
+      else:
+        print("[ERROR]Unknown init type.")
+        Kernal.ErrChk()
+        return 0
+  class Queen:#npc entities.
+    def __init__(self):pass
+    @staticmethod
+    def Draw(x,y,w,h,r,g,b):#built-in function,for drawing entities.
+      set_color(r,g,b)
+      fill_rect(x,y,w,h)
+      return 0
 class ActionUI:#UI class
   def __init__(self):pass
   @staticmethod
@@ -261,17 +343,17 @@ class ActionUI:#UI class
       return 0
     elif wintp==6:
       set_color(200,150,50)
-      if v_hev!=0 or v_hev>=0:
+      if v_hev>0:
         draw_text(80,190,v_hev)
         draw_text(80,200,"SUIT")
-      if v_live>=20:
+      if v_live>=21:
         set_color(200,150,50)
-        draw_text(20,190,v_live)
-        draw_text(20,200,"HEALTH")
+        draw_text(15,190,v_live)
+        draw_text(15,200,"HEALTH")
       else:
         set_color(250,100,10)
-        draw_text(20,190,v_live)
-        draw_text(20,200,"HEALTH")
+        draw_text(15,190,v_live)
+        draw_text(15,200,"HEALTH")
         return 0
     elif wintp==7:
       set_color(210,10,10)
@@ -597,7 +679,7 @@ class Assets:#asset class
     clear()
     return 0
   @staticmethod
-  def mainMenu():#main menu function
+  def MainMenu():#main menu function
     posy=20;rgbr=10;rgbb=100;posx=0;w=0;h=0;g=0;b=0;r=0
     set_pen("medium","solid")
     a=0
@@ -655,7 +737,7 @@ def main():#main function
   while True:#game logic loop
     if inmenu==True:#menu guard
       Kernal.ResetGame()
-      Assets.mainMenu()
+      Assets.MainMenu()
       ActionUI.DispUi(0,0,4)
       gc.collect()
       paint_buffer()
@@ -665,7 +747,18 @@ def main():#main function
         if k=="enter":
           Assets.gmanintro()
           inmenu=False
-          v_live=100
+          Actors.King.Init(1,0,0,0)
+          Actors.King.Init(2,95,95)
+          Actors.King.Init(3,5,5)
+          Actors.King.Init(4,100)
+          Actors.King.Init(5,0)
+          Actors.King.Init(6,0,0)
+          Actors.King.Init(7,0,0)
+          Actors.King.Init(8,0)
+          Actors.King.Init(9,0)
+          Actors.King.Init(10,0)
+          Actors.King.Init(11,0)
+          Actors.King.Init(12,0)
           break
         elif k=="b":
           for i in range(2):
@@ -678,13 +771,24 @@ def main():#main function
           IO.Delete()
         elif k=="menu":
           ActionUI.DispUi(0,0,9)
-          Assets.mainMenu()
+          Assets.MainMenu()
           ActionUI.DispUi(0,0,4)
           paint_buffer()
         elif k=="a":
           Assets.gmanintlol()
           inmenu=False
-          v_live=100
+          Actors.King.Init(1,0,0,0)
+          Actors.King.Init(2,95,95)
+          Actors.King.Init(3,5,5)
+          Actors.King.Init(4,100)
+          Actors.King.Init(5,0)
+          Actors.King.Init(6,0,0)
+          Actors.King.Init(7,0,0)
+          Actors.King.Init(8,0)
+          Actors.King.Init(9,0)
+          Actors.King.Init(10,0)
+          Actors.King.Init(11,0)
+          Actors.King.Init(12,0)
           break
         elif k=="esc":
           StdUtil.ConsoleLog(3)
@@ -694,14 +798,13 @@ def main():#main function
     StdUtil.ConsoleLog(1)
     StdUtil.MapStat()#logic check in here,define your trigger in this function.
     ActionUI.DispUi(0,0,8)
-    set_color(0,0,0)
-    fill_rect(psx,psy,5,5)
     if item_suit==1:#hud
       ActionUI.DispUi(0,0,6)
-    set_color(0,0,0)
-    fill_rect(psx,psy,5,5)
+    if v_live<=20 and v_live>=0:
+      UniFX.LowHealth()
     if v_live<=0:#death detecting
       ActionUI.DispUi(0,0,7)
+      Actors.King.Draw()
       paint_buffer()
       StdUtil.ConsoleLog(7)
       while get_key()!="unknow":
@@ -713,12 +816,13 @@ def main():#main function
       while k!=key:
         k=get_key()
         StdUtil.MapStat()
-        set_color(0,0,0)
-        fill_rect(psx,psy,5,5)
         if item_suit==1:
           ActionUI.DispUi(0,0,6)
           ActionUI.DispUi(0,0,8)
         ActionUI.DispUi(0,0,2)
+        Actors.King.Draw()
+        if v_live<=20 and v_live>=0:
+          UniFX.LowHealth()
         if k=="u" and dev==True:
           if debugs==False:
             debugs=True
@@ -729,23 +833,15 @@ def main():#main function
             break
         elif k=="right":
           psx+=5
-          clear()
-          fill_rect(psx,psy,5,5)
           break
         elif k=="left":
           psx-=5
-          clear()
-          fill_rect(psx,psy,5,5)
           break
         elif k=="up":
           psy-=5
-          clear()
-          fill_rect(psx,psy,5,5)
           break
         elif k=="down":
           psy+=5
-          clear()
-          fill_rect(psx,psy,5,5)
           break
         elif k=="t" and dev==True:
           v_hev-=10
@@ -893,13 +989,13 @@ def main():#main function
               wpnslt=1
               clear()
               StdUtil.MapStat()
-              fill_rect(psx,psy,5,5)
+              Actors.King.Draw()
               break
             elif k=="2" and weapon_physcnn==1:
               wpnslt=2
               clear()
               StdUtil.MapStat()
-              fill_rect(psx,psy,5,5)
+              Actors.King.Draw()
               break
         elif k=="2":
           if item_suit==1:pass
@@ -925,19 +1021,19 @@ def main():#main function
             if k=="0":
               clear()
               StdUtil.MapStat()
-              fill_rect(psx,psy,5,5)
+              Actors.King.Draw()
               break
             elif k=="1" and weapon_pst==1 and ammo9!=0:
               wpnslt=3
               clear()
               StdUtil.MapStat()
-              fill_rect(psx,psy,5,5)
+              Actors.King.Draw()
               break
             elif k=="2" and weapon_357==1 and ammo357!=0:
               wpnslt=4
               clear()
               StdUtil.MapStat()
-              fill_rect(psx,psy,5,5)
+              Actors.King.Draw()
               break
             paint_buffer()
           break
@@ -956,7 +1052,6 @@ def main():#main function
                 paint_buffer()
                 if k=="esc":
                   clear()
-                  fill_rect(500,500,1,1)
                   break
                 elif k=="q":
                   StdUtil.ConsoleLog(3)
@@ -1040,7 +1135,7 @@ if (__name__=="__main__"):#all program starts from here.
     elif g=="help 2":
       print("Gyro engine help page 2:\nloadgame:load game from saved file.\ndeletesave:delete saved game.\nmodinit:__init__ installed mod.\nrunmod:start mod.\nmodver:get version for mod.\ndisablemod:disable mod.(pop)\nadjustthreshold:change the value for gc.threshold()\ndev: toggle devloper mode.")
     elif g=="help 3":
-      print("Gyro engine help page 3:\nscuptoggle: toggle the output when screen \nupdate.\nexec:use exec() to execute python code.")
+      print("Gyro engine help page 3:\nscuptoggle: toggle the output when screen \nupdate.\nexec:use exec() to execute python code.\nnovid:disable launch video.")
     elif g=="quit"or g=="stop"or g=="exit"or g=="esc":
       del g
       StdUtil.ConsoleLog(3)
@@ -1071,8 +1166,15 @@ if (__name__=="__main__"):#all program starts from here.
         print("[CONSOLE]Exit when error enabled.")
     elif g=="version":
       e=get_platform()
-      print("Gyro 2D Gaming engine.\n",GAMEVER,"\nDebugged in 2025/04/25\nMade by Alex_Nute aka axnut123.\nMade in China.\nCurrent platform:",e,"\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
+      print("Gyro 2D Gaming engine.\n",GAMEVER,"\nFirst runned in 2025/04/29\nMade by Alex_Nute aka axnut123.\nMade in China.\nCurrent platform:",e,"\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
       del e
+    elif g=="novid":
+      if novid==False:
+        novid=True
+        print("[CONSOLE]Disabled launch video")
+      else:
+        novid=False
+        print("[CONSOLE]Enabled launch video")
     elif g=="hwinfo":
       print("mem free",str(gc.mem_free()))
       print("mem alloc",str(gc.mem_alloc()))
@@ -1120,7 +1222,7 @@ if (__name__=="__main__"):#all program starts from here.
   gc.collect()
   StdUtil.ConsoleLog(2)
   use_buffer()
-  Kernal.Opening()
+  if novid==False:Kernal.Opening()
   StdUtil.ConsoleLog(5)
   if modenb==True:
     print("[INFO]Trying to load mod script.")
