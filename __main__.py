@@ -4,6 +4,9 @@
 #Do not be scared from "class", they are all
 #staticmethod, just use them like func.
 #Please use PascalCase to name func, class.
+#In main function, everything is clean and
+#visible, if more features are needed, add
+#them in the main function.
 from random import randint
 from ti_draw import *
 from time import *
@@ -23,12 +26,12 @@ dr=bool(False);
 debugs=bool(False);
 erxt=int(0);
 g=str("");
-key=str("None");
+key=str("");
 mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 24 Build(0084)");
+GAMEVER=str("Gyro 25 Build(0085)");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -213,6 +216,87 @@ class UniFX:#Universal VFX class.
     draw_rect(0,0,317,211)
     set_pen("thin","solid")
     return 0
+  class BulletFX:
+    def __init__(self):pass
+    @staticmethod
+    def BltFlr(btp):
+      global psy,psx
+      if btp==1:
+        set_color(240,240,5)
+        draw_line(psx,psy-20,psx,psy-45)
+        return 1
+      elif btp==2:
+        set_color(240,240,5)
+        draw_line(psx,psy-20,psx,psy-85)
+        return 2
+      elif btp==3:
+        set_color(210,210,210)
+        fill_arc(psx-19,psy-9,50,30,30,100)
+        return 3
+      elif btp==4:
+        set_color(255,150,10)
+        set_pen("thick","solid")
+        draw_line(psx,psy,psx,psy-35)
+        set_pen("thin","solid")
+        return 4
+      elif btp==5:
+        set_color(240,240,0)
+        draw_line(psx,psy+20,psx,psy+45)
+        return 5
+      elif btp==6:
+        set_color(240,240,0)
+        draw_line(psx,psy+20,psx,psy+85)
+        return 6
+      elif btp==7:
+        set_color(210,210,210)
+        fill_arc(psx-19,psy-9,50,30,-30,-100)
+        return 7
+      elif btp==8:
+        set_color(255,150,10)
+        set_pen("thick","solid")
+        draw_line(psx,psy,psx,psy+35)
+        set_pen("thin","solid")
+        return 8
+      elif btp==9:
+        set_color(240,240,0)
+        draw_line(psx-20,psy,psx-45,psy)
+        return 9
+      elif btp==10:
+        set_color(240,240,0)
+        draw_line(psx-20,psy,psx-85,psy)
+        return 10
+      elif btp==11:
+        set_color(210,210,210)
+        fill_arc(psx-19,psy-9,50,30,-120,-90)
+        return 11
+      elif btp==12:
+        set_color(255,150,10)
+        set_pen("thick","solid")
+        draw_line(psx,psy,psx-35,psy)
+        set_pen("thin","solid")
+        return 12
+      elif btp==13:
+        set_color(240,240,0)
+        draw_line(psx+20,psy,psx+45,psy)
+        return 13
+      elif btp==14:
+        set_color(240,240,0)
+        draw_line(psx+20,psy,psx+85,psy)
+        return 14
+      elif btp==15:
+        set_color(210,210,210)
+        fill_arc(psx-19,psy-9,50,30,-30,100)
+        return 15
+      elif btp==16:
+        set_color(255,150,10)
+        set_pen("thick","solid")
+        draw_line(psx,psy,psx+35,psy)
+        set_pen("thin","solid")
+        return 16
+      else:
+        print("[ERROR]Cannot find type of the VFX that dedicated")
+        Kernal.ErrChk()
+        return 0
 class Actors:#entity class.
   def __init__(self):pass
   class King:#Player class.
@@ -386,6 +470,30 @@ class ActionUI:#UI class
       draw_text(220,205,"Loading...")
       paint_buffer()
       return 0
+    elif wintp==10:
+      set_color(120,120,120)
+      fill_rect(30,30,80,50)
+      set_color(200,150,50)
+      draw_text(31,82,"CROWBAR")
+    elif wintp==11:
+      set_color(120,120,120)
+      fill_rect(30,100,120,50)
+      set_color(200,150,50)
+      draw_text(31,145,"GRAVITY GUN")
+    elif wintp==12:
+      set_color(120,120,120)
+      fill_rect(55,30,80,50)
+      if ammo9==0:
+        set_color(255,10,10)
+      else:set_color(200,150,50)
+      draw_text(56,82,"PISTOL")
+    elif wintp==13:
+      set_color(120,120,120)
+      fill_rect(55,100,125,50)
+      if ammo357==0:
+        set_color(255,10,10)
+      else:set_color(200,150,50)
+      draw_text(56,142,".357 MAGNUM")
     else:
       print("[ERROR]Window type is not defined.")
       Kernal.ErrChk()
@@ -867,21 +975,15 @@ def main():#main function
           if wpnslt==3 and reload9==0 and weapon_pst==1 and inclip9!=0:
             inclip9-=1
             Wbase.WeaponClip(1)
-            set_color(240,240,0)
-            draw_line(psx,psy-20,psx,psy-45)
+            UniFX.BulletFX.BltFlr(1)
           if wpnslt==4 and reload357==0 and weapon_357==1 and inclip357!=0:
             inclip357-=1
             Wbase.WeaponClip(2)
-            set_color(240,240,0)
-            draw_line(psx,psy-20,psx,psy-85)
+            UniFX.BulletFX.BltFlr(2)
           if wpnslt==1 and weapon_crb==1:
-            set_color(210,210,210)
-            fill_arc(psx-19,psy-9,50,30,30,100)
+            UniFX.BulletFX.BltFlr(3)
           if wpnslt==2 and weapon_physcnn==1:
-            set_color(255,150,10)
-            set_pen("thick","solid")
-            draw_line(psx,psy,psx,psy-35)
-            set_pen("thin","solid")
+            UniFX.BulletFX.BltFlr(4)
           paint_buffer()
           sleep(0.1)
           break
@@ -889,21 +991,15 @@ def main():#main function
           if wpnslt==3 and reload9==0 and weapon_pst==1 and inclip9!=0:
             inclip9-=1
             Wbase.WeaponClip(1)
-            set_color(240,240,0)
-            draw_line(psx,psy+20,psx,psy+45)
+            UniFX.BulletFX.BltFlr(5)
           if wpnslt==4 and reload357==0 and weapon_357==1 and inclip357!=0:
             inclip357-=1
             Wbase.WeaponClip(2)
-            set_color(240,240,0)
-            draw_line(psx,psy+20,psx,psy+85)
+            UniFX.BulletFX.BltFlr(6)
           if wpnslt==1 and weapon_crb==1:
-            set_color(210,210,210)
-            fill_arc(psx-19,psy-9,50,30,-30,-100)
+            UniFX.BulletFX.BltFlr(7)
           if wpnslt==2 and weapon_physcnn==1:
-            set_color(255,150,10)
-            set_pen("thick","solid")
-            draw_line(psx,psy,psx,psy+35)
-            set_pen("thin","solid")
+            UniFX.BulletFX.BltFlr(8)
           paint_buffer()
           sleep(0.1)
           break
@@ -911,21 +1007,15 @@ def main():#main function
           if wpnslt==3 and reload9==0 and weapon_pst==1 and inclip9!=0:
             inclip9-=1
             Wbase.WeaponClip(1)
-            set_color(240,240,0)
-            draw_line(psx-20,psy,psx-45,psy)
+            UniFX.BulletFX.BltFlr(9)
           if wpnslt==4 and reload357==0 and weapon_357==1 and inclip357!=0:
             inclip357-=1
             Wbase.WeaponClip(2)
-            set_color(240,240,0)
-            draw_line(psx-20,psy,psx-85,psy)
+            UniFX.BulletFX.BltFlr(10)
           if wpnslt==1 and weapon_crb==1:
-            set_color(210,210,210)
-            fill_arc(psx-19,psy-9,50,30,-120,-90)
+            UniFX.BulletFX.BltFlr(11)
           if wpnslt==2 and weapon_physcnn==1:
-            set_color(255,150,10)
-            set_pen("thick","solid")
-            draw_line(psx,psy,psx-35,psy)
-            set_pen("thin","solid")
+            UniFX.BulletFX.BltFlr(12)
           paint_buffer()
           sleep(0.1)
           break
@@ -933,21 +1023,15 @@ def main():#main function
           if wpnslt==3 and reload9==0 and weapon_pst==1 and inclip9!=0:
             inclip9-=1
             Wbase.WeaponClip(1)
-            set_color(240,240,0)
-            draw_line(psx+20,psy,psx+45,psy)
+            UniFX.BulletFX.BltFlr(13)
           if wpnslt==4 and reload357==0 and weapon_357==1 and inclip357!=0:
             inclip357-=1
             Wbase.WeaponClip(2)
-            set_color(240,240,0)
-            draw_line(psx+20,psy,psx+85,psy)
+            UniFX.BulletFX.BltFlr(14)
           if wpnslt==1 and weapon_crb==1:
-            set_color(210,210,210)
-            fill_arc(psx-19,psy-9,50,30,-30,100)
+            UniFX.BulletFX.BltFlr(15)
           if wpnslt==2 and weapon_physcnn==1:
-            set_color(255,150,10)
-            set_pen("thick","solid")
-            draw_line(psx,psy,psx+35,psy)
-            set_pen("thin","solid")
+            UniFX.BulletFX.BltFlr(16)
           paint_buffer()
           sleep(0.1)
           break
@@ -968,22 +1052,16 @@ def main():#main function
           else:break
           ActionUI.DispUi(0,0,5)
           if weapon_crb==1:
-            set_color(120,120,120)
-            fill_rect(30,30,80,50)
-            set_color(200,150,50)
-            draw_text(31,82,"CROWBAR")
+            ActionUI.DispUi(0,0,10)
           if weapon_physcnn==1:
-            set_color(120,120,120)
-            fill_rect(30,100,120,50)
-            set_color(200,150,50)
-            draw_text(31,145,"GRAVITY GUN")
+            ActionUI.DispUi(0,0,11)
           paint_buffer()
           while k!="0":
             k=get_key()
             if k=="0":
               clear()
               StdUtil.MapStat()
-              fill_rect(psx,psy,5,5)
+              Actors.King.Draw()
               break
             elif k=="1" and weapon_crb==1:
               wpnslt=1
@@ -1002,19 +1080,9 @@ def main():#main function
           else:break
           ActionUI.DispUi(0,0,5)
           if weapon_pst==1:
-            set_color(120,120,120)
-            fill_rect(55,30,80,50)
-            if ammo9==0:
-              set_color(255,10,10)
-            else:set_color(200,150,50)
-            draw_text(56,82,"PISTOL")
+            ActionUI.DispUi(0,0,12)
           if weapon_357==1:
-            set_color(120,120,120)
-            fill_rect(55,100,125,50)
-            if ammo357==0:
-              set_color(255,10,10)
-            else:set_color(200,150,50)
-            draw_text(56,142,".357 MAGNUM")
+            ActionUI.DispUi(0,0,13)
           paint_buffer()
           while k!="0":
             k=get_key()
@@ -1088,9 +1156,9 @@ def main():#main function
   return 0
 if (__name__=="__main__"):#all program starts from here.
   print("[PRE-LOAD]Starting console and engine.")
-  while g!="run"or g!="start":
+  while g!="run"or g!="start"or g!="begin":
     g=str(input("]"))
-    if g=="run"or g=="start":
+    if g=="run"or g=="start"or g=="begin":
       print("[CONSOLE]Running engine.")
       break
     elif g=="disablemod":
@@ -1166,7 +1234,7 @@ if (__name__=="__main__"):#all program starts from here.
         print("[CONSOLE]Exit when error enabled.")
     elif g=="version":
       e=get_platform()
-      print("Gyro 2D Gaming engine.\n",GAMEVER,"\nFirst runned in 2025/04/29\nMade by Alex_Nute aka axnut123.\nMade in China.\nCurrent platform:",e,"\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
+      print("Gyro 2D Gaming engine.\n",GAMEVER,"\nFirst runned in 2025/04/30\nMade by Alex_Nute aka axnut123.\nMade in China.\nCurrent platform:",e,"\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
       del e
     elif g=="novid":
       if novid==False:
