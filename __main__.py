@@ -101,7 +101,7 @@ class Kernal:#Code base class
       main()
   @staticmethod
   def Console():#built-in function,for console.
-    global g,modenb,vtk,erxt,novid,tk
+    global g,modenb,vtk,erxt,novid,tk,dev
     print("[PRE-LOAD]Starting console.")
     while g!="run"or g!="start"or g!="begin":
       g=str(input("]"))
