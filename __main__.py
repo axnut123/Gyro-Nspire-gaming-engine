@@ -86,6 +86,7 @@ class Kernal:#Code base class
   @staticmethod
   def GameLoader():#Built-in function, for game loading process.
     global novid,modenb
+    del g
     print("[CONSOLE]Console is being closed.\n[INFO]Engine is now started.")
     gc.collect()
     StdUtil.ConsoleLog(2)
@@ -231,7 +232,6 @@ class Kernal:#Code base class
       elif g=="":pass
       else:
         print("[CONSOLE]Unknown command:",g,".type help <page(1/2/3)> to get help.")
-      del g
   @staticmethod
   def Opening():#the engine opening
     fill_rect(0,0,500,300)
