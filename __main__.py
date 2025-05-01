@@ -6,7 +6,12 @@
 #Please use PascalCase to name func, class.
 #In main function, everything is clean and
 #visible, if more features are needed, add
-#them in the main function.
+#them in the main function. But sometimes you
+#have to add something in built-in functions.
+#I'm very like to write C-like codes. such as
+#def without return called void.
+#Every class, functions in here are all with
+#examples, you can learn engine from examples.
 from random import randint
 from ti_draw import *
 from time import *
@@ -15,6 +20,9 @@ sys=__import__("sys")
 gc=__import__("gc")
 mp=__import__("micropython")#import done
 novid=bool(False);
+endtick=None;
+active=bool(False);
+action=None;
 plr=int(0);
 plg=int(0);
 plb=int(0);
@@ -31,7 +39,7 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 25 Build(0085)");
+GAMEVER=str("Gyro 25 Build(0086)");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -62,11 +70,168 @@ class Kernal:#Code base class
       print("[DEBUG]Error or warning encounted,\nstopped engine.")
       Kernal.quit(c)
   @staticmethod
+  def WaitUpdate():#built-in function. for check the wait tick.
+    global active,action,endtick
+    if active and ticks_cpu()>=endtick:
+      active=False
+      if action:
+        action()
+        action=None
+  @staticmethod
   def ResetGame():#built-in function,for soft reset.
     global mapslt,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
     mapslt=0;plh=0;plw=0;plg=0;plb=0;plr=0;psx=0;psy=0;v_hev=0;wpnslt=0;item_suit=0;weapon_crb=0;weapon_physcnn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0;v_live=100;ammo9max=180;ammo357max=12;inclip9=0;inclip357=0;reload9=0;reload357=0
     print("[INFO]Game reset completed.")
-    return 0
+    return
+  @staticmethod
+  def GameLoader():#Built-in function, for game loading process.
+    global novid,modenb
+    print("[CONSOLE]Console is being closed.\n[INFO]Engine is now started.")
+    gc.collect()
+    StdUtil.ConsoleLog(2)
+    use_buffer()
+    if novid==False:Kernal.Opening()
+    StdUtil.ConsoleLog(5)
+    if modenb==True:
+      print("[INFO]Trying to load mod script.")
+      tk.mod_main()
+    else:
+      print("[INFO]Mod loader was not enabled,loading main script.")
+      main()
+  @staticmethod
+  def Console():#built-in function,for console.
+    global g,modenb,vtk,erxt,novid
+    print("[PRE-LOAD]Starting console.")
+    while g!="run"or g!="start"or g!="begin":
+      g=str(input("]"))
+      if g=="run"or g=="start"or g=="begin":
+        print("[CONSOLE]Running engine.")
+        break
+      elif g=="disablemod":
+        try:
+          sys.modules.pop("gyro_addon_main1",None)
+          del tk
+          gc.collect()
+        except Exception as e:
+          print("[ERROR]Mod cannot be poped, "+str(e))
+          Kernal.ErrChk()
+        vtk=False
+        modenb=False
+        print("[INFO]Mod disabled.")
+      elif g=="modinit":
+        if vtk!=True:
+          try:
+            tk=__import__("gyro_addon_main1")
+          except Exception as e:
+            print("[ERROR]Error occured. "+str(e))
+            Kernal.ErrChk()
+          vtk=True
+          print("[INFO]Mod init success.")
+        else:
+          print("[WARN]Mod already init.")
+          Kernal.ErrChk()
+      elif g=="runmod":
+        if vtk==True:
+          modenb=True
+          print("[INFO]Mod is running.")
+          break
+        else:
+          print("[ERROR]Mod script not found.")
+          Kernal.ErrChk()
+      elif g=="modver":
+        if vtk==True:
+          print(tk.mod_info(0))
+        else:
+          print("[ERROR]Mod is not found.")
+          Kernal.ErrChk()
+      elif g=="help 1":
+        print("Gyro engine help page 1:\nrun:start engine.\nhelp <page(1/2/3)>:get help.\nquit:stop engine and console.\nsetgeomet:set a new resolution for screen.\nforceexitonerror:forcely stop whole engine when encounting any error and warn.\nversion:get engine version and credits.\nhwinfo:get hardware info.\ncls:clear screen.")
+      elif g=="help 2":
+        print("Gyro engine help page 2:\nloadgame:load game from saved file.\ndeletesave:delete saved game.\nmodinit:__init__ installed mod.\nrunmod:start mod.\nmodver:get version for mod.\ndisablemod:disable mod.(pop)\nadjustthreshold:change the value for gc.threshold()\ndev: toggle devloper mode.")
+      elif g=="help 3":
+        print("Gyro engine help page 3:\nscuptoggle: toggle the output when screen \nupdate.\nexec:use exec() to execute python code.\nnovid:disable launch video.")
+      elif g=="quit"or g=="stop"or g=="exit"or g=="esc":
+        del g
+        StdUtil.ConsoleLog(3)
+        Kernal.quit()
+        break
+      elif g=="scuptoggle":
+        if dr==False:
+          dr=True;print("[CONSOLE]Enabled.")
+        else:dr=False;print("[CONSOLE]Disabled.")
+      elif g=="setgeomet":
+        try:
+          x1=int(input("xmin"))
+          y1=int(input("ymin"))
+          x2=int(input("xmax"))
+          y2=int(input("ymax"))
+          set_window(x1,x2,y1,y2)
+          print("[INFO]Resolution set to:"+str(x1)+","+str(y1)+","+str(x2)+","+str(y2))
+          break
+        except Exception as e:
+          print("[ERROR]Setting was failed. "+str(e))
+          Kernal.ErrChk()
+      elif g=="forceexitonerror":
+        if erxt==1:
+          erxt=0
+          print("[CONSOLE]Exit when error disabled.")
+        else:
+          erxt=1
+          print("[CONSOLE]Exit when error enabled.")
+      elif g=="version":
+        e=get_platform()
+        print("Gyro 2D Gaming engine.\n",GAMEVER,"\nFirst runned in 2025/05/01\nMade by Alex_Nute aka axnut123.\nMade in China.\nCurrent platform:",e,"\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
+        del e
+      elif g=="novid":
+        if novid==False:
+          novid=True
+          print("[CONSOLE]Disabled launch video")
+        else:
+          novid=False
+          print("[CONSOLE]Enabled launch video")
+      elif g=="hwinfo":
+        print("mem free",str(gc.mem_free()))
+        print("mem alloc",str(gc.mem_alloc()))
+        print("stack use",str(mp.stack_use()))
+        print("pystack use",str(mp.pystack_use()))
+        print("cpu tick",ticks_cpu())
+        print("local time",str(localtime()))
+      elif g=="deletesave":
+        IO.Delete()
+      elif g=="loadgame":
+        IO.Load()
+      elif g=="help":
+        print("Usage: help <1/2/3>. example: help 1 for page 1.")
+      elif g=="cls":
+        clear_history()
+      elif g=="dev":
+        if dev==False:
+          dev=True
+          print("[CONSOLE]Dev mode enabled.")
+        else:dev=False;print("[CONSOLE]Dev mode disabled")
+      elif g=="adjustthreshold":
+        try:
+          b=int(input("gc.threshold:"))
+          gc.threshold(int(b))
+          print("[CONSOLE]New value given.")
+        except Exception as e:
+          print("[ERROR]Failed. "+str(e))
+      elif g=="exec":
+        g=str(input("execute:"))
+        try:
+          exec(g)
+          print("[INFO]Executed code.")
+        except Exception as e:
+          print("[ERROR]Unable to execute code. "+str(e))
+          Kernal.ErrChk()
+        except SystemExit:
+          StdUtil.ConsoleLog(3)
+          del g
+          Kernal.quit(0)
+      elif g=="":pass
+      else:
+        print("[CONSOLE]Unknown command:",g,".type help <page(1/2/3)> to get help.")
+      del g
   @staticmethod
   def Opening():#the engine opening
     fill_rect(0,0,500,300)
@@ -88,11 +253,11 @@ class Kernal:#Code base class
     draw_text(10,160,GAMEVER)
     paint_buffer()
     sleep(1.7)
-    return 0
+    return
 class IO:#Input-Output class.
   def __init__(self):pass
   @staticmethod
-  def Save(custom=False,name="customFile",gamevar=0):#built-in function, for saving game.
+  def Save(custom=False,name="customFile",gamevar=None):#built-in function, for saving game.
     global emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
     if custom==False:
       try:
@@ -184,7 +349,7 @@ class IO:#Input-Output class.
         weapon_physcnn=recall_value("weapon_physcnn")
         item_suit=recall_value("item_suit")
         if v_live<=0:
-          print("[WARN]Game save is invalid with health:"+str(v_live)+". please reset current save.")
+          print("[WARN]Game save is invalid with health:"+str(v_live)+".\n please reset current save. with savereset.py")
           Kernal.ErrChk()
           return 2
         if emptysave==1:
@@ -216,10 +381,10 @@ class UniFX:#Universal VFX class.
     draw_rect(0,0,317,211)
     set_pen("thin","solid")
     return 0
-  class BulletFX:
+  class BulletFX:#Class for bullet flare.
     def __init__(self):pass
     @staticmethod
-    def BltFlr(btp):
+    def BltFlr(btp):#Built-in function. for bullet flare.
       global psy,psx
       if btp==1:
         set_color(240,240,5)
@@ -309,7 +474,7 @@ class Actors:#entity class.
       fill_rect(psx,psy,plw,plh)
       return 0
     @staticmethod
-    def Init(inittype,ar1=0,ar2=0,ar3=0):#built-in function,for init player vars
+    def Init(inittype,ar1=None,ar2=None,ar3=None):#built-in function,for init player vars
       global plr,plg,plb,psy,psx,plw,plh,v_live,v_hev,ammo9,ammo357,inclip9,inclip357,item_suit,weapon_crb,weapon_pst,weapon_357,weapon_physcnn
       if inittype==1:
         plr=ar1
@@ -360,7 +525,7 @@ class Actors:#entity class.
   class Queen:#npc entities.
     def __init__(self):pass
     @staticmethod
-    def Draw(x,y,w,h,r,g,b):#built-in function,for drawing entities.
+    def Draw(x,y,w=5,h=5,r=20,g=20,b=20):#built-in function,for drawing entities.
       set_color(r,g,b)
       fill_rect(x,y,w,h)
       return 0
@@ -529,8 +694,14 @@ class StdUtil:#Builtins class, but more basic.
       print("[INFO]Player died.")
     return type
   @staticmethod
+  def WaitStart(sec,callback):#built-in function. similar to sleep but will not stop engine.
+    global endtick,active,action
+    endtick=ticks_cpu()+sec
+    active=True
+    action=callback
+  @staticmethod
   def ClipDetect(minx,miny,maxx,maxy,cltp):#built-in function, for clip brushes.
-    global psx,psy,noclip
+    global psx,psy,noclip#Notice: WIP.
     if noclip==False:
       if psx>=minx and psx<=maxx and psy>=miny and psy<=maxy:
         if cltp==1:
@@ -599,7 +770,6 @@ class Wbase:#Weapon system class.
     if type==1:
       if inclip9==0 and ammo9>=18:
         reload9=0
-        sleep(1)
         ammo9-=18
         inclip9+=18
         reload9=1
@@ -607,7 +777,6 @@ class Wbase:#Weapon system class.
     elif type==2:
       if inclip357==0 and ammo357>=6:
         reload357=0
-        sleep(3.5)
         ammo357-=6
         inclip357+=6
         reload357=1
@@ -837,7 +1006,7 @@ class Assets:#asset class
     draw_text(150,17,GAMEVER)
     set_pen("thin","solid")
     return 0
-def main():#main function
+def main():#main function.It's a very standard template for engine.
   ActionUI.DispUi(0,0,9)
   inmenu=True
   global mapslt,dev,dr,emptysave,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
@@ -923,6 +1092,7 @@ def main():#main function
     for key in ["unknow"]:
       while k!=key:
         k=get_key()
+        Kernal.WaitUpdate()
         StdUtil.MapStat()
         if item_suit==1:
           ActionUI.DispUi(0,0,6)
@@ -974,11 +1144,9 @@ def main():#main function
         elif k=="d":#maybe create a new function to recall the effects.
           if wpnslt==3 and reload9==0 and weapon_pst==1 and inclip9!=0:
             inclip9-=1
-            Wbase.WeaponClip(1)
             UniFX.BulletFX.BltFlr(1)
           if wpnslt==4 and reload357==0 and weapon_357==1 and inclip357!=0:
             inclip357-=1
-            Wbase.WeaponClip(2)
             UniFX.BulletFX.BltFlr(2)
           if wpnslt==1 and weapon_crb==1:
             UniFX.BulletFX.BltFlr(3)
@@ -990,11 +1158,9 @@ def main():#main function
         elif k=="r":
           if wpnslt==3 and reload9==0 and weapon_pst==1 and inclip9!=0:
             inclip9-=1
-            Wbase.WeaponClip(1)
             UniFX.BulletFX.BltFlr(5)
           if wpnslt==4 and reload357==0 and weapon_357==1 and inclip357!=0:
             inclip357-=1
-            Wbase.WeaponClip(2)
             UniFX.BulletFX.BltFlr(6)
           if wpnslt==1 and weapon_crb==1:
             UniFX.BulletFX.BltFlr(7)
@@ -1006,11 +1172,9 @@ def main():#main function
         elif k=="j":
           if wpnslt==3 and reload9==0 and weapon_pst==1 and inclip9!=0:
             inclip9-=1
-            Wbase.WeaponClip(1)
             UniFX.BulletFX.BltFlr(9)
           if wpnslt==4 and reload357==0 and weapon_357==1 and inclip357!=0:
             inclip357-=1
-            Wbase.WeaponClip(2)
             UniFX.BulletFX.BltFlr(10)
           if wpnslt==1 and weapon_crb==1:
             UniFX.BulletFX.BltFlr(11)
@@ -1022,11 +1186,9 @@ def main():#main function
         elif k=="l":
           if wpnslt==3 and reload9==0 and weapon_pst==1 and inclip9!=0:
             inclip9-=1
-            Wbase.WeaponClip(1)
             UniFX.BulletFX.BltFlr(13)
           if wpnslt==4 and reload357==0 and weapon_357==1 and inclip357!=0:
             inclip357-=1
-            Wbase.WeaponClip(2)
             UniFX.BulletFX.BltFlr(14)
           if wpnslt==1 and weapon_crb==1:
             UniFX.BulletFX.BltFlr(15)
@@ -1036,10 +1198,10 @@ def main():#main function
           sleep(0.1)
           break
         elif k=="f":
-          if wpnslt==3:
-            Wbase.WeaponClip(1)
+          if wpnslt==3:#Dont be afraid from lambda, its just letting the method waiting for wait function.
+            StdUtil.WaitStart(150,lambda:Wbase.WeaponClip(1))
           elif wpnslt==4:
-            Wbase.WeaponClip(2)
+            StdUtil.WaitStart(300,lambda:Wbase.WeaponClip(2))
           break
         elif k=="menu"and dev==True:
           weapon_crb=1
@@ -1155,146 +1317,5 @@ def main():#main function
       break
   return 0
 if (__name__=="__main__"):#all program starts from here.
-  print("[PRE-LOAD]Starting console and engine.")
-  while g!="run"or g!="start"or g!="begin":
-    g=str(input("]"))
-    if g=="run"or g=="start"or g=="begin":
-      print("[CONSOLE]Running engine.")
-      break
-    elif g=="disablemod":
-      try:
-        sys.modules.pop("gyro_addon_main1",None)
-        del tk
-        gc.collect()
-      except Exception as e:
-        print("[ERROR]Mod cannot be poped, "+str(e))
-        Kernal.ErrChk()
-      vtk=False
-      modenb=False
-      print("[INFO]Mod disabled.")
-    elif g=="modinit":
-      if vtk!=True:
-        try:
-          tk=__import__("gyro_addon_main1")
-        except Exception as e:
-          print("[ERROR]Error occured. "+str(e))
-          Kernal.ErrChk()
-        vtk=True
-        print("[INFO]Mod init success.")
-      else:
-        print("[WARN]Mod already init.")
-        Kernal.ErrChk()
-    elif g=="runmod":
-      if vtk==True:
-        modenb=True
-        print("[INFO]Mod is running.")
-        break
-      else:
-        print("[ERROR]Mod script not found.")
-        Kernal.ErrChk()
-    elif g=="modver":
-      if vtk==True:
-        print(tk.mod_info(0))
-      else:
-        print("[ERROR]Mod is not found.")
-        Kernal.ErrChk()
-    elif g=="help 1":
-      print("Gyro engine help page 1:\nrun:start engine.\nhelp <page(1/2/3)>:get help.\nquit:stop engine and console.\nsetgeomet:set a new resolution for screen.\nforceexitonerror:forcely stop whole engine when encounting any error and warn.\nversion:get engine version and credits.\nhwinfo:get hardware info.\ncls:clear screen.")
-    elif g=="help 2":
-      print("Gyro engine help page 2:\nloadgame:load game from saved file.\ndeletesave:delete saved game.\nmodinit:__init__ installed mod.\nrunmod:start mod.\nmodver:get version for mod.\ndisablemod:disable mod.(pop)\nadjustthreshold:change the value for gc.threshold()\ndev: toggle devloper mode.")
-    elif g=="help 3":
-      print("Gyro engine help page 3:\nscuptoggle: toggle the output when screen \nupdate.\nexec:use exec() to execute python code.\nnovid:disable launch video.")
-    elif g=="quit"or g=="stop"or g=="exit"or g=="esc":
-      del g
-      StdUtil.ConsoleLog(3)
-      Kernal.quit()
-      break
-    elif g=="scuptoggle":
-      if dr==False:
-        dr=True;print("[CONSOLE]Enabled.")
-      else:dr=False;print("[CONSOLE]Disabled.")
-    elif g=="setgeomet":
-      try:
-        x1=int(input("xmin"))
-        y1=int(input("ymin"))
-        x2=int(input("xmax"))
-        y2=int(input("ymax"))
-        set_window(x1,x2,y1,y2)
-        print("[INFO]Resolution set to:"+str(x1)+","+str(y1)+","+str(x2)+","+str(y2))
-        break
-      except Exception as e:
-        print("[ERROR]Setting was failed. "+str(e))
-        Kernal.ErrChk()
-    elif g=="forceexitonerror":
-      if erxt==1:
-        erxt=0
-        print("[CONSOLE]Exit when error disabled.")
-      else:
-        erxt=1
-        print("[CONSOLE]Exit when error enabled.")
-    elif g=="version":
-      e=get_platform()
-      print("Gyro 2D Gaming engine.\n",GAMEVER,"\nFirst runned in 2025/04/30\nMade by Alex_Nute aka axnut123.\nMade in China.\nCurrent platform:",e,"\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
-      del e
-    elif g=="novid":
-      if novid==False:
-        novid=True
-        print("[CONSOLE]Disabled launch video")
-      else:
-        novid=False
-        print("[CONSOLE]Enabled launch video")
-    elif g=="hwinfo":
-      print("mem free",str(gc.mem_free()))
-      print("mem alloc",str(gc.mem_alloc()))
-      print("stack use",str(mp.stack_use()))
-      print("pystack use",str(mp.pystack_use()))
-      print("cpu tick",ticks_cpu())
-      print("local time",str(localtime()))
-    elif g=="deletesave":
-      IO.Delete()
-    elif g=="loadgame":
-      IO.Load()
-    elif g=="help":
-      print("Usage: help <1/2/3>. example: help 1 for page 1.")
-    elif g=="cls":
-      clear_history()
-    elif g=="dev":
-      if dev==False:
-        dev=True
-        print("[CONSOLE]Dev mode enabled.")
-      else:dev=False;print("[CONSOLE]Dev mode disabled")
-    elif g=="adjustthreshold":
-      try:
-        b=int(input("gc.threshold:"))
-        gc.threshold(int(b))
-        print("[CONSOLE]New value given.")
-      except Exception as e:
-        print("[ERROR]Failed. "+str(e))
-    elif g=="exec":
-      g=str(input("execute:"))
-      try:
-        exec(g)
-        print("[INFO]Executed code.")
-      except Exception as e:
-        print("[ERROR]Unable to execute code. "+str(e))
-        Kernal.ErrChk()
-      except SystemExit:
-        StdUtil.ConsoleLog(3)
-        del g
-        Kernal.quit(0)
-    elif g=="":pass
-    else:
-      print("[CONSOLE]Unknown command:",g,".type help <page(1/2/3)> to get help.")
-  del g
-  print("[CONSOLE]Console is being closed.\n[INFO]Engine is now started.")
-  gc.collect()
-  StdUtil.ConsoleLog(2)
-  use_buffer()
-  if novid==False:Kernal.Opening()
-  StdUtil.ConsoleLog(5)
-  if modenb==True:
-    print("[INFO]Trying to load mod script.")
-    tk.mod_main()
-  else:
-    print("[INFO]Mod loader was not enabled,loading main script.")
-    main()
+  Kernal.Console()
+  Kernal.GameLoader()
