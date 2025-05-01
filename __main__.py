@@ -85,7 +85,7 @@ class Kernal:#Code base class
     return
   @staticmethod
   def GameLoader():#Built-in function, for game loading process.
-    global novid,modenb
+    global novid,modenb,g,tk
     del g
     print("[CONSOLE]Console is being closed.\n[INFO]Engine is now started.")
     gc.collect()
@@ -101,7 +101,7 @@ class Kernal:#Code base class
       main()
   @staticmethod
   def Console():#built-in function,for console.
-    global g,modenb,vtk,erxt,novid
+    global g,modenb,vtk,erxt,novid,tk
     print("[PRE-LOAD]Starting console.")
     while g!="run"or g!="start"or g!="begin":
       g=str(input("]"))
