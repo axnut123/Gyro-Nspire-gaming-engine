@@ -1,15 +1,22 @@
 # Gyro
 A gaming engine based on Ti calculator,writed on py.
+
 chinese：
+
 安装：
+
 把tns放入传输软件后即安装。
+
 环境：
+
 ！！注意！！
+
 必须要有ti_system库和ti_draw库，否则无法运行！
 其他说明已经在tns文件的第一页写出，自行阅读。
 其他：
 源代码不可以在外部更改后输入tns文件（我还没试过，因此不确定），请在计算器中更改代码。
 此引擎并非包含完整游戏，仅是框架。
+
 English:
 
 Installation:
