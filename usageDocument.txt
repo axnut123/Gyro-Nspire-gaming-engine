@@ -89,6 +89,8 @@ def FuncA():
 !Do not:
 .global variables that you don't need.
 .try to name your variables with a specific meaning.
+.try to let one variable do a single task.
+.try not to use dynamic typing in whole engine.
 ==================================================
 Document ends in here, you can learn engine from this doc and
 examples in engine.
