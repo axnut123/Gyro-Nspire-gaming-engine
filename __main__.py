@@ -28,7 +28,6 @@ plg=int(0);
 plb=int(0);
 plw=int(0);
 plh=int(0);
-noclip=bool(False);
 dev=bool(False);
 dr=bool(False);
 debugs=bool(False);
@@ -39,7 +38,7 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 25 Build(0086)");
+GAMEVER=str("Gyro 25 Build(0087)");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -84,7 +83,7 @@ class Kernal:#Code base class
     print("[INFO]Game reset completed.")
     return
   @staticmethod
-  def GameLoader():#Built-in function, for game loading process.
+  def GameLauncher():#Built-in function, for game loading process.
     global novid,modenb,g,tk
     del g
     print("[CONSOLE]Console is being closed.\n[INFO]Engine is now started.")
@@ -181,7 +180,7 @@ class Kernal:#Code base class
           print("[CONSOLE]Exit when error enabled.")
       elif g=="version":
         e=get_platform()
-        print("Gyro 2D Gaming engine.\n",GAMEVER,"\nFirst runned in 2025/05/01\nMade by Alex_Nute aka axnut123.\nMade in China.\nCurrent platform:",e,"\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
+        print("Gyro 2D Gaming engine.\n",GAMEVER,"\nFirst runned in 2025/05/02\nMade by Alex_Nute aka axnut123.\nMade in China.\nCurrent platform:",e,"\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
         del e
       elif g=="novid":
         if novid==False:
@@ -232,6 +231,14 @@ class Kernal:#Code base class
       elif g=="":pass
       else:
         print("[CONSOLE]Unknown command:",g,".type help <page(1/2/3)> to get help.")
+  @staticmethod
+  def Info(infotype):#built-in function.For output information about engine.
+    infos={
+    1:"(C) Haoriwa 2022-2025. All rights reserved.",
+    2:"Built on MicroPython 3.4.0.",
+    3:"Built for ARM Cortex-M7.",
+    4:"License type is GPL3.0,under the license.txt."}
+    return infos.get(infotype)
   @staticmethod
   def Opening():#the engine opening
     fill_rect(0,0,500,300)
@@ -677,37 +684,23 @@ class ActionUI:#UI class
 class StdUtil:#Builtins class, but more basic.
   def __init__(self):pass
   @staticmethod
-  def ConsoleLog(type):#built-in function,for console output
-    if type==1 and dr==True:
-      print("[INFO]Screen updated.")
-    elif type==2:
-      print("[INFO]Start the Opening.")
-    elif type==3:
-      print("[INFO]Exit success,code:0")
-    elif type==4:
-      print("[INFO]All assets are ready to use.")
-    elif type==5:
-      print("[INFO]Game start")
-    elif type==6:
-      print("[INFO]Map loaded")
-    elif type==7:
-      print("[INFO]Player died.")
-    return type
+  def ConsoleLog(numoflog):#built-in function,for console output
+    typeforlog={
+      1:"[INFO]Screen updated.",
+      2:"[INFO]Start the Opening.",
+      3:"[INFO]Exit success,code:0",
+      4:"[INFO]All assets are ready to use.",
+      5:"[INFO]Game start",
+      6:"[INFO]Map loaded",
+      7:"[INFO]Player died."}
+    print(typeforlog.get(numoflog))
+    return numoflog
   @staticmethod
   def WaitStart(sec,callback):#built-in function. similar to sleep but will not stop engine.
     global endtick,active,action
     endtick=ticks_cpu()+sec
     active=True
     action=callback
-  @staticmethod
-  def ClipDetect(minx,miny,maxx,maxy,cltp):#built-in function, for clip brushes.
-    global psx,psy,noclip#Notice: WIP.
-    if noclip==False:
-      if psx>=minx and psx<=maxx and psy>=miny and psy<=maxy:
-        if cltp==1:
-          return "cl"
-      else:
-        return "fl"
   @staticmethod
   def Trigger(minx,miny,maxx,maxy,trgtp):#built-in function,for trigger a specific event.
     global mapslt,psx,psy#map selection needs global var
@@ -813,6 +806,8 @@ class Assets:#asset class
     draw_line(-25,25,15,25)
     set_color(160,10,10)
     fill_rect(45,10,15,10)
+    set_color(0,0,0)
+    draw_rect(100,100,100,100)
     return 0
   @staticmethod
   def gmanintlol():#an opening function.
@@ -1072,7 +1067,7 @@ def main():#main function.It's a very standard template for engine.
           Kernal.quit()
       clear()
       gc.collect()
-    StdUtil.ConsoleLog(1)
+    if dr==True:StdUtil.ConsoleLog(1)
     StdUtil.MapStat()#logic check in here,define your trigger in this function.
     ActionUI.DispUi(0,0,8)
     if item_suit==1:#hud
@@ -1318,4 +1313,4 @@ def main():#main function.It's a very standard template for engine.
   return 0
 if (__name__=="__main__"):#all program starts from here.
   Kernal.Console()
-  Kernal.GameLoader()
+  Kernal.GameLauncher()
