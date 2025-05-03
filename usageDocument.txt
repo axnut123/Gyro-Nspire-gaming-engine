@@ -42,7 +42,7 @@ Kernal.ErrChk-for command "forceexitonerror".
 Kernal.WaitUpdate-for timer.
 Kernal.ResetGame-as name.
 Kernal.GameLauncher-the launching sequence for main function.
-Kernal.Comsole-as name.
+Kernal.Console-as name.
 Kernal.Info-for engine infos.
 Kernal.Opening-engine opening.
 ----------------------------------
