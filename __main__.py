@@ -1,15 +1,20 @@
-#COPYRIGHT (C) Haoriwa 2022 - 2025
+#Gyro 2D engine-Core module and source code.
+#COPYRIGHT (C) Haoriwa 2024 - 2025
 #All rights reserved.
-# the license is under LICENSE.txt *
-#Do not be scared from "class", they are all
-#staticmethod, just use them like func.
+#Licensed under the GNU General Public
+#License v3.0 (or later).
+#You may freely use,modify,and redistribute this
+#software.
+#under the terms described in the LICENSE file
+#included with this project.
+#NO warranties are provided.Use at your own
+#risk. For full license text, visit-
+#https://www.gnu.org/licenses/gpl-3.0.html
 #Please use PascalCase to name func, class.
 #In main function, everything is clean and
 #visible, if more features are needed, add
 #them in the main function. But sometimes you
 #have to add something in built-in functions.
-#I'm very like to write C-like codes. such as
-#def without return called void.
 #Every class, functions in here are all with
 #examples, you can learn engine from examples.
 from random import randint
@@ -21,6 +26,7 @@ gc=__import__("gc")
 mp=__import__("micropython")#import done
 novid=bool(False);
 endtick=None;
+langtype=int(1);
 active=bool(False);
 action=None;
 plr=int(0);
@@ -38,7 +44,7 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 25 Build(0087)");
+GAMEVER=str("Gyro 26 Build(0092)");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -62,6 +68,24 @@ class Kernal:#Code base class
   @staticmethod
   def quit(self=None):#built-in function, in nspire cx ii python the Kernal.quit function is not defined.
     raise SystemExit(self)
+  @staticmethod
+  def Init(inittp):#built-in function.for init cfgs or other files engine needed.
+    global dev,dr,novid,langtype
+    if inittp==1:
+      try:
+        cfg1=IO.Load(True,"novid",None)
+        cfg2=IO.Load(True,"dev",returnval=None)
+        cfg3=IO.Load(True,"dr",returnval=None)
+        cfg4=IO.Load(True,"langtype",returnval=None)
+        if cfg1==1:novid=True
+        if cfg2==1:dev=True
+        if cfg3==1:dr=True
+        if cfg4==2:langtype=2
+        print("[INFO]Config loading process completed.")
+        return 1
+      except Exception as e:
+        print("[ERROR]Failed on trying to load configs."+str(e))
+        return 0
   @staticmethod
   def ErrChk(c=1):#built-in function,for command "forceexitonerror".
     global erxt
@@ -100,13 +124,25 @@ class Kernal:#Code base class
       main()
   @staticmethod
   def Console():#built-in function,for console.
-    global g,modenb,vtk,erxt,novid,tk,dev
+    global g,modenb,vtk,erxt,novid,tk,dev,dr,langtype
     print("[PRE-LOAD]Starting console.")
     while g!="run"or g!="start"or g!="begin":
       g=str(input("]"))
       if g=="run"or g=="start"or g=="begin":
         print("[CONSOLE]Running engine.")
         break
+      elif g=="setlang":
+        g=str(input("1:English,2:Simplified Chinese,3.Cancel"))
+        if g=="1":
+          langtype=1
+          print("[CONSOLE]Language set.")
+        elif g=="2":
+          langtype=2
+          print("[CONSOLE]Language set.")
+        elif g=="3":pass
+        else:
+          print("[ERROR]Language type unknow, using default language.")
+          langtype=1
       elif g=="disablemod":
         try:
           sys.modules.pop("gyro_addon_main1",None)
@@ -138,23 +174,55 @@ class Kernal:#Code base class
         else:
           print("[ERROR]Mod script not found.")
           Kernal.ErrChk()
+      elif g=="initcfg":
+        Kernal.Init(1)
       elif g=="modver":
         if vtk==True:
           print(tk.mod_info(0))
         else:
           print("[ERROR]Mod is not found.")
           Kernal.ErrChk()
+      elif g=="savecfg":
+        try:
+          if langtype==1:
+            IO.Save(True,"langtype",1)
+          elif langtype==2:
+            IO.Save(True,"langtype",2)
+          else:
+            IO.Save(True,"Langtype",1)
+            print("[WARN]Language type not found, using default language.")
+            Kernal.ErrChk()
+          if novid==True:
+            IO.Save(True,"novid",1)
+          else:IO.Save(True,"novid",0)
+          if dev==True:
+            IO.Save(True,"dev",1)
+          else:IO.Save(True,"dev",0)
+          if dr==True:
+            IO.Save(True,"dr",1)
+          else:IO.Save(True,"dr",0)
+          print("[INFO]Config IO process done.")
+        except Exception as e:
+          print("[ERROR]Config IO process fail.",e)
+          Kernal.ErrChk()
       elif g=="help 1":
         print("Gyro engine help page 1:\nrun:start engine.\nhelp <page(1/2/3)>:get help.\nquit:stop engine and console.\nsetgeomet:set a new resolution for screen.\nforceexitonerror:forcely stop whole engine when encounting any error and warn.\nversion:get engine version and credits.\nhwinfo:get hardware info.\ncls:clear screen.")
       elif g=="help 2":
         print("Gyro engine help page 2:\nloadgame:load game from saved file.\ndeletesave:delete saved game.\nmodinit:__init__ installed mod.\nrunmod:start mod.\nmodver:get version for mod.\ndisablemod:disable mod.(pop)\nadjustthreshold:change the value for gc.threshold()\ndev: toggle devloper mode.")
       elif g=="help 3":
-        print("Gyro engine help page 3:\nscuptoggle: toggle the output when screen \nupdate.\nexec:use exec() to execute python code.\nnovid:disable launch video.")
+        print("Gyro engine help page 3:\nscuptoggle: toggle the output when screen \nupdate.\nexec:use exec() to execute python code.\nnovid:disable launch video.\ninitcfg:execute cfg init process manually.\nsavecfg:save current configs.\ngetcfgs:get current cfg status.\neval:use eval function.\nsetlang:set a language for engine.")
       elif g=="quit"or g=="stop"or g=="exit"or g=="esc":
         del g
         StdUtil.ConsoleLog(3)
         Kernal.quit()
         break
+      elif g=="eval":
+        g=input("evaluate:")
+        try:
+          eval(g)
+          print("[INFO]Executed code.")
+        except Exception as e:
+          print("[ERROR]Evaluate failed.",e)
       elif g=="scuptoggle":
         if dr==False:
           dr=True;print("[CONSOLE]Enabled.")
@@ -171,6 +239,11 @@ class Kernal:#Code base class
         except Exception as e:
           print("[ERROR]Setting was failed. "+str(e))
           Kernal.ErrChk()
+      elif g=="getcfgs":
+        print("novid:"+str(novid))
+        print("log output on screen draw:"+str(dr))
+        print("dev:"+str(dev))
+        print("lang:"+str(langtype))
       elif g=="forceexitonerror":
         if erxt==1:
           erxt=0
@@ -179,9 +252,7 @@ class Kernal:#Code base class
           erxt=1
           print("[CONSOLE]Exit when error enabled.")
       elif g=="version":
-        e=get_platform()
-        print("Gyro 2D Gaming engine.\n",GAMEVER,"\nFirst runned in 2025/05/02\nMade by Alex_Nute aka axnut123.\nMade in China.\nCurrent platform:",e,"\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
-        del e
+        print("Gyro 2D Gaming engine.\n",GAMEVER,"\nFirst runned in 2025/05/09\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
       elif g=="novid":
         if novid==False:
           novid=True
@@ -190,6 +261,8 @@ class Kernal:#Code base class
           novid=False
           print("[CONSOLE]Enabled launch video")
       elif g=="hwinfo":
+        print("Version",str(GAMEVER))
+        print("Platform",str(get_platform()))
         print("mem free",str(gc.mem_free()))
         print("mem alloc",str(gc.mem_alloc()))
         print("stack use",str(mp.stack_use()))
@@ -335,7 +408,7 @@ class IO:#Input-Output class.
         print("[ERROR]File operate on:"+str(name)+" failed.\n"+str(e))
         return 1
   @staticmethod
-  def Load(custom=False,name="customFile",returnval=0):#built-in function, for load a saved game.
+  def Load(custom=False,name="customFile",logout=True,returnval=0):#built-in function, for load a saved game.
     global emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
     if custom==False:
       try:
@@ -373,12 +446,12 @@ class IO:#Input-Output class.
     else:
       try:
         returnval=recall_value(str(name))
-        print("[IO]File operation on:"+str(name)+" success")
+        if logout==True:print("[IO]File operation on:"+str(name)+" success")
         return returnval
       except Exception as e:
         print("[ERROR]File operation failed on:"+str(name)+".\n"+str(e))
         Kernal.ErrChk()
-        return 1
+        return "ERR"
 class UniFX:#Universal VFX class.
   def __init__(self):pass
   @staticmethod
@@ -531,7 +604,6 @@ class Actors:#entity class.
         return 0
   class Queen:#npc entities.
     def __init__(self):pass
-    @staticmethod
     def Draw(x,y,w=5,h=5,r=20,g=20,b=20):#built-in function,for drawing entities.
       set_color(r,g,b)
       fill_rect(x,y,w,h)
@@ -539,9 +611,122 @@ class Actors:#entity class.
 class ActionUI:#UI class
   def __init__(self):pass
   @staticmethod
+  def DispLanguage(langstr):#built-in function,for replacing given key to specific value.
+    global langtype
+    if langtype==1:#English
+      langdict1={
+      "lang":"English",
+      "gofuckyourself":"Go fuck your self!",
+      "riseandshine":"Rise and shine mister Freeman,rise and shine.",
+      "sleepingonthejob":"No one is deserving to sleeping on the job,",
+      "effortoftheworld":"But the effort of the world will have gone to waste untill...",
+      "em":"emm...",
+      "yourhourhascome":"Well,let's just say your hour has come again.",
+      "rightman":"The right man in the wrong place",
+      "maketheworld":"Will make the whole world difference.",
+      "wakeup":"So,wake up,Mr.Freeman.",
+      "smell":"Wake up and smell the ashes...",
+      "memfree":"mem free:",
+      "memalloc":"mem alloc:",
+      "stackuse":"stack use:",
+      "pystackuse":"pystack use:",
+      "cputick":"cpu tick:",
+      "localtime":"local time:",
+      "ppos":"player pos:",
+      "mapid":"map id:",
+      "ver":"Version:",
+      "platform":"current platform:",
+      "escres":"esc:resume",
+      "menu":"menu:main menu",
+      "savegm":"s:save game",
+      "loadgm":"l:load game",
+      "delgm":"d:delete save",
+      "quitgm":"q:quit game",
+      "start1":"enter:start a new game",
+      "start2":"a:quick start",
+      "loadgm1":"b:load game",
+      "delgm1":"c:delete save",
+      "escquit":"esc:quit game",
+      "suit":"SUIT",
+      "health":"HEALTH",
+      "youdied":"You died,press enter to continue",
+      "ammo":"AMMO",
+      "crb":"CROWBAR",
+      "physcnn":"GRAVITY GUN",
+      "pst":"PISTOL",
+      "357":".357 MAGNUM",
+      "load":"Loading...",
+      "dr":"log output when screen update",
+      "dev":"developer mode",
+      "savecfg":"s:save cfg",
+      "langset":"language setting",
+      "set":"tab:settings",
+      "titset":"Settings(press to toggle)"}
+      try:
+        return str(langdict1.get(langstr))
+      except Exception as e:
+        print("[ERROR]ActionUI.DispLanguage() method has an error occured."+str(e))
+        return "Undef"
+    elif langtype==2:#Schinese
+      langdict2={
+      "lang":"简体中文",
+      "set":"tab:设置",
+      "savecfg":"s:保存设置",
+      "dr":"当屏幕更新时输出",
+      "dev":"开发者模式",
+      "langset":"语言设置",
+      "gofuckyourself":"滚你妈的！",
+      "riseandshine":"该醒了,弗里曼先生,该醒了。",
+      "sleepingonthejob":"还有谁比你更有资格享受空闲呢,",
+      "effortoftheworld":"但是整个世界的努力都将因此而徒劳",
+      "em":"恩...",
+      "yourhourhascome":"我只是想说是你该再次出手的时候了。",
+      "rightman":"正义之子在有悖常理的世界",
+      "maketheworld":"会让世界天翻地腹。",
+      "wakeup":"醒来吧,弗里曼先生",
+      "smell":"振作起来,战斗吧",
+      "memfree":"可用内存:",
+      "memalloc":"分配的内存:",
+      "stackuse":"已用栈:",
+      "pystackuse":"已用py栈:",
+      "cputick":"处理器刻:",
+      "localtime":"本地时间:",
+      "ppos":"玩家坐标:",
+      "mapid":"地图编号:",
+      "ver":"版本号:",
+      "platform":"当前平台:",
+      "escres":"esc:回到游戏",
+      "menu":"menu:主菜单",
+      "savegm":"s:保存",
+      "loadgm":"l:加载",
+      "delgm":"d:删除存档",
+      "quitgm":"q:退出",
+      "start1":"enter:新游戏",
+      "start2":"a:快速开始",
+      "loadgm1":"b:加载",
+      "delgm1":"c:删除存档",
+      "escquit":"esc:退出",
+      "suit":"防护衣",
+      "health":"生命值",
+      "youdied":"你死了,按下enter继续",
+      "ammo":"弹药",
+      "crb":"翘棍",
+      "physcnn":"重力枪",
+      "pst":"手枪",
+      "357":".357 马格南",
+      "load":"载入中...",
+      "titset":"设置(按下切换)"}
+      try:
+        return str(langdict2.get(langstr))
+      except Exception as e:
+        print("[ERROR]ActionUI.DispLanguage() method has an error occured."+str(e))
+        return "Undef"
+    else:
+      return "[ERROR]Language not found."
+  @staticmethod
   def DispUi(x,y,wintp):#built-in function,for display window, gui elements.
     set_color(135,135,135)
-    global emptysave,dev,mapslt,debugs,v_live,v_hev,wpnslt,ammo9,ammo357,inclip9,inclip357,weapon_pst,weapon_crb,weapon_physcnn,weapon_357
+    global emptysave,dev,mapslt,debugs,v_live,v_hev,wpnslt,ammo9,ammo357,inclip9,inclip357,weapon_pst,weapon_crb,weapon_physcnn,weapon_357,dr,langtype
     emptysave=recall_value("emptysave")
     if wintp==1:
       fill_rect(x,y,120,40)
@@ -552,39 +737,43 @@ class ActionUI:#UI class
     elif wintp==2:
       if debugs==True and dev==True:
         set_color(0,0,0)
-        draw_text(10,20,"mem free:"+str(gc.mem_free()))
-        draw_text(10,35,"mem alloc:"+str(gc.mem_alloc()))
-        draw_text(10,55,"stack use:"+str(mp.stack_use()))
-        draw_text(10,70,"pystack use:"+str(mp.pystack_use()))
-        draw_text(10,85,"cpu tick:"+str(ticks_cpu()))
-        draw_text(10,100,"local time:"+str(localtime()))
-        draw_text(10,115,"player pos:"+str(psx)+","+str(psy))
-        draw_text(10,130,"map id:"+str(mapslt))
+        draw_text(10,20,str(ActionUI.DispLanguage("memfree"))+str(gc.mem_free()))
+        draw_text(10,35,str(ActionUI.DispLanguage("memalloc"))+str(gc.mem_alloc()))
+        draw_text(10,55,str(ActionUI.DispLanguage("stackuse"))+str(mp.stack_use()))
+        draw_text(10,70,str(ActionUI.DispLanguage("pystackuse"))+str(mp.pystack_use()))
+        draw_text(10,85,str(ActionUI.DispLanguage("cputick"))+str(ticks_cpu()))
+        draw_text(10,100,str(ActionUI.DispLanguage("localtime"))+str(localtime()))
+        draw_text(10,115,str(ActionUI.DispLanguage("ppos"))+str(psx)+","+str(psy))
+        draw_text(10,130,str(ActionUI.DispLanguage("mapid"))+str(mapslt))
+        draw_text(10,145,str(ActionUI.DispLanguage("ver"))+str(GAMEVER))
+        draw_text(10,160,str(ActionUI.DispLanguage("platform"))+str(get_platform()))
         paint_buffer()
         return 0
     elif wintp==3:
       set_color(250,250,250)
-      draw_text(10,80,"HALF-LIFE²")
-      draw_text(10,100,"esc:resume")
-      draw_text(10,120,"menu:main menu")
-      draw_text(10,140,"s:save game")
+      draw_text(10,80-20,"HALF-LIFE²")
+      draw_text(10,100-20,str(ActionUI.DispLanguage("escres")))
+      draw_text(10,120-20,str(ActionUI.DispLanguage("menu")))
+      draw_text(10,140-20,str(ActionUI.DispLanguage("savegm")))
       if emptysave==1:
         set_color(210,210,210)
-      draw_text(10,160,"l:load game")
+      draw_text(10,160-20,str(ActionUI.DispLanguage("loadgm")))
       set_color(250,250,250)
-      draw_text(10,180,"d:delete save")
-      draw_text(10,200,"q:quit game")
+      draw_text(10,180-20,str(ActionUI.DispLanguage("delgm")))
+      draw_text(10,200-20,str(ActionUI.DispLanguage("set")))
+      draw_text(10,220-20,str(ActionUI.DispLanguage("quitgm")))
       return 0
     elif wintp==4:
       set_color(250,250,250)
-      draw_text(10,100,"enter:start")
-      draw_text(10,120,"a:quick start")
+      draw_text(10,100,str(ActionUI.DispLanguage("start1")))
+      draw_text(10,120,str(ActionUI.DispLanguage("start2")))
       if emptysave==1:
         set_color(210,210,210)
-      draw_text(10,140,"b:load game")
+      draw_text(10,140,str(ActionUI.DispLanguage("loadgm1")))
       set_color(250,250,250)
-      draw_text(10,160,"c:delete save")
-      draw_text(10,180,"esc:quit")
+      draw_text(10,160,str(ActionUI.DispLanguage("delgm1")))
+      draw_text(10,180,str(ActionUI.DispLanguage("set")))
+      draw_text(10,200,str(ActionUI.DispLanguage("escquit")))
       paint_buffer()
       return 0
     elif wintp==5:
@@ -601,21 +790,21 @@ class ActionUI:#UI class
       set_color(200,150,50)
       if v_hev>0:
         draw_text(80,190,v_hev)
-        draw_text(80,200,"SUIT")
+        draw_text(80,200,str(ActionUI.DispLanguage("suit")))
       if v_live>=21:
         set_color(200,150,50)
         draw_text(15,190,v_live)
-        draw_text(15,200,"HEALTH")
+        draw_text(15,200,str(ActionUI.DispLanguage("health")))
       else:
         set_color(250,100,10)
         draw_text(15,190,v_live)
-        draw_text(15,200,"HEALTH")
+        draw_text(15,200,str(ActionUI.DispLanguage("health")))
         return 0
     elif wintp==7:
       set_color(210,10,10)
       fill_rect(0,0,500,300)
       set_color(255,255,255)
-      draw_text(20,80,"You died,press enter key to revive")
+      draw_text(20,80,str(ActionUI.DispLanguage("youdied")))
       return 0
     elif wintp==8:
       if wpnslt==1 or wpnslt==2:#ammunation management.
@@ -625,7 +814,7 @@ class ActionUI:#UI class
           set_color(200,150,50)
         else:
           set_color(255,100,50)
-        draw_text(210,200,"AMMO")
+        draw_text(210,200,str(ActionUI.DispLanguage("ammo")))
         draw_text(210,190,inclip9)
         draw_text(250,190,ammo9)
       elif wpnslt==4 and weapon_357==1:
@@ -633,39 +822,52 @@ class ActionUI:#UI class
           set_color(200,150,50)
         else:
           set_color(250,100,50)
-        draw_text(210,200,"AMMO")
+        draw_text(210,200,str(ActionUI.DispLanguage("ammo")))
         draw_text(210,190,inclip357)
         draw_text(250,190,ammo357)
         return 0
     elif wintp==9:
       set_color(250,250,250)
-      draw_text(220,205,"Loading...")
+      draw_text(220,205,str(ActionUI.DispLanguage("load")))
       paint_buffer()
       return 0
     elif wintp==10:
       set_color(120,120,120)
       fill_rect(30,30,80,50)
       set_color(200,150,50)
-      draw_text(31,82,"CROWBAR")
+      draw_text(31,82,str(ActionUI.DispLanguage("crb")))
+      return 0
     elif wintp==11:
       set_color(120,120,120)
       fill_rect(30,100,120,50)
       set_color(200,150,50)
-      draw_text(31,145,"GRAVITY GUN")
+      draw_text(31,145,str(ActionUI.DispLanguage("physcnn")))
+      return 0
     elif wintp==12:
       set_color(120,120,120)
       fill_rect(55,30,80,50)
       if ammo9==0:
         set_color(255,10,10)
       else:set_color(200,150,50)
-      draw_text(56,82,"PISTOL")
+      draw_text(56,82,str(ActionUI.DispLanguage("pst")))
+      return 0
     elif wintp==13:
       set_color(120,120,120)
       fill_rect(55,100,125,50)
       if ammo357==0:
         set_color(255,10,10)
       else:set_color(200,150,50)
-      draw_text(56,142,".357 MAGNUM")
+      draw_text(56,142,str(ActionUI.DispLanguage("357")))
+      return 0
+    elif wintp==14:
+      set_color(250,250,250)
+      draw_text(10,80,str(ActionUI.DispLanguage("titset")))
+      draw_text(10,100,"a:"+str(ActionUI.DispLanguage("dr"))+":"+str(dr))
+      draw_text(10,120,"b:"+str(ActionUI.DispLanguage("dev"))+":"+str(dev))
+      draw_text(10,140,"c:"+str(ActionUI.DispLanguage("langset"))+":"+str(ActionUI.DispLanguage("lang")))
+      draw_text(10,160,str(ActionUI.DispLanguage("savecfg")))
+      draw_text(10,180,str(ActionUI.DispLanguage("escres")))
+      return 0
     else:
       print("[ERROR]Window type is not defined.")
       Kernal.ErrChk()
@@ -681,7 +883,7 @@ class ActionUI:#UI class
       print("[INFO]Title type not defined.")
       Kernal.ErrChk()
       return 1
-class StdUtil:#Builtins class, but more basic.
+class StdUtil:#Builtins class, Standard utilities.
   def __init__(self):pass
   @staticmethod
   def ConsoleLog(numoflog):#built-in function,for console output
@@ -703,26 +905,50 @@ class StdUtil:#Builtins class, but more basic.
     action=callback
   @staticmethod
   def Trigger(minx,miny,maxx,maxy,trgtp):#built-in function,for trigger a specific event.
-    global mapslt,psx,psy#map selection needs global var
+    global v_live,mapslt,psx,psy#map selection needs global var
     if psx>=minx and psx<=maxx and psy>=miny and psy<=maxy:
       if trgtp==1:
         ActionUI.Title(120,80,1)
         print("[INFO]Trigger executed.")
-        return 0
+        return 1
       elif trgtp==2:
         mapslt=1
         print("[INFO]Trigger executed.")
-        return 0
+        return 2
       elif trgtp==3:
         mapslt=0
         print("[INFO]Trigger executed.")
-        return 0
+        return 3
+      elif trgtp==4:
+        v_live-=15
+        print("[INFO]Trigger executed.")
+        return 4
       else:
         print("[ERROR]Trigger is not defined.")
         Kernal.ErrChk()
-        return 1
+        return 0
   @staticmethod
-  def PauseMenu():#pause menu,built-in function
+  def ExecOnce(exectp):#built-in function.for executing sth. once.
+    exed1=False
+    if exectp==1:
+      if exed1==False:
+        trg1=StdUtil.Trigger(100,100,50,50,4)#Do something here.
+        if trg1==4:
+          exed1=True
+          return 1
+    else:
+      print("[ERROR]Function cannot find exec type.")
+      Kernal.ErrChk()
+      return 0
+  @staticmethod
+  def SettingMenu():#settings menu,built-in function.
+    set_color(120,120,120)
+    fill_rect(0,0,500,300)
+    set_color(250,250,250)
+    ActionUI.DispUi(0,0,14)
+    return 0
+  @staticmethod
+  def PauseMenu():#pause menu,built-in function.
     set_color(120,120,120)
     fill_rect(0,0,500,300)
     set_color(255,255,255)
@@ -735,6 +961,7 @@ class StdUtil:#Builtins class, but more basic.
     if mapslt==0:
       Assets.c1a0()
       StdUtil.Trigger(0,0,20,50,2)
+      StdUtil.ExecOnce(1)
       return 0
     if mapslt==1:
       Assets.c0a0()
@@ -807,7 +1034,7 @@ class Assets:#asset class
     set_color(160,10,10)
     fill_rect(45,10,15,10)
     set_color(0,0,0)
-    draw_rect(100,100,100,100)
+    draw_rect(100,100,50,50)
     return 0
   @staticmethod
   def gmanintlol():#an opening function.
@@ -828,7 +1055,7 @@ class Assets:#asset class
     set_color(255,255,255)
     draw_text(120,120,"HALF-LIFE²")
     set_color(210,210,255)
-    draw_text(20,180,"Go fuck your self!")
+    draw_text(20,180,str(ActionUI.DispLanguage("gofuckyourself")))
     paint_buffer()
     sleep(0.7)
     set_color(0,0,0)
@@ -862,7 +1089,7 @@ class Assets:#asset class
     set_color(255,255,255)
     draw_text(120,120,"HALF-LIFE²")
     set_color(210,210,255)
-    draw_text(20,180,"Rise and shine mister Freeman,rise and shine.")
+    draw_text(20,180,str(ActionUI.DispLanguage("riseandshine")))
     paint_buffer()
     sleep(3)
     set_color(0,0,0)
@@ -872,7 +1099,7 @@ class Assets:#asset class
     for i in range(25):
       fill_rect(0,0,500,300)
       set_color(210,210,255)
-      draw_text(20,180,"Rise and shine mister Freeman,rise and shine.")
+      draw_text(20,180,str(ActionUI.DispLanguage("riseandshine")))
       r+=10;b+=10;g+=10
       set_color(r,g,b)
       sleep(0.01)
@@ -890,22 +1117,22 @@ class Assets:#asset class
       x=randint(0,500);x1=x+30
       y=randint(0,300);
     set_color(210,210,255)
-    draw_text(20,180,"No one deserving to sleeping on the job,")
-    draw_text(20,190,"but the effort for the world have gone to waste untill...")
-    draw_text(20,200,"emm...")
+    draw_text(20,180,str(ActionUI.DispLanguage("sleepingonthejob")))
+    draw_text(20,190,str(ActionUI.DispLanguage("effortoftheworld")))
+    draw_text(20,200,str(ActionUI.DispLanguage("em")))
     paint_buffer()
     sleep(7)
     set_color(0,0,0)
     fill_rect(0,0,500,300)
     set_color(210,210,255)
-    draw_text(20,180,"Well,let's just say your hour has come again.")
+    draw_text(20,180,str(ActionUI.DispLanguage("yourhourhascome")))
     paint_buffer()
     sleep(5)
     set_color(0,0,0)
     fill_rect(0,0,500,300)
     set_color(210,210,255)
-    draw_text(20,180,"The right man in the wrong place")
-    draw_text(20,190,"will make the whole world difference")
+    draw_text(20,180,str(ActionUI.DispLanguage("rightman")))
+    draw_text(20,190,str(ActionUI.DispLanguage("maketheworld")))
     paint_buffer()
     sleep(5)
     r=0
@@ -914,8 +1141,8 @@ class Assets:#asset class
     for i in range(25):
       fill_rect(0,0,500,300)
       set_color(210,210,255)
-      draw_text(20,180,"The right man in the wrong place")
-      draw_text(20,190,"will make the whole world difference")
+      draw_text(20,180,str(ActionUI.DispLanguage("rightman")))
+      draw_text(20,190,str(ActionUI.DispLanguage("maketheworld")))
       r+=10;b+=10;g+=10
       set_color(r,g,b)
       sleep(0.01)
@@ -927,7 +1154,7 @@ class Assets:#asset class
       set_color(r,g,b)
       sleep(0.01)
     set_color(210,210,255)
-    draw_text(20,180,"So.Wake up,mr.Freeman.")
+    draw_text(20,180,str(ActionUI.DispLanguage("wakeup")))
     paint_buffer()
     sleep(3)
     set_color(255,255,255)
@@ -936,13 +1163,13 @@ class Assets:#asset class
       x=randint(0,500);x1=x+30
       y=randint(0,300);
     set_color(210,210,255)
-    draw_text(20,190,"wake up and smell the ashes...")
+    draw_text(20,190,str(ActionUI.DispLanguage("smell")))
     paint_buffer()
     sleep(2)
     for i in range(25):
       fill_rect(0,0,500,300)
       set_color(210,210,255)
-      draw_text(20,190,"wake up and smell the ashes...")
+      draw_text(20,190,str(ActionUI.DispLanguage("smell")))
       r+=10;b+=10;g+=10
       set_color(r,g,b)
       sleep(0.01)
@@ -1004,7 +1231,7 @@ class Assets:#asset class
 def main():#main function.It's a very standard template for engine.
   ActionUI.DispUi(0,0,9)
   inmenu=True
-  global mapslt,dev,dr,emptysave,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
+  global langtype,mapslt,dev,dr,emptysave,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
   StdUtil.ConsoleLog(4)
   while True:#game logic loop
     if inmenu==True:#menu guard
@@ -1015,7 +1242,7 @@ def main():#main function.It's a very standard template for engine.
       paint_buffer()
       while True:#main menu
         k=get_key()
-        emptysave=recall_value("emptysave")
+        emptysave=IO.Load(True,"emptysave",False,None)
         if k=="enter":
           Assets.gmanintro()
           inmenu=False
@@ -1062,16 +1289,59 @@ def main():#main function.It's a very standard template for engine.
           Actors.King.Init(11,0)
           Actors.King.Init(12,0)
           break
+        elif k=="tab":
+          while True:
+            k=get_key()
+            clear()
+            StdUtil.SettingMenu()
+            paint_buffer()
+            if k=="a":
+              if dr==True:dr=False
+              else:dr=True
+            elif k=="b":
+              if dev==True:dev=False
+              else:dev=True
+            elif k=="c":#add more conditions if you have more language.
+              if langtype==1:
+                langtype=2
+              elif langtype==2:
+                langtype=1
+            elif k=="s":
+              try:
+                if langtype==1:
+                  IO.Save(True,"langtype",1)
+                elif langtype==2:
+                  IO.Save(True,"langtype",2)
+                else:
+                  IO.Save(True,"Langtype",1)
+                  print("[WARN]Language type not found, using default language.")
+                  Kernal.ErrChk()
+                if novid==True:
+                  IO.Save(True,"novid",1)
+                else:IO.Save(True,"novid",0)
+                if dev==True:
+                  IO.Save(True,"dev",1)
+                else:IO.Save(True,"dev",0)
+                if dr==True:
+                  IO.Save(True,"dr",1)
+                else:IO.Save(True,"dr",0)
+                print("[INFO]Config IO process done.")
+              except Exception as e:
+                print("[ERROR]Config IO process fail.",e)
+                Kernal.ErrChk()
+            elif k=="esc":
+              ActionUI.DispUi(0,0,9)
+              Assets.MainMenu()
+              ActionUI.DispUi(0,0,4)
+              paint_buffer()
+              break
         elif k=="esc":
           StdUtil.ConsoleLog(3)
           Kernal.quit()
       clear()
       gc.collect()
-    if dr==True:StdUtil.ConsoleLog(1)
+    if dr==True:StdUtil.ConsoleLog(1)#print a log when screen update.
     StdUtil.MapStat()#logic check in here,define your trigger in this function.
-    ActionUI.DispUi(0,0,8)
-    if item_suit==1:#hud
-      ActionUI.DispUi(0,0,6)
     if v_live<=20 and v_live>=0:
       UniFX.LowHealth()
     if v_live<=0:#death detecting
@@ -1089,7 +1359,7 @@ def main():#main function.It's a very standard template for engine.
         k=get_key()
         Kernal.WaitUpdate()
         StdUtil.MapStat()
-        if item_suit==1:
+        if item_suit==1:#hud
           ActionUI.DispUi(0,0,6)
           ActionUI.DispUi(0,0,8)
         ActionUI.DispUi(0,0,2)
@@ -1272,7 +1542,7 @@ def main():#main function.It's a very standard template for engine.
                 clear()
                 StdUtil.PauseMenu()
                 k=get_key()
-                emptysave=recall_value("emptysave")
+                emptysave=IO.Load(True,"emptysave",False,None)
                 ActionUI.DispUi(0,0,2)
                 paint_buffer()
                 if k=="esc":
@@ -1282,6 +1552,51 @@ def main():#main function.It's a very standard template for engine.
                   StdUtil.ConsoleLog(3)
                   Kernal.quit(0)
                   break
+                elif k=="tab":
+                  while True:
+                    k=get_key()
+                    clear()
+                    StdUtil.SettingMenu()
+                    paint_buffer()
+                    if k=="a":
+                      if dr==True:dr=False
+                      else:dr=True
+                    elif k=="b":
+                      if dev==True:dev=False
+                      else:dev=True
+                    elif k=="c":#add more conditions if you have more language.
+                      if langtype==1:
+                        langtype=2
+                      elif langtype==2:
+                        langtype=1
+                    elif k=="s":
+                      try:
+                        if langtype==1:
+                          IO.Save(True,"langtype",1)
+                        elif langtype==2:
+                          IO.Save(True,"langtype",2)
+                        else:
+                          IO.Save(True,"Langtype",1)
+                          print("[WARN]Language type not found, using default language.")
+                          Kernal.ErrChk()
+                        if novid==True:
+                          IO.Save(True,"novid",1)
+                        else:IO.Save(True,"novid",0)
+                        if dev==True:
+                          IO.Save(True,"dev",1)
+                        else:IO.Save(True,"dev",0)
+                        if dr==True:
+                          IO.Save(True,"dr",1)
+                        else:IO.Save(True,"dr",0)
+                        print("[INFO]Config IO process done.")
+                      except Exception as e:
+                        print("[ERROR]Config IO process fail.",e)
+                        Kernal.ErrChk()
+                    elif k=="esc":
+                      ActionUI.DispUi(0,0,9)
+                      paint_buffer()
+                      clear()
+                      break
                 elif k=="d":
                   IO.Delete()
                 elif k=="s":
@@ -1312,5 +1627,6 @@ def main():#main function.It's a very standard template for engine.
       break
   return 0
 if (__name__=="__main__"):#all program starts from here.
+  Kernal.Init(1)
   Kernal.Console()
   Kernal.GameLauncher()
