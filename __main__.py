@@ -44,7 +44,7 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 26 Build(0092)");
+GAMEVER=str("Gyro 26 Build(0093)");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -62,6 +62,8 @@ reload9=int(0);
 reload357=int(0);
 vtk=bool(False);
 modenb=bool(False);
+ingamemod=bool(False);
+modscripts=list([]);
 emptysave=int(1);#True or False dosent work.
 class Kernal:#Code base class
   def __init__(self):pass
@@ -108,15 +110,16 @@ class Kernal:#Code base class
     return
   @staticmethod
   def GameLauncher():#Built-in function, for game loading process.
-    global novid,modenb,g,tk
+    global novid,modenb,g,tk,ingamemod
     del g
     print("[CONSOLE]Console is being closed.\n[INFO]Engine is now started.")
     gc.collect()
     StdUtil.ConsoleLog(2)
     use_buffer()
     if novid==False:Kernal.Opening()
+    if ingamemod=="ingamemod":modenb=False
     StdUtil.ConsoleLog(5)
-    if modenb==True:
+    if modenb==True and ingamemod!="ingamemod":
       print("[INFO]Trying to load mod script.")
       tk.mod_main()
     else:
@@ -124,7 +127,7 @@ class Kernal:#Code base class
       main()
   @staticmethod
   def Console():#built-in function,for console.
-    global g,modenb,vtk,erxt,novid,tk,dev,dr,langtype
+    global ingamemod,modscripts,g,modenb,vtk,erxt,novid,tk,dev,dr,langtype
     print("[PRE-LOAD]Starting console.")
     while g!="run"or g!="start"or g!="begin":
       g=str(input("]"))
@@ -145,38 +148,42 @@ class Kernal:#Code base class
           langtype=1
       elif g=="disablemod":
         try:
-          sys.modules.pop("gyro_addon_main1",None)
           del tk
+          print("[INFO]Mod is uninstalled, but reboot is recommended.")
           gc.collect()
         except Exception as e:
-          print("[ERROR]Mod cannot be poped, "+str(e))
+          print("[ERROR]Mod cannot be uninstalled, "+str(e))
           Kernal.ErrChk()
         vtk=False
         modenb=False
         print("[INFO]Mod disabled.")
       elif g=="modinit":
         if vtk!=True:
-          try:
-            tk=__import__("gyro_addon_main1")
-          except Exception as e:
-            print("[ERROR]Error occured. "+str(e))
-            Kernal.ErrChk()
+          print("[INFO]Please do not put 2 types of mod files\ntogether. Mod is loading...")
+          for i in range(100):
+            try:
+              tk=__import__("gyro_addon_main"+str(i))
+              modscripts.append(tk)
+            except ImportError:
+              continue
           vtk=True
           print("[INFO]Mod init success.")
+          ingamemod=tk.mod_info(0)
         else:
           print("[WARN]Mod already init.")
           Kernal.ErrChk()
       elif g=="runmod":
-        if vtk==True:
+        if vtk==True and ingamemod!="ingamemod":
           modenb=True
           print("[INFO]Mod is running.")
           break
         else:
-          print("[ERROR]Mod script not found.")
+          print("[ERROR]Mod script not found or mod type is not supported.")
           Kernal.ErrChk()
       elif g=="initcfg":
         Kernal.Init(1)
       elif g=="modver":
+        print("Warning: do not let 2 types of mods installed together.")
         if vtk==True:
           print(tk.mod_info(0))
         else:
@@ -252,7 +259,7 @@ class Kernal:#Code base class
           erxt=1
           print("[CONSOLE]Exit when error enabled.")
       elif g=="version":
-        print("Gyro 2D Gaming engine.\n",GAMEVER,"\nFirst runned in 2025/05/09\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
+        print("Gyro 2D Gaming engine.\n",GAMEVER,"\nFirst runned in 2025/05/10\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
       elif g=="novid":
         if novid==False:
           novid=True
@@ -1231,7 +1238,7 @@ class Assets:#asset class
 def main():#main function.It's a very standard template for engine.
   ActionUI.DispUi(0,0,9)
   inmenu=True
-  global langtype,mapslt,dev,dr,emptysave,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
+  global ingamemod,modscripts,langtype,mapslt,dev,dr,emptysave,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
   StdUtil.ConsoleLog(4)
   while True:#game logic loop
     if inmenu==True:#menu guard
@@ -1359,6 +1366,7 @@ def main():#main function.It's a very standard template for engine.
         k=get_key()
         Kernal.WaitUpdate()
         StdUtil.MapStat()
+        if ingamemod=="ingamemod" and tk.mod_info()=="ingamemod":tk.mod_main()
         if item_suit==1:#hud
           ActionUI.DispUi(0,0,6)
           ActionUI.DispUi(0,0,8)
