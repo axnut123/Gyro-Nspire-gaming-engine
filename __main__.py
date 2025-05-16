@@ -25,6 +25,7 @@ sys=__import__("sys")
 gc=__import__("gc")
 mp=__import__("micropython")#import done
 novid=bool(False);
+modamount=int(100);
 endtick=None;
 langtype=int(1);
 active=bool(False);
@@ -35,6 +36,7 @@ plb=int(0);
 plw=int(0);
 plh=int(0);
 dev=bool(False);
+usemod=bool(True);
 dr=bool(False);
 debugs=bool(False);
 erxt=int(0);
@@ -44,7 +46,7 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 26 Build(0093)");
+GAMEVER=str("Gyro 26 Build(0094)");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -62,27 +64,64 @@ reload9=int(0);
 reload357=int(0);
 vtk=bool(False);
 modenb=bool(False);
-ingamemod=bool(False);
+ingamemod=str("");
 modscripts=list([]);
 emptysave=int(1);#True or False dosent work.
 class Kernal:#Code base class
   def __init__(self):pass
   @staticmethod
   def quit(self=None):#built-in function, in nspire cx ii python the Kernal.quit function is not defined.
+    gc.collect()
     raise SystemExit(self)
   @staticmethod
+  def SaveCfg():
+    global langtype,dev,dr,usemod,novid,modamount
+    try:
+      if langtype==1:
+        IO.Save(True,"langtype",1)
+      elif langtype==2:
+        IO.Save(True,"langtype",2)
+      else:
+        IO.Save(True,"Langtype",1)
+        print("[WARN]Language type not found, using default language.")
+        Kernal.ErrChk()
+      IO.Save(True,"modamount",int(modamount))
+      if novid==True:IO.Save(True,"novid",1)
+      else:IO.Save(True,"novid",0)
+      if dev==True:IO.Save(True,"dev",1)
+      else:IO.Save(True,"dev",0)
+      if dr==True:IO.Save(True,"dr",1)
+      else:IO.Save(True,"dr",0)
+      if usemod==True:IO.Save(True,"usemod",1)
+      else:IO.Save(True,"usemod",0)
+      print("[INFO]Cfg saving success.")
+    except Exception as e:
+      print("[ERROR]Cfg saving failed."+str(e))
+      Kernal.ErrChk()
+    return 0
+  @staticmethod
   def Init(inittp):#built-in function.for init cfgs or other files engine needed.
-    global dev,dr,novid,langtype
+    global dev,dr,novid,langtype,usemod,modamount
     if inittp==1:
       try:
         cfg1=IO.Load(True,"novid",None)
         cfg2=IO.Load(True,"dev",returnval=None)
         cfg3=IO.Load(True,"dr",returnval=None)
         cfg4=IO.Load(True,"langtype",returnval=None)
+        cfg5=IO.Load(True,"usemod",returnval=None)
+        modamount=IO.Load(True,"modamount",returnval=None)
         if cfg1==1:novid=True
+        else:novid=False
         if cfg2==1:dev=True
+        else:dev=False
         if cfg3==1:dr=True
+        else:dr=False
         if cfg4==2:langtype=2
+        elif cfg4==1:langtype=1#add more condition if more languages needed.
+        if cfg5==1:usemod=True
+        else:usemod=False
+        del cfg1,cfg2,cfg3,cfg4,cfg5
+        gc.collect()
         print("[INFO]Config loading process completed.")
         return 1
       except Exception as e:
@@ -127,7 +166,7 @@ class Kernal:#Code base class
       main()
   @staticmethod
   def Console():#built-in function,for console.
-    global ingamemod,modscripts,g,modenb,vtk,erxt,novid,tk,dev,dr,langtype
+    global ingamemod,modscripts,g,modenb,vtk,erxt,novid,tk,dev,dr,langtype,usemod,modamount
     print("[PRE-LOAD]Starting console.")
     while g!="run"or g!="start"or g!="begin":
       g=str(input("]"))
@@ -159,8 +198,8 @@ class Kernal:#Code base class
         print("[INFO]Mod disabled.")
       elif g=="modinit":
         if vtk!=True:
-          print("[INFO]Please do not put 2 types of mod files\ntogether. Mod is loading...")
-          for i in range(100):
+          print("[INFO]Mod is loading... if mod loading amount is more than 100, it will take a long time to load, please wait.")
+          for i in range(int(modamount)):
             try:
               tk=__import__("gyro_addon_main"+str(i))
               modscripts.append(tk)
@@ -168,7 +207,7 @@ class Kernal:#Code base class
               continue
           vtk=True
           print("[INFO]Mod init success.")
-          ingamemod=tk.mod_info(0)
+          ingamemod=tk.mod_info(3)
         else:
           print("[WARN]Mod already init.")
           Kernal.ErrChk()
@@ -185,51 +224,28 @@ class Kernal:#Code base class
       elif g=="modver":
         print("Warning: do not let 2 types of mods installed together.")
         if vtk==True:
-          print(tk.mod_info(0))
+          print(tk.mod_info(3))
+          print(tk.mod_info(2))
         else:
           print("[ERROR]Mod is not found.")
           Kernal.ErrChk()
       elif g=="savecfg":
-        try:
-          if langtype==1:
-            IO.Save(True,"langtype",1)
-          elif langtype==2:
-            IO.Save(True,"langtype",2)
-          else:
-            IO.Save(True,"Langtype",1)
-            print("[WARN]Language type not found, using default language.")
-            Kernal.ErrChk()
-          if novid==True:
-            IO.Save(True,"novid",1)
-          else:IO.Save(True,"novid",0)
-          if dev==True:
-            IO.Save(True,"dev",1)
-          else:IO.Save(True,"dev",0)
-          if dr==True:
-            IO.Save(True,"dr",1)
-          else:IO.Save(True,"dr",0)
-          print("[INFO]Config IO process done.")
-        except Exception as e:
-          print("[ERROR]Config IO process fail.",e)
-          Kernal.ErrChk()
+        Kernal.SaveCfg()
       elif g=="help 1":
         print("Gyro engine help page 1:\nrun:start engine.\nhelp <page(1/2/3)>:get help.\nquit:stop engine and console.\nsetgeomet:set a new resolution for screen.\nforceexitonerror:forcely stop whole engine when encounting any error and warn.\nversion:get engine version and credits.\nhwinfo:get hardware info.\ncls:clear screen.")
       elif g=="help 2":
         print("Gyro engine help page 2:\nloadgame:load game from saved file.\ndeletesave:delete saved game.\nmodinit:__init__ installed mod.\nrunmod:start mod.\nmodver:get version for mod.\ndisablemod:disable mod.(pop)\nadjustthreshold:change the value for gc.threshold()\ndev: toggle devloper mode.")
       elif g=="help 3":
-        print("Gyro engine help page 3:\nscuptoggle: toggle the output when screen \nupdate.\nexec:use exec() to execute python code.\nnovid:disable launch video.\ninitcfg:execute cfg init process manually.\nsavecfg:save current configs.\ngetcfgs:get current cfg status.\neval:use eval function.\nsetlang:set a language for engine.")
+        print("Gyro engine help page 3:\nscuptoggle: toggle the output when screen \nupdate.\nexec:use exec() to execute python code.\nnovid:disable launch video.\ninitcfg:execute cfg init process manually.\nsavecfg:save current configs.\ngetcfgs:get current cfg status.\nsetmodamount:tell mod loader how many mods shold be loaded.\nsetlang:set a language for engine.")
       elif g=="quit"or g=="stop"or g=="exit"or g=="esc":
         del g
         StdUtil.ConsoleLog(3)
         Kernal.quit()
         break
-      elif g=="eval":
-        g=input("evaluate:")
-        try:
-          eval(g)
-          print("[INFO]Executed code.")
-        except Exception as e:
-          print("[ERROR]Evaluate failed.",e)
+      elif g=="setmodamount":
+        g=input("how many mods shold be load(default 100):")
+        modamount=g
+        print("[CONSOLE]"+str(modamount)+" mods will be trying to load.")
       elif g=="scuptoggle":
         if dr==False:
           dr=True;print("[CONSOLE]Enabled.")
@@ -250,7 +266,9 @@ class Kernal:#Code base class
         print("novid:"+str(novid))
         print("log output on screen draw:"+str(dr))
         print("dev:"+str(dev))
-        print("lang:"+str(langtype))
+        print("lang:"+str(ActionUI.DispLanguage("lang")))
+        print("use mod:"+str(usemod))
+        print("mod amounts:"+str(modamount))
       elif g=="forceexitonerror":
         if erxt==1:
           erxt=0
@@ -259,7 +277,7 @@ class Kernal:#Code base class
           erxt=1
           print("[CONSOLE]Exit when error enabled.")
       elif g=="version":
-        print("Gyro 2D Gaming engine.\n",GAMEVER,"\nFirst runned in 2025/05/10\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
+        print("Gyro 2D Gaming engine.\n",GAMEVER,"\nFirst runned in 2025/05/12\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
       elif g=="novid":
         if novid==False:
           novid=True
@@ -373,7 +391,7 @@ class IO:#Input-Output class.
     else:
       try:
         store_value(str(name),gamevar)
-        print("[IO]Saved file:"+str(name))
+        print("[IO]Saved file:"+str(name)+".")
         return 0
       except Exception as e:
         print("[ERROR]File operation on:"+str(name)+" failed.\n"+str(e))
@@ -409,7 +427,7 @@ class IO:#Input-Output class.
     else:
       try:
         store_value(str(name),gamevar)
-        print("[IO]File operate success on:"+str(name))
+        print("[IO]File operate success on:"+str(name)+".")
         return 0
       except Exception as e:
         print("[ERROR]File operate on:"+str(name)+" failed.\n"+str(e))
@@ -453,7 +471,7 @@ class IO:#Input-Output class.
     else:
       try:
         returnval=recall_value(str(name))
-        if logout==True:print("[IO]File operation on:"+str(name)+" success")
+        if logout==True:print("[IO]File operation on:"+str(name)+" success.")
         return returnval
       except Exception as e:
         print("[ERROR]File operation failed on:"+str(name)+".\n"+str(e))
@@ -622,6 +640,7 @@ class ActionUI:#UI class
     global langtype
     if langtype==1:#English
       langdict1={
+      "usemod":"Enable mod:",
       "lang":"English",
       "gofuckyourself":"Go fuck your self!",
       "riseandshine":"Rise and shine mister Freeman,rise and shine.",
@@ -647,6 +666,7 @@ class ActionUI:#UI class
       "menu":"menu:main menu",
       "savegm":"s:save game",
       "loadgm":"l:load game",
+      "modamount":"loaded mods:",
       "delgm":"d:delete save",
       "quitgm":"q:quit game",
       "start1":"enter:start a new game",
@@ -676,6 +696,8 @@ class ActionUI:#UI class
         return "Undef"
     elif langtype==2:#Schinese
       langdict2={
+      "modamount":"模组加载数:",
+      "usemod":"启用模组:",
       "lang":"简体中文",
       "set":"tab:设置",
       "savecfg":"s:保存设置",
@@ -733,7 +755,7 @@ class ActionUI:#UI class
   @staticmethod
   def DispUi(x,y,wintp):#built-in function,for display window, gui elements.
     set_color(135,135,135)
-    global emptysave,dev,mapslt,debugs,v_live,v_hev,wpnslt,ammo9,ammo357,inclip9,inclip357,weapon_pst,weapon_crb,weapon_physcnn,weapon_357,dr,langtype
+    global emptysave,dev,mapslt,debugs,v_live,v_hev,wpnslt,ammo9,ammo357,inclip9,inclip357,weapon_pst,weapon_crb,weapon_physcnn,weapon_357,dr,langtype,usemod,modamount
     emptysave=recall_value("emptysave")
     if wintp==1:
       fill_rect(x,y,120,40)
@@ -754,6 +776,7 @@ class ActionUI:#UI class
         draw_text(10,130,str(ActionUI.DispLanguage("mapid"))+str(mapslt))
         draw_text(10,145,str(ActionUI.DispLanguage("ver"))+str(GAMEVER))
         draw_text(10,160,str(ActionUI.DispLanguage("platform"))+str(get_platform()))
+        draw_text(10,175,str(ActionUI.DispLanguage("modamount"))+str(modamount))
         paint_buffer()
         return 0
     elif wintp==3:
@@ -872,8 +895,9 @@ class ActionUI:#UI class
       draw_text(10,100,"a:"+str(ActionUI.DispLanguage("dr"))+":"+str(dr))
       draw_text(10,120,"b:"+str(ActionUI.DispLanguage("dev"))+":"+str(dev))
       draw_text(10,140,"c:"+str(ActionUI.DispLanguage("langset"))+":"+str(ActionUI.DispLanguage("lang")))
-      draw_text(10,160,str(ActionUI.DispLanguage("savecfg")))
-      draw_text(10,180,str(ActionUI.DispLanguage("escres")))
+      draw_text(10,160,"d:"+str(ActionUI.DispLanguage("usemod")+str(usemod)))
+      draw_text(10,180,str(ActionUI.DispLanguage("savecfg")))
+      draw_text(10,200,str(ActionUI.DispLanguage("escres")))
       return 0
     else:
       print("[ERROR]Window type is not defined.")
@@ -1238,7 +1262,7 @@ class Assets:#asset class
 def main():#main function.It's a very standard template for engine.
   ActionUI.DispUi(0,0,9)
   inmenu=True
-  global ingamemod,modscripts,langtype,mapslt,dev,dr,emptysave,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
+  global ingamemod,modscripts,langtype,mapslt,dev,dr,emptysave,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,usemod
   StdUtil.ConsoleLog(4)
   while True:#game logic loop
     if inmenu==True:#menu guard
@@ -1313,29 +1337,11 @@ def main():#main function.It's a very standard template for engine.
                 langtype=2
               elif langtype==2:
                 langtype=1
+            elif k=="d":
+              if usemod==True:usemod=False
+              else:usemod=True
             elif k=="s":
-              try:
-                if langtype==1:
-                  IO.Save(True,"langtype",1)
-                elif langtype==2:
-                  IO.Save(True,"langtype",2)
-                else:
-                  IO.Save(True,"Langtype",1)
-                  print("[WARN]Language type not found, using default language.")
-                  Kernal.ErrChk()
-                if novid==True:
-                  IO.Save(True,"novid",1)
-                else:IO.Save(True,"novid",0)
-                if dev==True:
-                  IO.Save(True,"dev",1)
-                else:IO.Save(True,"dev",0)
-                if dr==True:
-                  IO.Save(True,"dr",1)
-                else:IO.Save(True,"dr",0)
-                print("[INFO]Config IO process done.")
-              except Exception as e:
-                print("[ERROR]Config IO process fail.",e)
-                Kernal.ErrChk()
+              Kernal.SaveCfg()
             elif k=="esc":
               ActionUI.DispUi(0,0,9)
               Assets.MainMenu()
@@ -1349,8 +1355,7 @@ def main():#main function.It's a very standard template for engine.
       gc.collect()
     if dr==True:StdUtil.ConsoleLog(1)#print a log when screen update.
     StdUtil.MapStat()#logic check in here,define your trigger in this function.
-    if v_live<=20 and v_live>=0:
-      UniFX.LowHealth()
+    if v_live<=20 and v_live>=0:UniFX.LowHealth()
     if v_live<=0:#death detecting
       ActionUI.DispUi(0,0,7)
       Actors.King.Draw()
@@ -1366,7 +1371,7 @@ def main():#main function.It's a very standard template for engine.
         k=get_key()
         Kernal.WaitUpdate()
         StdUtil.MapStat()
-        if ingamemod=="ingamemod" and tk.mod_info()=="ingamemod":tk.mod_main()
+        if ingamemod=="ingamemod" and tk.mod_info(3)=="ingamemod"and usemod==True:tk.mod_main()
         if item_suit==1:#hud
           ActionUI.DispUi(0,0,6)
           ActionUI.DispUi(0,0,8)
@@ -1577,29 +1582,11 @@ def main():#main function.It's a very standard template for engine.
                         langtype=2
                       elif langtype==2:
                         langtype=1
+                    elif k=="d":
+                      if usemod==False:usemod=True
+                      else:usemod=False
                     elif k=="s":
-                      try:
-                        if langtype==1:
-                          IO.Save(True,"langtype",1)
-                        elif langtype==2:
-                          IO.Save(True,"langtype",2)
-                        else:
-                          IO.Save(True,"Langtype",1)
-                          print("[WARN]Language type not found, using default language.")
-                          Kernal.ErrChk()
-                        if novid==True:
-                          IO.Save(True,"novid",1)
-                        else:IO.Save(True,"novid",0)
-                        if dev==True:
-                          IO.Save(True,"dev",1)
-                        else:IO.Save(True,"dev",0)
-                        if dr==True:
-                          IO.Save(True,"dr",1)
-                        else:IO.Save(True,"dr",0)
-                        print("[INFO]Config IO process done.")
-                      except Exception as e:
-                        print("[ERROR]Config IO process fail.",e)
-                        Kernal.ErrChk()
+                      Kernal.SaveCfg()
                     elif k=="esc":
                       ActionUI.DispUi(0,0,9)
                       paint_buffer()
