@@ -46,7 +46,7 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 26 Build(0094)");
+GAMEVER=str("Gyro 26 Build(0095)");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -143,7 +143,7 @@ class Kernal:#Code base class
         action=None
   @staticmethod
   def ResetGame():#built-in function,for soft reset.
-    global mapslt,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
+    global mapslt,psx,v_live,v_hev,plh,plw,plr,plg,plb,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
     mapslt=0;plh=0;plw=0;plg=0;plb=0;plr=0;psx=0;psy=0;v_hev=0;wpnslt=0;item_suit=0;weapon_crb=0;weapon_physcnn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0;v_live=100;ammo9max=180;ammo357max=12;inclip9=0;inclip357=0;reload9=0;reload357=0
     print("[INFO]Game reset completed.")
     return
@@ -277,7 +277,7 @@ class Kernal:#Code base class
           erxt=1
           print("[CONSOLE]Exit when error enabled.")
       elif g=="version":
-        print("Gyro 2D Gaming engine.\n",GAMEVER,"\nFirst runned in 2025/05/12\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
+        print("Gyro 2D Gaming engine.\n",GAMEVER,"\nFirst runned in 2025/05/17\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
       elif g=="novid":
         if novid==False:
           novid=True

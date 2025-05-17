@@ -1,7 +1,6 @@
 from ti_system import *
 #Save repair.
-def Delete(custom=False,name="customFile",gamevar=None):#built-in function, for delete saved game.
-  if custom==False:
+def Delete():
     try:
       store_value("playery",95)
       store_value("playerx",95)
@@ -19,18 +18,8 @@ def Delete(custom=False,name="customFile",gamevar=None):#built-in function, for 
       store_value("ammo9",0)
       store_value("ammo357",0)
       store_value("item_suit",0)
-      print("[IO]Reset completed.")
       return 0
     except Exception as e:
       print("[ERROR]Operation failed.",str(e))
-      Kernal.ErrChk()
-      return 1
-  else:
-    try:
-      store_value(str(name),gamevar)
-      print("[IO]File operate success on:"+str(name))
-      return 0
-    except Exception as e:
-      print("[ERROR]File operate on:"+str(name)+" failed.\n"+str(e))
       return 1
 if __name__=="__main__":Delete();print("Game save reset.")
