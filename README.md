@@ -1,6 +1,8 @@
 # Gyro
 A gaming engine based on Ti calculator,writed on py.
 
+The engine is clean and visible, easy to learn and with a built-in example.
+
 chinese：
 
 安装：
