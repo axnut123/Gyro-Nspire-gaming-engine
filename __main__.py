@@ -18,12 +18,11 @@
 #Every class, functions in here are all with
 #examples, you can learn engine from examples.
 from random import randint
-from ti_draw import *
 from time import *
 from ti_system import *
-sys=__import__("sys")
-gc=__import__("gc")
-mp=__import__("micropython")#import done
+import sys
+import gc
+import micropython as mp
 novid=bool(False);
 modamount=int(100);
 endtick=None;
@@ -35,6 +34,7 @@ plg=int(0);
 plb=int(0);
 plw=int(0);
 plh=int(0);
+autoloadmod=bool(False);
 dev=bool(False);
 usemod=bool(True);
 dr=bool(False);
@@ -46,7 +46,7 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 26 Build(0095)");
+GAMEVER=str("Gyro 27 Build(0100)");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -67,27 +67,36 @@ modenb=bool(False);
 ingamemod=str("");
 modscripts=list([]);
 emptysave=int(1);#True or False dosent work.
+class CfgError(Exception):pass
+class IOError(Exception):pass
+class ArgumentNotFound(Exception):pass
+class UnknownError(Exception):pass
+class ModError(Exception):pass
+class GameError(Exception):pass#Error classes.
 class Kernal:#Code base class
   def __init__(self):pass
   @staticmethod
-  def quit(self=None):#built-in function, in nspire cx ii python the Kernal.quit function is not defined.
+  def quit(code=None):#built-in function, in nspire cx ii python the quit function is not defined.
     gc.collect()
-    raise SystemExit(self)
+    raise SystemExit(code)
   @staticmethod
   def SaveCfg():
-    global langtype,dev,dr,usemod,novid,modamount
+    global autoloadmod,langtype,dev,dr,usemod,novid,modamount,erxt
     try:
       if langtype==1:
         IO.Save(True,"langtype",1)
       elif langtype==2:
         IO.Save(True,"langtype",2)
       else:
-        IO.Save(True,"Langtype",1)
+        IO.Save(True,"langtype",1)
         print("[WARN]Language type not found, using default language.")
-        Kernal.ErrChk()
+        Kernal.ErrChk(1,"Language type not found.")
+      IO.Save(True,"erxt",int(erxt))
       IO.Save(True,"modamount",int(modamount))
-      if novid==True:IO.Save(True,"novid",1)
+      if novid==True:IO.Save(True,"novid",1)#True or false dosent work here. use 1 or 0.
       else:IO.Save(True,"novid",0)
+      if autoloadmod==True:IO.Save(True,"autoloadmod",1)
+      else:IO.Save(True,"autoloadmod",0)
       if dev==True:IO.Save(True,"dev",1)
       else:IO.Save(True,"dev",0)
       if dr==True:IO.Save(True,"dr",1)
@@ -97,18 +106,20 @@ class Kernal:#Code base class
       print("[INFO]Cfg saving success.")
     except Exception as e:
       print("[ERROR]Cfg saving failed."+str(e))
-      Kernal.ErrChk()
+      Kernal.ErrChk(3,"Failed to save cfgs.")
     return 0
   @staticmethod
   def Init(inittp):#built-in function.for init cfgs or other files engine needed.
-    global dev,dr,novid,langtype,usemod,modamount
+    global autoloadmod,dev,dr,novid,langtype,usemod,modamount,erxt
     if inittp==1:
       try:
-        cfg1=IO.Load(True,"novid",None)
+        cfg1=IO.Load(True,"novid",returnval=None)
         cfg2=IO.Load(True,"dev",returnval=None)
         cfg3=IO.Load(True,"dr",returnval=None)
         cfg4=IO.Load(True,"langtype",returnval=None)
         cfg5=IO.Load(True,"usemod",returnval=None)
+        cfg6=IO.Load(True,"autoloadmod",returnval=None)
+        erxt=IO.Load(True,"erxt",returnval=None)
         modamount=IO.Load(True,"modamount",returnval=None)
         if cfg1==1:novid=True
         else:novid=False
@@ -120,19 +131,79 @@ class Kernal:#Code base class
         elif cfg4==1:langtype=1#add more condition if more languages needed.
         if cfg5==1:usemod=True
         else:usemod=False
-        del cfg1,cfg2,cfg3,cfg4,cfg5
+        if cfg6==1:autoloadmod=True
+        else:autoloadmod=False
+        del cfg1,cfg2,cfg3,cfg4,cfg5,cfg6
+        if autoloadmod==True:Kernal.ModHandler(2)
         gc.collect()
         print("[INFO]Config loading process completed.")
         return 1
       except Exception as e:
         print("[ERROR]Failed on trying to load configs."+str(e))
+        Kernal.ErrChk(3,"Cfg load process failed.")
         return 0
   @staticmethod
-  def ErrChk(c=1):#built-in function,for command "forceexitonerror".
+  def ErrChk(errtype=None,reason="Unknown Reason."):#built-in function,for command "forceexitonerror".
     global erxt
     if erxt==1:
-      print("[DEBUG]Error or warning encounted,\nstopped engine.")
-      Kernal.quit(c)
+      print("[DEBUG]Error or warning encountered,\nstopped engine.")
+      gc.collect()
+      if errtype==1:raise ArgumentNotFound(reason)
+      elif errtype==2:raise IOError(reason)
+      elif errtype==3:raise CfgError(reason)
+      elif errtype==4:raise ModError(reason)
+      elif errtype==5:raise GameError(reason)
+      else:raise UnknownError(reason)
+  @staticmethod
+  def ModHandler(hdtp):#built-in function,for managing mods.
+    global vtk,tk,modenb,ingamemod
+    if hdtp==1:
+      try:
+        del tk
+        print("[INFO]Mod is uninstalled, but reboot is recommended.")
+        gc.collect()
+      except Exception as e:
+        print("[ERROR]Mod cannot be uninstalled, "+str(e))
+        Kernal.ErrChk(4,"Can not uninstall mod.")
+      vtk=False
+      modenb=False
+      print("[INFO]Mod disabled.")
+    elif hdtp==2:
+      if vtk!=True:
+        print("[INFO]Mod is loading... if mod loading amount is more than 100, it will take a long time to load, please wait.")
+        for i in range(int(modamount)):
+          try:
+            tk=__import__("gyro_addon_main"+str(i))
+            modscripts.append(tk)
+          except ImportError:
+            continue
+        vtk=True
+        print("[INFO]Mod init success.")
+        ingamemod=tk.mod_info(3)
+      else:
+        print("[WARN]Mod already init.")
+        Kernal.ErrChk(4,"Repeating init.")
+    elif hdtp==3:
+      if vtk==True and ingamemod!="ingamemod":
+        modenb=True
+        print("[INFO]Mod is running.")
+        return 0
+      else:
+        print("[ERROR]Mod script not found or mod type is not supported.")
+        Kernal.ErrChk(4,"Mod not found.")
+        return -1
+    elif hdtp==4:
+      print("Warning: do not let 2 types of mods installed together.")
+      if vtk==True:
+        print(tk.mod_info(3))
+        print(tk.mod_info(2))
+      else:
+        print("[ERROR]Mod is not found.")
+        Kernal.ErrChk(4,"Mod not found.")
+    else:
+      print("[ERROR]Unknown argument.")
+      Kernal.ErrChk(1,"Unknown argument.")
+      return -1
   @staticmethod
   def WaitUpdate():#built-in function. for check the wait tick.
     global active,action,endtick
@@ -146,7 +217,7 @@ class Kernal:#Code base class
     global mapslt,psx,v_live,v_hev,plh,plw,plr,plg,plb,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
     mapslt=0;plh=0;plw=0;plg=0;plb=0;plr=0;psx=0;psy=0;v_hev=0;wpnslt=0;item_suit=0;weapon_crb=0;weapon_physcnn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0;v_live=100;ammo9max=180;ammo357max=12;inclip9=0;inclip357=0;reload9=0;reload357=0
     print("[INFO]Game reset completed.")
-    return
+    return 0
   @staticmethod
   def GameLauncher():#Built-in function, for game loading process.
     global novid,modenb,g,tk,ingamemod
@@ -154,7 +225,10 @@ class Kernal:#Code base class
     print("[CONSOLE]Console is being closed.\n[INFO]Engine is now started.")
     gc.collect()
     StdUtil.ConsoleLog(2)
-    use_buffer()
+    set_color(0,0,0)
+    fill_rect(0,0,500,300)
+    ActionUI.DispUi(0,0,9)
+    use_buffer()#Reduce white flash.
     if novid==False:Kernal.Opening()
     if ingamemod=="ingamemod":modenb=False
     StdUtil.ConsoleLog(5)
@@ -166,7 +240,7 @@ class Kernal:#Code base class
       main()
   @staticmethod
   def Console():#built-in function,for console.
-    global ingamemod,modscripts,g,modenb,vtk,erxt,novid,tk,dev,dr,langtype,usemod,modamount
+    global ingamemod,modscripts,g,modenb,vtk,erxt,novid,tk,dev,dr,langtype,usemod,modamount,autoloadmod
     print("[PRE-LOAD]Starting console.")
     while g!="run"or g!="start"or g!="begin":
       g=str(input("]"))
@@ -183,60 +257,30 @@ class Kernal:#Code base class
           print("[CONSOLE]Language set.")
         elif g=="3":pass
         else:
-          print("[ERROR]Language type unknow, using default language.")
+          print("[ERROR]Language type unknown, using default language.")
           langtype=1
-      elif g=="disablemod":
-        try:
-          del tk
-          print("[INFO]Mod is uninstalled, but reboot is recommended.")
-          gc.collect()
-        except Exception as e:
-          print("[ERROR]Mod cannot be uninstalled, "+str(e))
-          Kernal.ErrChk()
-        vtk=False
-        modenb=False
-        print("[INFO]Mod disabled.")
-      elif g=="modinit":
-        if vtk!=True:
-          print("[INFO]Mod is loading... if mod loading amount is more than 100, it will take a long time to load, please wait.")
-          for i in range(int(modamount)):
-            try:
-              tk=__import__("gyro_addon_main"+str(i))
-              modscripts.append(tk)
-            except ImportError:
-              continue
-          vtk=True
-          print("[INFO]Mod init success.")
-          ingamemod=tk.mod_info(3)
-        else:
-          print("[WARN]Mod already init.")
-          Kernal.ErrChk()
+          Kernal.ErrChk(3,"Language type unknown.")
+      elif g=="disablemod":Kernal.ModHandler(1)
+      elif g=="automodload":
+        if autoloadmod==True:autoloadmod=False
+        else:autoloadmod=True
+        print("[CONSOLE]Auto mod load process is now:"+str(autoloadmod))
+      elif g=="modinit":Kernal.ModHandler(2)
       elif g=="runmod":
-        if vtk==True and ingamemod!="ingamemod":
-          modenb=True
-          print("[INFO]Mod is running.")
-          break
-        else:
-          print("[ERROR]Mod script not found or mod type is not supported.")
-          Kernal.ErrChk()
-      elif g=="initcfg":
-        Kernal.Init(1)
-      elif g=="modver":
-        print("Warning: do not let 2 types of mods installed together.")
-        if vtk==True:
-          print(tk.mod_info(3))
-          print(tk.mod_info(2))
-        else:
-          print("[ERROR]Mod is not found.")
-          Kernal.ErrChk()
+        a=Kernal.ModHandler(3)
+        if a==0:del a;break
+      elif g=="initcfg":Kernal.Init(1)
+      elif g=="modver":Kernal.ModHandler(4)
       elif g=="savecfg":
         Kernal.SaveCfg()
       elif g=="help 1":
         print("Gyro engine help page 1:\nrun:start engine.\nhelp <page(1/2/3)>:get help.\nquit:stop engine and console.\nsetgeomet:set a new resolution for screen.\nforceexitonerror:forcely stop whole engine when encounting any error and warn.\nversion:get engine version and credits.\nhwinfo:get hardware info.\ncls:clear screen.")
       elif g=="help 2":
-        print("Gyro engine help page 2:\nloadgame:load game from saved file.\ndeletesave:delete saved game.\nmodinit:__init__ installed mod.\nrunmod:start mod.\nmodver:get version for mod.\ndisablemod:disable mod.(pop)\nadjustthreshold:change the value for gc.threshold()\ndev: toggle devloper mode.")
+        print("Gyro engine help page 2:\nloadgame:load game from saved file.\ndeletesave:delete saved game.\nmodinit:init installed mod.\nrunmod:start mod.\nmodver:get version for mod.\ndisablemod:disable mod.(pop)\nadjustthreshold:change the value for gc.threshold()\ndev: toggle devloper mode.")
       elif g=="help 3":
-        print("Gyro engine help page 3:\nscuptoggle: toggle the output when screen \nupdate.\nexec:use exec() to execute python code.\nnovid:disable launch video.\ninitcfg:execute cfg init process manually.\nsavecfg:save current configs.\ngetcfgs:get current cfg status.\nsetmodamount:tell mod loader how many mods shold be loaded.\nsetlang:set a language for engine.")
+        print("Gyro engine help page 3:\nscuptoggle: toggle the output when screen \nupdate.\nexec:use exec() to execute python code.\nnovid:disable launch video.\ninitcfg:execute cfg init process manually.\nsavecfg:save current configs.\ngetcfgs:get current cfg status.\nsetmodamount:tell mod loader how many mods shold be loaded.")
+      elif g=="help 4":
+        print("Gyro engine help page 4:\nautoloadmod:toggle the auto mod loading process.\nsetlang:set a language for engine.")
       elif g=="quit"or g=="stop"or g=="exit"or g=="esc":
         del g
         StdUtil.ConsoleLog(3)
@@ -261,14 +305,16 @@ class Kernal:#Code base class
           break
         except Exception as e:
           print("[ERROR]Setting was failed. "+str(e))
-          Kernal.ErrChk()
+          Kernal.ErrChk(3,"Bad arguments.")
       elif g=="getcfgs":
+        print("exit on error:"+str(erxt))
         print("novid:"+str(novid))
         print("log output on screen draw:"+str(dr))
         print("dev:"+str(dev))
         print("lang:"+str(ActionUI.DispLanguage("lang")))
         print("use mod:"+str(usemod))
         print("mod amounts:"+str(modamount))
+        print("auto load mod:"+str(autoloadmod))
       elif g=="forceexitonerror":
         if erxt==1:
           erxt=0
@@ -277,7 +323,7 @@ class Kernal:#Code base class
           erxt=1
           print("[CONSOLE]Exit when error enabled.")
       elif g=="version":
-        print("Gyro 2D Gaming engine.\n",GAMEVER,"\nFirst runned in 2025/05/17\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
+        print("Gyro 2D Gaming engine.\n",GAMEVER,"\nFirst runned in 2025/05/23\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
       elif g=="novid":
         if novid==False:
           novid=True
@@ -321,7 +367,7 @@ class Kernal:#Code base class
           print("[INFO]Executed code.")
         except Exception as e:
           print("[ERROR]Unable to execute code. "+str(e))
-          Kernal.ErrChk()
+          Kernal.ErrChk(5,"Can not execute code.")
         except SystemExit:
           StdUtil.ConsoleLog(3)
           del g
@@ -339,9 +385,10 @@ class Kernal:#Code base class
     return infos.get(infotype)
   @staticmethod
   def Opening():#the engine opening
+    set_color(0,0,0)
     fill_rect(0,0,500,300)
     set_color(10,210,140)
-    draw_text(80,120,"Made By: Alex_Nute")
+    draw_text(80,120,ActionUI.DispLanguage("cp0"))
     paint_buffer()
     sleep(2)
     set_color(0,0,0)
@@ -351,18 +398,18 @@ class Kernal:#Code base class
     set_color(10,10,255)
     draw_text(185,80,"Gyro")
     set_color(255,255,255)
-    draw_text(10,100,"Copyright © Haoriwa 2022 - 2025, the Half-Life 2 is")
-    draw_text(10,115,"copyright for Valve.The ti_draw,ti_system")
-    draw_text(10,130,"is copyright for Texas Instruments.Using this")
-    draw_text(10,145,"software represents you agreed our terms.")
+    draw_text(10,100,ActionUI.DispLanguage("cp1"))
+    draw_text(10,115,ActionUI.DispLanguage("cp2"))
+    draw_text(10,130,ActionUI.DispLanguage("cp3"))
+    draw_text(10,145,ActionUI.DispLanguage("cp4"))
     draw_text(10,160,GAMEVER)
     paint_buffer()
     sleep(1.7)
-    return
+    return 0
 class IO:#Input-Output class.
   def __init__(self):pass
   @staticmethod
-  def Save(custom=False,name="customFile",gamevar=None):#built-in function, for saving game.
+  def Save(custom=False,name="customFile",gamevar=None,logout=True):#built-in function, for saving game.
     global emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
     if custom==False:
       try:
@@ -382,23 +429,23 @@ class IO:#Input-Output class.
         store_value("ammo9",ammo9)
         store_value("ammo357",ammo357)
         store_value("item_suit",item_suit)
-        print("[IO]Game saved.")
+        if logout==True:print("[IO]Game saved.")
         return 0
       except Exception as e:
         print("[ERROR]Operation failed.",str(e))
-        Kernal.ErrChk()
+        Kernal.ErrChk(2,"Can not save file.")
         return 1
     else:
       try:
         store_value(str(name),gamevar)
-        print("[IO]Saved file:"+str(name)+".")
+        if logout==True:print("[IO]Saved file:"+str(name)+".")
         return 0
       except Exception as e:
         print("[ERROR]File operation on:"+str(name)+" failed.\n"+str(e))
-        Kernal.ErrChk()
+        Kernal.ErrChk(2,"Can not save file.")
         return 1
   @staticmethod
-  def Delete(custom=False,name="customFile",gamevar=None):#built-in function, for delete saved game.
+  def Delete(custom=False,name="customFile",gamevar=None,logout=True):#built-in function, for delete saved game.
     global emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
     if custom==False:
       try:
@@ -418,19 +465,20 @@ class IO:#Input-Output class.
         store_value("ammo9",0)
         store_value("ammo357",0)
         store_value("item_suit",0)
-        print("[IO]File deleted.")
+        if logout==True:print("[IO]File deleted.")
         return 0
       except Exception as e:
         print("[ERROR]Operation failed.",str(e))
-        Kernal.ErrChk()
+        Kernal.ErrChk(4,"Can not delete file.")
         return 1
     else:
       try:
         store_value(str(name),gamevar)
-        print("[IO]File operate success on:"+str(name)+".")
+        if logout==True:print("[IO]File operate success on:"+str(name)+".")
         return 0
       except Exception as e:
         print("[ERROR]File operate on:"+str(name)+" failed.\n"+str(e))
+        Kernal.ErrChk(2,"Can not operate file.")
         return 1
   @staticmethod
   def Load(custom=False,name="customFile",logout=True,returnval=0):#built-in function, for load a saved game.
@@ -455,18 +503,18 @@ class IO:#Input-Output class.
         item_suit=recall_value("item_suit")
         if v_live<=0:
           print("[WARN]Game save is invalid with health:"+str(v_live)+".\n please reset current save. with savereset.py")
-          Kernal.ErrChk()
+          Kernal.ErrChk(5,"Health is 0 at game save.")
           return 2
         if emptysave==1:
           print("[WARN]Trying to load an empty save.")
-          Kernal.ErrChk()
+          Kernal.ErrChk(5,"Can not load empty save.")
           return 2
         else:
-          print("[IO]Game loaded from save.")
+          if logout==True:print("[IO]Game loaded from save.")
           return 0
       except Exception as e:
         print("[ERROR]Operation failed.",str(e))
-        Kernal.ErrChk()
+        Kernal.ErrChk(2,"Can not load file.")
         return 1
     else:
       try:
@@ -475,7 +523,7 @@ class IO:#Input-Output class.
         return returnval
       except Exception as e:
         print("[ERROR]File operation failed on:"+str(name)+".\n"+str(e))
-        Kernal.ErrChk()
+        Kernal.ErrChk(2,"Can not load file")
         return "ERR"
 class UniFX:#Universal VFX class.
   def __init__(self):pass
@@ -565,7 +613,7 @@ class UniFX:#Universal VFX class.
         return 16
       else:
         print("[ERROR]Cannot find type of the VFX that dedicated")
-        Kernal.ErrChk()
+        Kernal.ErrChk(1,"VFX type not found.")
         return 0
 class Actors:#entity class.
   def __init__(self):pass
@@ -625,7 +673,7 @@ class Actors:#entity class.
         return 12
       else:
         print("[ERROR]Unknown init type.")
-        Kernal.ErrChk()
+        Kernal.ErrChk(1,"Unknown init type.")
         return 0
   class Queen:#npc entities.
     def __init__(self):pass
@@ -640,6 +688,11 @@ class ActionUI:#UI class
     global langtype
     if langtype==1:#English
       langdict1={
+      "cp0":"Made by:Alex_Nute",
+      "cp1":"Copyright © Haoriwa 2022 - 2025, the Half-Life 2 is",
+      "cp2":"copyright for Valve.The ti_draw,ti_system",
+      "cp3":"is copyright for Texas Instruments.Using this",
+      "cp4":"software represents you agreed our terms.",
       "usemod":"Enable mod:",
       "lang":"English",
       "gofuckyourself":"Go fuck your self!",
@@ -688,17 +741,25 @@ class ActionUI:#UI class
       "savecfg":"s:save cfg",
       "langset":"language setting",
       "set":"tab:settings",
-      "titset":"Settings(press to toggle)"}
+      "titset":"Settings(press to toggle)",
+      "erxt":"force exit on error:"}
       try:
         return str(langdict1.get(langstr))
       except Exception as e:
         print("[ERROR]ActionUI.DispLanguage() method has an error occured."+str(e))
+        Kernal.ErrChk(1,"Missing key and value or dict error.")
         return "Undef"
     elif langtype==2:#Schinese
       langdict2={
+      "cp0":"由Alex_Nute制作",
+      "cp1":"版权所有 © Haoriwa 2022 - 2025, 半条命2",
+      "cp2":"(半衰期2)由Valve所有。ti_draw,ti_system库",
+      "cp3":"由德州仪器所有(TI)。使用此",
+      "cp4":"软件将代表你同意使用规则。",
       "modamount":"模组加载数:",
       "usemod":"启用模组:",
       "lang":"简体中文",
+      "erxt":"发生错误时退出:",
       "set":"tab:设置",
       "savecfg":"s:保存设置",
       "dr":"当屏幕更新时输出",
@@ -749,13 +810,15 @@ class ActionUI:#UI class
         return str(langdict2.get(langstr))
       except Exception as e:
         print("[ERROR]ActionUI.DispLanguage() method has an error occured."+str(e))
+        Kernal.ErrChk(1,"Missing key and value or dict error.")
         return "Undef"
     else:
+      Kernal.ErrChk(1,"Missing language.")
       return "[ERROR]Language not found."
   @staticmethod
   def DispUi(x,y,wintp):#built-in function,for display window, gui elements.
     set_color(135,135,135)
-    global emptysave,dev,mapslt,debugs,v_live,v_hev,wpnslt,ammo9,ammo357,inclip9,inclip357,weapon_pst,weapon_crb,weapon_physcnn,weapon_357,dr,langtype,usemod,modamount
+    global emptysave,erxt,dev,mapslt,debugs,v_live,v_hev,wpnslt,ammo9,ammo357,inclip9,inclip357,weapon_pst,weapon_crb,weapon_physcnn,weapon_357,dr,langtype,usemod,modamount
     emptysave=recall_value("emptysave")
     if wintp==1:
       fill_rect(x,y,120,40)
@@ -891,17 +954,18 @@ class ActionUI:#UI class
       return 0
     elif wintp==14:
       set_color(250,250,250)
-      draw_text(10,80,str(ActionUI.DispLanguage("titset")))
-      draw_text(10,100,"a:"+str(ActionUI.DispLanguage("dr"))+":"+str(dr))
-      draw_text(10,120,"b:"+str(ActionUI.DispLanguage("dev"))+":"+str(dev))
-      draw_text(10,140,"c:"+str(ActionUI.DispLanguage("langset"))+":"+str(ActionUI.DispLanguage("lang")))
-      draw_text(10,160,"d:"+str(ActionUI.DispLanguage("usemod")+str(usemod)))
+      draw_text(10,60,str(ActionUI.DispLanguage("titset")))
+      draw_text(10,80,"a:"+str(ActionUI.DispLanguage("dr"))+":"+str(dr))
+      draw_text(10,100,"b:"+str(ActionUI.DispLanguage("dev"))+":"+str(dev))
+      draw_text(10,120,"c:"+str(ActionUI.DispLanguage("langset"))+":"+str(ActionUI.DispLanguage("lang")))
+      draw_text(10,140,"d:"+str(ActionUI.DispLanguage("usemod")+str(usemod)))
+      draw_text(10,160,"e:"+str(ActionUI.DispLanguage("erxt"))+str(erxt))
       draw_text(10,180,str(ActionUI.DispLanguage("savecfg")))
       draw_text(10,200,str(ActionUI.DispLanguage("escres")))
       return 0
     else:
       print("[ERROR]Window type is not defined.")
-      Kernal.ErrChk()
+      Kernal.ErrChk(1,"Missing UI type.")
       return 1
   @staticmethod
   def Title(x,y,texttp):#built-in function,for display a title.
@@ -912,7 +976,7 @@ class ActionUI:#UI class
       return 0
     else:
       print("[INFO]Title type not defined.")
-      Kernal.ErrChk()
+      Kernal.ErrChk(1,"Unknown title type.")
       return 1
 class StdUtil:#Builtins class, Standard utilities.
   def __init__(self):pass
@@ -956,7 +1020,7 @@ class StdUtil:#Builtins class, Standard utilities.
         return 4
       else:
         print("[ERROR]Trigger is not defined.")
-        Kernal.ErrChk()
+        Kernal.ErrChk(1,"Unknown trigger.")
         return 0
   @staticmethod
   def ExecOnce(exectp):#built-in function.for executing sth. once.
@@ -969,8 +1033,17 @@ class StdUtil:#Builtins class, Standard utilities.
           return 1
     else:
       print("[ERROR]Function cannot find exec type.")
-      Kernal.ErrChk()
+      Kernal.ErrChk(1,"Missing type.")
       return 0
+  @staticmethod
+  def MouseBox(minx,miny,maxx,maxy):#built-in function.for checking mouse position.
+#Warn:better use keyboard to operate menu, using
+#this function will have a huge impact to perfomance.
+#and it's hard to box the area you need.
+#but you still can use this API for game.sorry for no example.
+    x, y=get_mouse()
+    if x>=minx and x<=maxx and y>=miny and y<=maxy:return True
+    else:return False
   @staticmethod
   def SettingMenu():#settings menu,built-in function.
     set_color(120,120,120)
@@ -997,11 +1070,11 @@ class StdUtil:#Builtins class, Standard utilities.
     if mapslt==1:
       Assets.c0a0()
       StdUtil.Trigger(125,75,100,100,3)
-      return 0
+      return 1
     else:
       print("[ERROR]MapStat function cannot find defined type.")
-      Kernal.ErrChk()
-      return 1
+      Kernal.ErrChk(1,"Missing type")
+      return -1
 class Wbase:#Weapon system class.
   def __init__(self):pass
   @staticmethod
@@ -1260,9 +1333,8 @@ class Assets:#asset class
     set_pen("thin","solid")
     return 0
 def main():#main function.It's a very standard template for engine.
-  ActionUI.DispUi(0,0,9)
   inmenu=True
-  global ingamemod,modscripts,langtype,mapslt,dev,dr,emptysave,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,usemod
+  global ingamemod,erxt,modscripts,langtype,mapslt,dev,dr,emptysave,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,usemod
   StdUtil.ConsoleLog(4)
   while True:#game logic loop
     if inmenu==True:#menu guard
@@ -1340,6 +1412,9 @@ def main():#main function.It's a very standard template for engine.
             elif k=="d":
               if usemod==True:usemod=False
               else:usemod=True
+            elif k=="e":
+              if erxt==1:erxt=0
+              else:erxt=1
             elif k=="s":
               Kernal.SaveCfg()
             elif k=="esc":
@@ -1361,12 +1436,12 @@ def main():#main function.It's a very standard template for engine.
       Actors.King.Draw()
       paint_buffer()
       StdUtil.ConsoleLog(7)
-      while get_key()!="unknow":
+      while get_key()!="":
          k=get_key()
          if k=="enter":
            IO.Load()
            break
-    for key in ["unknow"]:
+    for key in [""]:
       while k!=key:
         k=get_key()
         Kernal.WaitUpdate()
@@ -1377,8 +1452,7 @@ def main():#main function.It's a very standard template for engine.
           ActionUI.DispUi(0,0,8)
         ActionUI.DispUi(0,0,2)
         Actors.King.Draw()
-        if v_live<=20 and v_live>=0:
-          UniFX.LowHealth()
+        if v_live<=20 and v_live>=0:UniFX.LowHealth()
         if k=="u" and dev==True:
           if debugs==False:
             debugs=True
@@ -1482,11 +1556,11 @@ def main():#main function.It's a very standard template for engine.
             StdUtil.WaitStart(300,lambda:Wbase.WeaponClip(2))
           break
         elif k=="menu"and dev==True:
-          weapon_crb=1
-          weapon_physcnn=1
-          weapon_pst=1
-          weapon_357=1
-          item_suit=1
+          Actors.King.Init(8,1)
+          Actors.King.Init(9,1)
+          Actors.King.Init(10,1)
+          Actors.King.Init(11,1)
+          Actors.King.Init(12,1)
         elif k=="1":
           if item_suit==1:pass
           else:break
@@ -1585,6 +1659,9 @@ def main():#main function.It's a very standard template for engine.
                     elif k=="d":
                       if usemod==False:usemod=True
                       else:usemod=False
+                    elif k=="e":
+                      if erxt==1:erxt=0
+                      else:erxt=1
                     elif k=="s":
                       Kernal.SaveCfg()
                     elif k=="esc":
