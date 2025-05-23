@@ -1,7 +1,17 @@
 # Gyro
 A gaming engine based on Ti calculator,writed on py.
 
-The engine is clean and visible, easy to learn and with a built-in example.
+Engine Showcase:
+![nspire_screenshot_20250523_213917](https://github.com/user-attachments/assets/e72b0f8d-346d-4513-b511-f494dea17f4e)
+![nspire_screenshot_20250523_213931](https://github.com/user-attachments/assets/eed3b7e5-4e30-40c7-a36b-7cacd117c9e8)
+![nspire_screenshot_20250523_213943](https://github.com/user-attachments/assets/1c90c80e-4a3c-41ab-b957-c438e943600d)
+![nspire_screenshot_20250523_213949](https://github.com/user-attachments/assets/7d892e80-0fd3-4082-bf61-3ac849f6fa18)
+![nspire_screenshot_20250523_214002](https://github.com/user-attachments/assets/880f0208-89f2-4300-bea7-b3f5080e28d3)
+![nspire_screenshot_20250523_214227](https://github.com/user-attachments/assets/25a2b89b-02d4-4ef2-b0cc-9e6eea6c3a51)
+![nspire_screenshot_20250523_214248](https://github.com/user-attachments/assets/87232cb6-d817-4bfd-8968-13f4a4fb067c)
+![nspire_screenshot_20250523_214311](https://github.com/user-attachments/assets/fd575baf-904b-4fed-8725-86fe0f13ef3c)
+
+The engine code are clean and visible, easy to learn and with a built-in example.
 
 chinese：
 
