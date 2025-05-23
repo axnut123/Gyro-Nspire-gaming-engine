@@ -1436,12 +1436,12 @@ def main():#main function.It's a very standard template for engine.
       Actors.King.Draw()
       paint_buffer()
       StdUtil.ConsoleLog(7)
-      while get_key()!="":
+      while get_key()!="NULL":
          k=get_key()
          if k=="enter":
            IO.Load()
            break
-    for key in [""]:
+    for key in ["NULL"]:
       while k!=key:
         k=get_key()
         Kernal.WaitUpdate()
