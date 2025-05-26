@@ -1,5 +1,5 @@
 # Gyro
-A gaming engine based on Ti calculator,writed on py.
+This is a gaming engine based on Ti calculator,writed on pure python.
 
 Engine Showcase:
 ![nspire_screenshot_20250523_213917](https://github.com/user-attachments/assets/e72b0f8d-346d-4513-b511-f494dea17f4e)
