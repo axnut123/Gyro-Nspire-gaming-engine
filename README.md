@@ -11,7 +11,8 @@ Engine Showcase:
 ![nspire_screenshot_20250523_214248](https://github.com/user-attachments/assets/87232cb6-d817-4bfd-8968-13f4a4fb067c)
 ![nspire_screenshot_20250523_214311](https://github.com/user-attachments/assets/fd575baf-904b-4fed-8725-86fe0f13ef3c)
 
-The engine code are clean and visible, easy to learn and with a built-in example.
+The engine codes are clean and visible, easy to learn and with a built-in example.
+Similar with Source engine,but more easy.
 
 chinese：
 
