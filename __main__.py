@@ -17,6 +17,15 @@
 #have to add something in built-in functions.
 #Every class, functions in here are all with
 #examples, you can learn engine from examples.
+#return codes:0~99+ is success,-1 is error.(default)
+#some func is special,like Trigger and MouseBox.
+#it is using minx miny and maxx maxy not x,y,w,h.
+#maxx and maxy can be found as minx+width
+#and miny+height.
+#for example, 125 is minx,width is 100,then
+#just add minx and width together, which is 225.
+#same for miny and maxy, just add the height.
+#if you need grid,run grid.py.
 from random import randint
 from time import *
 from ti_system import *
@@ -46,7 +55,7 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 27 Build(0100)");
+GAMEVER=str("Gyro 27 Build(0102)");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -68,10 +77,10 @@ ingamemod=str("");
 modscripts=list([]);
 emptysave=int(1);#True or False dosent work.
 class CfgError(Exception):pass
-class IOError(Exception):pass
 class ArgumentNotFound(Exception):pass
 class UnknownError(Exception):pass
 class ModError(Exception):pass
+class IOError(Exception):pass#MicroPy dosent have this.
 class GameError(Exception):pass#Error classes.
 class Kernal:#Code base class
   def __init__(self):pass
@@ -134,7 +143,7 @@ class Kernal:#Code base class
         if cfg6==1:autoloadmod=True
         else:autoloadmod=False
         del cfg1,cfg2,cfg3,cfg4,cfg5,cfg6
-        if autoloadmod==True:Kernal.ModHandler(2)
+        if autoloadmod==True:Kernal._ModHandler(2)
         gc.collect()
         print("[INFO]Config loading process completed.")
         return 1
@@ -155,7 +164,7 @@ class Kernal:#Code base class
       elif errtype==5:raise GameError(reason)
       else:raise UnknownError(reason)
   @staticmethod
-  def ModHandler(hdtp):#built-in function,for managing mods.
+  def _ModHandler(hdtp):#built-in function,for managing mods.
     global vtk,tk,modenb,ingamemod
     if hdtp==1:
       try:
@@ -213,13 +222,13 @@ class Kernal:#Code base class
         action()
         action=None
   @staticmethod
-  def ResetGame():#built-in function,for soft reset.
+  def _ResetGame():#built-in function,for soft reset.
     global mapslt,psx,v_live,v_hev,plh,plw,plr,plg,plb,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
     mapslt=0;plh=0;plw=0;plg=0;plb=0;plr=0;psx=0;psy=0;v_hev=0;wpnslt=0;item_suit=0;weapon_crb=0;weapon_physcnn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0;v_live=100;ammo9max=180;ammo357max=12;inclip9=0;inclip357=0;reload9=0;reload357=0
     print("[INFO]Game reset completed.")
     return 0
   @staticmethod
-  def GameLauncher():#Built-in function, for game loading process.
+  def _GameLauncher():#Built-in function, for game loading process.
     global novid,modenb,g,tk,ingamemod
     del g
     print("[CONSOLE]Console is being closed.\n[INFO]Engine is now started.")
@@ -239,7 +248,7 @@ class Kernal:#Code base class
       print("[INFO]Mod loader was not enabled,loading main script.")
       main()
   @staticmethod
-  def Console():#built-in function,for console.
+  def _Console():#built-in function,for console.
     global ingamemod,modscripts,g,modenb,vtk,erxt,novid,tk,dev,dr,langtype,usemod,modamount,autoloadmod
     print("[PRE-LOAD]Starting console.")
     while g!="run"or g!="start"or g!="begin":
@@ -260,17 +269,17 @@ class Kernal:#Code base class
           print("[ERROR]Language type unknown, using default language.")
           langtype=1
           Kernal.ErrChk(3,"Language type unknown.")
-      elif g=="disablemod":Kernal.ModHandler(1)
+      elif g=="disablemod":Kernal._ModHandler(1)
       elif g=="automodload":
         if autoloadmod==True:autoloadmod=False
         else:autoloadmod=True
         print("[CONSOLE]Auto mod load process is now:"+str(autoloadmod))
-      elif g=="modinit":Kernal.ModHandler(2)
+      elif g=="modinit":Kernal._ModHandler(2)
       elif g=="runmod":
-        a=Kernal.ModHandler(3)
+        a=Kernal._ModHandler(3)
         if a==0:del a;break
       elif g=="initcfg":Kernal.Init(1)
-      elif g=="modver":Kernal.ModHandler(4)
+      elif g=="modver":Kernal.__ModHandler(4)
       elif g=="savecfg":
         Kernal.SaveCfg()
       elif g=="help 1":
@@ -323,7 +332,7 @@ class Kernal:#Code base class
           erxt=1
           print("[CONSOLE]Exit when error enabled.")
       elif g=="version":
-        print("Gyro 2D Gaming engine.\n",GAMEVER,"\nFirst runned in 2025/05/23\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
+        print("Gyro 2D Gaming engine.\n",GAMEVER,"\nFirst runned in 2025/05/27\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:",sys.version,"\nEngine built on Python 3.4.0")
       elif g=="novid":
         if novid==False:
           novid=True
@@ -627,6 +636,27 @@ class Actors:#entity class.
       fill_rect(psx,psy,plw,plh)
       return 0
     @staticmethod
+    def Move(mvtp,direction,step=5,goto=(0,0)):#built-in function,for movements and teleporting.
+      global psx,psy
+      if mvtp==0:
+        if direction==1:psx+=step;return mvtp,direction,step
+        elif direction==2:psx-=step;return mvtp,direction,step
+        elif direction==3:psy+=step;return mvtp,direction,step
+        elif direction==4:psy-=step;return mvtp,direction,step
+        else:
+          print("[ERROR]Undefined direction.")
+          Kernal.ErrChk(1,"Undefined direction.")
+          return -1
+      elif mvtp==1:
+        x,y=goto
+        psx=x
+        psy=y
+        return mvtp,x,y
+      else:
+        print("[ERROR]Undefined movement type.")
+        Kernal.ErrChk(1,"Undefined movement type.")
+        return -1
+    @staticmethod
     def Init(inittype,ar1=None,ar2=None,ar3=None):#built-in function,for init player vars
       global plr,plg,plb,psy,psx,plw,plh,v_live,v_hev,ammo9,ammo357,inclip9,inclip357,item_suit,weapon_crb,weapon_pst,weapon_357,weapon_physcnn
       if inittype==1:
@@ -681,6 +711,17 @@ class Actors:#entity class.
       set_color(r,g,b)
       fill_rect(x,y,w,h)
       return 0
+  class Pawn():#props or other obj class.
+    def __init__(self):pass
+    @staticmethod
+    def Draw(x,y,w=5,h=5,rd=2,r=25,g=25,b=20,shape=0):#built-in function,for draw the pawn.
+      set_color(r,g,b)
+      if shape==0:fill_circle(x,y,rd);return 0
+      elif shape==1:fill_rect(x,y,w,h);return 0
+      else:
+        print("[ERROR]Pawn shape type unknown.")
+        Kernal.ErrChk(1,"Pawn shape type undef.")
+        return 1
 class ActionUI:#UI class
   def __init__(self):pass
   @staticmethod
@@ -1014,32 +1055,17 @@ class StdUtil:#Builtins class, Standard utilities.
         mapslt=0
         print("[INFO]Trigger executed.")
         return 3
-      elif trgtp==4:
-        v_live-=15
-        print("[INFO]Trigger executed.")
-        return 4
       else:
         print("[ERROR]Trigger is not defined.")
         Kernal.ErrChk(1,"Unknown trigger.")
         return 0
   @staticmethod
-  def ExecOnce(exectp):#built-in function.for executing sth. once.
-    exed1=False
-    if exectp==1:
-      if exed1==False:
-        trg1=StdUtil.Trigger(100,100,50,50,4)#Do something here.
-        if trg1==4:
-          exed1=True
-          return 1
-    else:
-      print("[ERROR]Function cannot find exec type.")
-      Kernal.ErrChk(1,"Missing type.")
-      return 0
-  @staticmethod
   def MouseBox(minx,miny,maxx,maxy):#built-in function.for checking mouse position.
 #Warn:better use keyboard to operate menu, using
 #this function will have a huge impact to perfomance.
 #and it's hard to box the area you need.
+#I have developed a tool for this kind of funcs,
+#goto shell and run boxtest.py.
 #but you still can use this API for game.sorry for no example.
     x, y=get_mouse()
     if x>=minx and x<=maxx and y>=miny and y<=maxy:return True
@@ -1065,11 +1091,10 @@ class StdUtil:#Builtins class, Standard utilities.
     if mapslt==0:
       Assets.c1a0()
       StdUtil.Trigger(0,0,20,50,2)
-      StdUtil.ExecOnce(1)
       return 0
     if mapslt==1:
       Assets.c0a0()
-      StdUtil.Trigger(125,75,100,100,3)
+      StdUtil.Trigger(125,75,225,175,3)
       return 1
     else:
       print("[ERROR]MapStat function cannot find defined type.")
@@ -1137,8 +1162,6 @@ class Assets:#asset class
     draw_line(-25,25,15,25)
     set_color(160,10,10)
     fill_rect(45,10,15,10)
-    set_color(0,0,0)
-    draw_rect(100,100,50,50)
     return 0
   @staticmethod
   def gmanintlol():#an opening function.
@@ -1338,7 +1361,7 @@ def main():#main function.It's a very standard template for engine.
   StdUtil.ConsoleLog(4)
   while True:#game logic loop
     if inmenu==True:#menu guard
-      Kernal.ResetGame()
+      Kernal._ResetGame()
       Assets.MainMenu()
       ActionUI.DispUi(0,0,4)
       gc.collect()
@@ -1462,16 +1485,16 @@ def main():#main function.It's a very standard template for engine.
             print("[INFO]Debug drawing disabled.")
             break
         elif k=="right":
-          psx+=5
+          Actors.King.Move(0,1)
           break
         elif k=="left":
-          psx-=5
+          Actors.King.Move(0,2)
           break
         elif k=="up":
-          psy-=5
+          Actors.King.Move(0,4)
           break
         elif k=="down":
-          psy+=5
+          Actors.King.Move(0,3)
           break
         elif k=="t" and dev==True:
           v_hev-=10
@@ -1700,5 +1723,5 @@ def main():#main function.It's a very standard template for engine.
   return 0
 if (__name__=="__main__"):#all program starts from here.
   Kernal.Init(1)
-  Kernal.Console()
-  Kernal.GameLauncher()
+  Kernal._Console()
+  Kernal._GameLauncher()
