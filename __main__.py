@@ -55,7 +55,7 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 27 Build(0103)");
+GAMEVER=str("Gyro 27 Build(0104)");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -228,7 +228,7 @@ class Kernal:#Code base class
     sys.stdout.write(str(text)+e)
   @staticmethod
   def _ResetGame():#built-in function,for soft reset.
-    global mapslt,psx,v_live,v_hev,plh,plw,plr,plg,plb,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
+    global reload357,reload9,ammo9max,ammo357max,mapslt,psx,v_live,v_hev,plh,plw,plr,plg,plb,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
     mapslt=0;plh=0;plw=0;plg=0;plb=0;plr=0;psx=0;psy=0;v_hev=0;wpnslt=0;item_suit=0;weapon_crb=0;weapon_physcnn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0;v_live=100;ammo9max=180;ammo357max=12;inclip9=0;inclip357=0;reload9=0;reload357=0
     Kernal.Cout("[INFO]Game reset completed.")
     return 0
@@ -337,7 +337,7 @@ class Kernal:#Code base class
           erxt=1
           Kernal.Cout("[CONSOLE]Exit when error enabled.")
       elif g=="version":
-        Kernal.Cout("Gyro 2D Gaming engine.\n"+str(GAMEVER)+"\nFirst runned in 2025/05/29\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:"+str(sys.version)+"\nEngine built on Python 3.4.0")
+        Kernal.Cout("Gyro 2D Gaming engine.\n"+str(GAMEVER)+"\nFirst runned in 2025/05/30\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:"+str(sys.version)+"\nEngine built on Python 3.4.0")
       elif g=="novid":
         if novid==False:
           novid=True
@@ -1463,7 +1463,7 @@ def main():#main function.It's a very standard template for engine.
       Actors.King.Draw()
       paint_buffer()
       StdUtil.ConsoleLog(7)
-      while get_key()!="NULL":
+      while True:
          k=get_key()
          if k=="enter":
            IO.Load()
