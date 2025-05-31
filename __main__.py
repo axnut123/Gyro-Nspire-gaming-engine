@@ -26,6 +26,8 @@
 #just add minx and width together, which is 225.
 #same for miny and maxy, just add the height.
 #if you need grid,run grid.py.
+#resolution is hard to set, do not touch unless you have to.
+#0,0,0,0 is default resolution.
 from random import randint
 from time import *
 from ti_system import *
@@ -55,7 +57,7 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 27 Build(0104)");
+GAMEVER=str("Gyro 28 Build(0105)");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -75,6 +77,10 @@ vtk=bool(False);
 modenb=bool(False);
 ingamemod=str("");
 modscripts=list([]);
+scrgeometx=int(0);
+scrgeomety=int(0);
+scrgeometmx=int(0);
+scrgeometmy=int(0);
 emptysave=int(1);#True or False dosent work.
 class CfgError(Exception):pass
 class ArgumentNotFound(Exception):pass
@@ -90,8 +96,12 @@ class Kernal:#Code base class
     raise SystemExit(code)
   @staticmethod
   def SaveCfg():
-    global autoloadmod,langtype,dev,dr,usemod,novid,modamount,erxt
+    global scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,autoloadmod,langtype,dev,dr,usemod,novid,modamount,erxt
     try:
+      IO.Save(True,"scgx",scrgeometx)
+      IO.Save(True,"scgy",scrgeomety)
+      IO.Save(True,"scgmx",scrgeometmx)
+      IO.Save(True,"scgmy",scrgeometmy)
       if langtype==1:
         IO.Save(True,"langtype",1)
       elif langtype==2:
@@ -119,7 +129,7 @@ class Kernal:#Code base class
     return 0
   @staticmethod
   def Init(inittp):#built-in function.for init cfgs or other files engine needed.
-    global autoloadmod,dev,dr,novid,langtype,usemod,modamount,erxt
+    global scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,autoloadmod,dev,dr,novid,langtype,usemod,modamount,erxt
     if inittp==1:
       try:
         cfg1=IO.Load(True,"novid",returnval=None)
@@ -129,6 +139,10 @@ class Kernal:#Code base class
         cfg5=IO.Load(True,"usemod",returnval=None)
         cfg6=IO.Load(True,"autoloadmod",returnval=None)
         erxt=IO.Load(True,"erxt",returnval=None)
+        scrgeometx=IO.Load(True,"scgx",returnval=None)
+        scrgeomety=IO.Load(True,"scgy",returnval=None)
+        scrgeometmx=IO.Load(True,"scgmx",returnval=None)
+        scrgeometmy=IO.Load(True,"scgmy",returnval=None)
         modamount=IO.Load(True,"modamount",returnval=None)
         if cfg1==1:novid=True
         else:novid=False
@@ -233,16 +247,22 @@ class Kernal:#Code base class
     Kernal.Cout("[INFO]Game reset completed.")
     return 0
   @staticmethod
+  def _CreateWindow():#built-in function,for creating window.
+    global scrgeomety,scrgeometx,scrgeometmx,scrgeometmy
+    set_window(scrgeometx,scrgeometmx,scrgeomety,scrgeometmy)
+    set_color(0,0,0)
+    fill_rect(0,0,500,300)
+    ActionUI.DispUi(0,0,9)
+    use_buffer()#Reduce white flash.
+    return 0
+  @staticmethod
   def _GameLauncher():#Built-in function, for game loading process.
     global novid,modenb,g,tk,ingamemod
     del g
     Kernal.Cout("[CONSOLE]Console is being closed.\n[INFO]Engine is now started.")
     gc.collect()
     StdUtil.ConsoleLog(2)
-    set_color(0,0,0)
-    fill_rect(0,0,500,300)
-    ActionUI.DispUi(0,0,9)
-    use_buffer()#Reduce white flash.
+    Kernal._CreateWindow()
     if novid==False:Kernal.Opening()
     if ingamemod=="ingamemod":modenb=False
     StdUtil.ConsoleLog(5)
@@ -254,7 +274,7 @@ class Kernal:#Code base class
       main()
   @staticmethod
   def _Console():#built-in function,for console.
-    global ingamemod,modscripts,g,modenb,vtk,erxt,novid,tk,dev,dr,langtype,usemod,modamount,autoloadmod
+    global scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,ingamemod,modscripts,g,modenb,vtk,erxt,novid,tk,dev,dr,langtype,usemod,modamount,autoloadmod
     Kernal.Cout("[PRE-LOAD]Starting console.")
     while g!="run"or g!="start"or g!="begin":
       g=str(input("]"))
@@ -310,13 +330,11 @@ class Kernal:#Code base class
         else:dr=False;Kernal.Cout("[CONSOLE]Disabled.")
       elif g=="setgeomet":
         try:
-          x1=int(input("xmin"))
-          y1=int(input("ymin"))
-          x2=int(input("xmax"))
-          y2=int(input("ymax"))
-          set_window(x1,x2,y1,y2)
-          Kernal.Cout("[INFO]Resolution set to:"+str(x1)+","+str(y1)+","+str(x2)+","+str(y2))
-          break
+          scrgeometx=int(input("xmin:"))
+          scrgeomety=int(input("ymin:"))
+          scrgeometmx=int(input("xmax:"))
+          scrgeometmy=int(input("ymax:"))
+          Kernal.Cout("[INFO]Resolution set to:"+str(scrgeometx)+","+str(scrgeomety)+","+str(scrgeometmx)+","+str(scrgeometmy))
         except Exception as e:
           Kernal.Cout("[ERROR]Setting was failed. "+str(e))
           Kernal.ErrChk(3,"Bad arguments.")
@@ -329,6 +347,7 @@ class Kernal:#Code base class
         Kernal.Cout("use mod:"+str(usemod))
         Kernal.Cout("mod amounts:"+str(modamount))
         Kernal.Cout("auto load mod:"+str(autoloadmod))
+        Kernal.Cout("Resolution:"+str(scrgeometx)+","+str(scrgeomety)+","+str(scrgeometmx)+","+str(scrgeometmy))
       elif g=="forceexitonerror":
         if erxt==1:
           erxt=0
@@ -337,7 +356,7 @@ class Kernal:#Code base class
           erxt=1
           Kernal.Cout("[CONSOLE]Exit when error enabled.")
       elif g=="version":
-        Kernal.Cout("Gyro 2D Gaming engine.\n"+str(GAMEVER)+"\nFirst runned in 2025/05/30\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:"+str(sys.version)+"\nEngine built on Python 3.4.0")
+        Kernal.Cout("Gyro 2D Gaming engine.\n"+str(GAMEVER)+"\nFirst runned in 2025/05/31\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:"+str(sys.version)+"\nEngine built on Python 3.4.0")
       elif g=="novid":
         if novid==False:
           novid=True
@@ -448,7 +467,7 @@ class IO:#Input-Output class.
       except Exception as e:
         Kernal.Cout("[ERROR]Operation failed."+str(e))
         Kernal.ErrChk(2,"Can not save file.")
-        return 1
+        return -1
     else:
       try:
         store_value(str(name),gamevar)
@@ -457,7 +476,7 @@ class IO:#Input-Output class.
       except Exception as e:
         Kernal.Cout("[ERROR]File operation on:"+str(name)+" failed.\n"+str(e))
         Kernal.ErrChk(2,"Can not save file.")
-        return 1
+        return -1
   @staticmethod
   def Delete(custom=False,name="customFile",gamevar=None,logout=True):#built-in function, for delete saved game.
     global emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
@@ -484,7 +503,7 @@ class IO:#Input-Output class.
       except Exception as e:
         Kernal.Cout("[ERROR]Operation failed."+str(e))
         Kernal.ErrChk(4,"Can not delete file.")
-        return 1
+        return -1
     else:
       try:
         store_value(str(name),gamevar)
@@ -493,7 +512,7 @@ class IO:#Input-Output class.
       except Exception as e:
         Kernal.Cout("[ERROR]File operate on:"+str(name)+" failed.\n"+str(e))
         Kernal.ErrChk(2,"Can not operate file.")
-        return 1
+        return -1
   @staticmethod
   def Load(custom=False,name="customFile",logout=True,returnval=0):#built-in function, for load a saved game.
     global emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
@@ -518,18 +537,18 @@ class IO:#Input-Output class.
         if v_live<=0:
           Kernal.Cout("[WARN]Game save is invalid with health:"+str(v_live)+".\n please reset current save. with savereset.py")
           Kernal.ErrChk(5,"Health is 0 at game save.")
-          return 2
+          return -2
         if emptysave==1:
           Kernal.Cout("[WARN]Trying to load an empty save.")
           Kernal.ErrChk(5,"Can not load empty save.")
-          return 2
+          return -2
         else:
           if logout==True:Kernal.Cout("[IO]Game loaded from save.")
           return 0
       except Exception as e:
         Kernal.Cout("[ERROR]Operation failed."+str(e))
         Kernal.ErrChk(2,"Can not load file.")
-        return 1
+        return -1
     else:
       try:
         returnval=recall_value(str(name))
@@ -628,7 +647,7 @@ class UniFX:#Universal VFX class.
       else:
         Kernal.Cout("[ERROR]Cannot find type of the VFX that dedicated")
         Kernal.ErrChk(1,"VFX type not found.")
-        return 0
+        return -1
 class Actors:#entity class.
   def __init__(self):pass
   class King:#Player class.
@@ -709,7 +728,7 @@ class Actors:#entity class.
       else:
         Kernal.Cout("[ERROR]Unknown init type.")
         Kernal.ErrChk(1,"Unknown init type.")
-        return 0
+        return -1
   class Queen:#npc entities.
     def __init__(self):pass
     def Draw(x,y,w=5,h=5,r=20,g=20,b=20):#built-in function,for drawing entities.
@@ -726,7 +745,7 @@ class Actors:#entity class.
       else:
         Kernal.Cout("[ERROR]Pawn shape type unknown.")
         Kernal.ErrChk(1,"Pawn shape type undef.")
-        return 1
+        return -1
 class ActionUI:#UI class
   def __init__(self):pass
   @staticmethod
@@ -786,6 +805,7 @@ class ActionUI:#UI class
       "dev":"developer mode",
       "savecfg":"s:save cfg",
       "langset":"language setting",
+      "reso":"Resolution:",
       "set":"tab:settings",
       "titset":"Settings(press to toggle)",
       "erxt":"force exit on error:"}
@@ -851,6 +871,7 @@ class ActionUI:#UI class
       "pst":"手枪",
       "357":".357 马格南",
       "load":"载入中...",
+      "reso":"分辩率:",
       "titset":"设置(按下切换)"}
       try:
         return str(langdict2.get(langstr))
@@ -870,7 +891,7 @@ class ActionUI:#UI class
       set_color(255,255,255)
       draw_text(x+10,y+20,"Vgui window")
       Kernal.Cout("[INFO]Vgui window render request sent to client.")
-      return 0
+      return 1
     elif wintp==2:
       if debugs==True and dev==True:
         set_color(0,0,0)
@@ -884,9 +905,10 @@ class ActionUI:#UI class
         draw_text(10,130,str(ActionUI.DispLanguage("mapid"))+str(mapslt))
         draw_text(10,145,str(ActionUI.DispLanguage("ver"))+str(GAMEVER))
         draw_text(10,160,str(ActionUI.DispLanguage("platform"))+str(get_platform()))
-        draw_text(10,175,str(ActionUI.DispLanguage("modamount"))+str(modamount))
+        draw_text(10,175,str(ActionUI.DispLanguage("reso"))+str(scrgeometx)+","+str(scrgeomety)+","+str(scrgeometmx)+","+str(scrgeometmy))
+        draw_text(10,190,str(ActionUI.DispLanguage("modamount"))+str(modamount))
         paint_buffer()
-        return 0
+        return 2
     elif wintp==3:
       set_color(250,250,250)
       draw_text(10,80-20,"HALF-LIFE²")
@@ -900,7 +922,7 @@ class ActionUI:#UI class
       draw_text(10,180-20,str(ActionUI.DispLanguage("delgm")))
       draw_text(10,200-20,str(ActionUI.DispLanguage("set")))
       draw_text(10,220-20,str(ActionUI.DispLanguage("quitgm")))
-      return 0
+      return 3
     elif wintp==4:
       set_color(250,250,250)
       draw_text(10,100,str(ActionUI.DispLanguage("start1")))
@@ -913,7 +935,7 @@ class ActionUI:#UI class
       draw_text(10,180,str(ActionUI.DispLanguage("set")))
       draw_text(10,200,str(ActionUI.DispLanguage("escquit")))
       paint_buffer()
-      return 0
+      return 4
     elif wintp==5:
       set_color(120,120,120)
       fill_rect(30,0,15,15)
@@ -923,7 +945,7 @@ class ActionUI:#UI class
       fill_rect(55,0,15,15)
       set_color(200,150,50)
       draw_text(56,13,"2")
-      return 0
+      return 5
     elif wintp==6:
       set_color(200,150,50)
       if v_hev>0:
@@ -937,13 +959,13 @@ class ActionUI:#UI class
         set_color(250,100,10)
         draw_text(15,190,v_live)
         draw_text(15,200,str(ActionUI.DispLanguage("health")))
-        return 0
+      return 6
     elif wintp==7:
       set_color(210,10,10)
       fill_rect(0,0,500,300)
       set_color(255,255,255)
       draw_text(20,80,str(ActionUI.DispLanguage("youdied")))
-      return 0
+      return 7
     elif wintp==8:
       if wpnslt==1 or wpnslt==2:#ammunation management.
         pass
@@ -963,24 +985,24 @@ class ActionUI:#UI class
         draw_text(210,200,str(ActionUI.DispLanguage("ammo")))
         draw_text(210,190,inclip357)
         draw_text(250,190,ammo357)
-        return 0
+        return 8
     elif wintp==9:
       set_color(250,250,250)
       draw_text(220,205,str(ActionUI.DispLanguage("load")))
       paint_buffer()
-      return 0
+      return 9
     elif wintp==10:
       set_color(120,120,120)
       fill_rect(30,30,80,50)
       set_color(200,150,50)
       draw_text(31,82,str(ActionUI.DispLanguage("crb")))
-      return 0
+      return 10
     elif wintp==11:
       set_color(120,120,120)
       fill_rect(30,100,120,50)
       set_color(200,150,50)
       draw_text(31,145,str(ActionUI.DispLanguage("physcnn")))
-      return 0
+      return 11
     elif wintp==12:
       set_color(120,120,120)
       fill_rect(55,30,80,50)
@@ -988,7 +1010,7 @@ class ActionUI:#UI class
         set_color(255,10,10)
       else:set_color(200,150,50)
       draw_text(56,82,str(ActionUI.DispLanguage("pst")))
-      return 0
+      return 12
     elif wintp==13:
       set_color(120,120,120)
       fill_rect(55,100,125,50)
@@ -996,7 +1018,7 @@ class ActionUI:#UI class
         set_color(255,10,10)
       else:set_color(200,150,50)
       draw_text(56,142,str(ActionUI.DispLanguage("357")))
-      return 0
+      return 13
     elif wintp==14:
       set_color(250,250,250)
       draw_text(10,60,str(ActionUI.DispLanguage("titset")))
@@ -1007,22 +1029,22 @@ class ActionUI:#UI class
       draw_text(10,160,"e:"+str(ActionUI.DispLanguage("erxt"))+str(erxt))
       draw_text(10,180,str(ActionUI.DispLanguage("savecfg")))
       draw_text(10,200,str(ActionUI.DispLanguage("escres")))
-      return 0
+      return 14
     else:
       Kernal.Cout("[ERROR]Window type is not defined.")
       Kernal.ErrChk(1,"Missing UI type.")
-      return 1
+      return -1
   @staticmethod
   def Title(x,y,texttp):#built-in function,for display a title.
     if texttp==1:
       set_color(255,0,0)
       draw_text(x,y,"Trigger")
       Kernal.Cout("[INFO]Title displayed.")
-      return 0
+      return 1
     else:
       Kernal.Cout("[INFO]Title type not defined.")
       Kernal.ErrChk(1,"Unknown title type.")
-      return 1
+      return -1
 class StdUtil:#Builtins class, Standard utilities.
   def __init__(self):pass
   @staticmethod
@@ -1062,7 +1084,7 @@ class StdUtil:#Builtins class, Standard utilities.
       else:
         Kernal.Cout("[ERROR]Trigger is not defined.")
         Kernal.ErrChk(1,"Unknown trigger.")
-        return 0
+        return -1
   @staticmethod
   def MouseBox(minx,miny,maxx,maxy):#built-in function.for checking mouse position.
 #Warn:better use keyboard to operate menu, using
