@@ -5,7 +5,7 @@ Engine Showcase:
 ![nspire_screenshot_20250523_213949](https://github.com/user-attachments/assets/2dfc6d02-5fa8-4782-9f43-1f796a66ef0e)
 ![nspire_screenshot_20250531_120222](https://github.com/user-attachments/assets/375852de-08b0-4b1f-9b78-2bde37aa2710)
 ![nspire_screenshot_20250523_213917](https://github.com/user-attachments/assets/3d33422c-8834-4a1a-b46a-d29ee60c90eb)
-![nspire_screenshot_20250530_173102](https://github.com/user-attachments/assets/548afa91-143d-4f37-b7dc-b385410eaf8b)
+![nspire_screenshot_20250531_120318](https://github.com/user-attachments/assets/7de9e92a-2c55-43aa-b57a-e3af069b6de5)
 ![nspire_screenshot_20250531_120247](https://github.com/user-attachments/assets/940b8a03-2f2e-4e51-b0f0-26acca7c0d07)
 ![nspire_screenshot_20250531_120309](https://github.com/user-attachments/assets/7a159217-b406-44d7-bdf4-d32474e4ef23)
 ![nspire_screenshot_20250530_173224](https://github.com/user-attachments/assets/f17ad870-542b-4aca-9f71-abc5d4291e22)
