@@ -263,7 +263,7 @@ class Kernel:#Code base class
     gc.collect()
     StdUtil.ConsoleLog(2)
     Kernel._CreateWindow()
-    if novid==False:Kernel.Opening()
+    if not novid:Kernel.Opening()
     if ingamemod=="ingamemod":modenb=False
     StdUtil.ConsoleLog(5)
     if modenb and ingamemod!="ingamemod":
@@ -325,7 +325,7 @@ class Kernel:#Code base class
         modamount=g
         Kernel.Cout("[CONSOLE]"+str(modamount)+" mods will be trying to load.")
       elif g=="scuptoggle":
-        if dr==False:
+        if not dr:
           dr=True;Kernel.Cout("[CONSOLE]Enabled.")
         else:dr=False;Kernel.Cout("[CONSOLE]Disabled.")
       elif g=="setgeomet":
@@ -358,7 +358,7 @@ class Kernel:#Code base class
       elif g=="version":
         Kernel.Cout("Gyro 2D Gaming engine.\n"+str(GAMEVER)+"\nFirst runned in 2025/06/04\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:"+str(sys.version)+"\nEngine built on Python 3.4.0")
       elif g=="novid":
-        if novid==False:
+        if not novid:
           novid=True
           Kernel.Cout("[CONSOLE]Disabled launch video")
         else:
@@ -382,7 +382,7 @@ class Kernel:#Code base class
       elif g=="cls":
         clear_history()
       elif g=="dev":
-        if dev==False:
+        if not dev:
           dev=True
           Kernel.Cout("[CONSOLE]Dev mode enabled.")
         else:dev=False;Kernel.Cout("[CONSOLE]Dev mode disabled")
@@ -444,7 +444,7 @@ class IO:#Input-Output class.
   @staticmethod
   def Save(custom=False,name="customFile",gamevar=None,logout=True):#built-in function, for saving game.
     global emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
-    if custom==False:
+    if not custom:
       try:
         store_value("playery",psy)
         store_value("playerx",psx)
@@ -480,7 +480,7 @@ class IO:#Input-Output class.
   @staticmethod
   def Delete(custom=False,name="customFile",gamevar=None,logout=True):#built-in function, for delete saved game.
     global emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
-    if custom==False:
+    if not custom:
       try:
         store_value("playery",95)
         store_value("playerx",95)
@@ -516,7 +516,7 @@ class IO:#Input-Output class.
   @staticmethod
   def Load(custom=False,name="customFile",logout=True,returnval=0):#built-in function, for load a saved game.
     global emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
-    if custom==False:
+    if not custom:
       try:
         mapslt=recall_value("mapslt")
         emptysave=recall_value("emptysave")
@@ -1506,7 +1506,7 @@ def main():#main function.It's a very standard template for engine.
         Actors.King.Draw()
         if v_live<=20 and v_live>=0:UniFX.LowHealth()
         if k=="u" and dev:
-          if debugs==False:
+          if not debugs:
             debugs=True
             Kernel.Cout("[INFO]Debug drawing enabled.")
           else:
@@ -1709,7 +1709,7 @@ def main():#main function.It's a very standard template for engine.
                       elif langtype==2:
                         langtype=1
                     elif k=="d":
-                      if usemod==False:usemod=True
+                      if not usemod:usemod=True
                       else:usemod=False
                     elif k=="e":
                       if erxt==1:erxt=0
@@ -1738,7 +1738,7 @@ def main():#main function.It's a very standard template for engine.
                   inmenu=True
                   break
                 elif k=="u":
-                  if debugs==False:
+                  if not debugs:
                     debugs=True
                     Kernel.Cout("[INFO]Debug drawing enabled.")
                   else:
