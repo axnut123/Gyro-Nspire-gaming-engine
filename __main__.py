@@ -112,15 +112,15 @@ class Kernel:#Code base class
         Kernel.ErrChk(1,"Language type not found.")
       IO.Save(True,"erxt",int(erxt))
       IO.Save(True,"modamount",int(modamount))
-      if novid==True:IO.Save(True,"novid",1)#True or false dosent work here. use 1 or 0.
+      if novid:IO.Save(True,"novid",1)#True or false dosent work here. use 1 or 0.
       else:IO.Save(True,"novid",0)
-      if autoloadmod==True:IO.Save(True,"autoloadmod",1)
+      if autoloadmod:IO.Save(True,"autoloadmod",1)
       else:IO.Save(True,"autoloadmod",0)
-      if dev==True:IO.Save(True,"dev",1)
+      if dev:IO.Save(True,"dev",1)
       else:IO.Save(True,"dev",0)
-      if dr==True:IO.Save(True,"dr",1)
+      if dr:IO.Save(True,"dr",1)
       else:IO.Save(True,"dr",0)
-      if usemod==True:IO.Save(True,"usemod",1)
+      if usemod:IO.Save(True,"usemod",1)
       else:IO.Save(True,"usemod",0)
       Kernel.Cout("[INFO]Cfg saving success.")
     except Exception as e:
@@ -157,7 +157,7 @@ class Kernel:#Code base class
         if cfg6==1:autoloadmod=True
         else:autoloadmod=False
         del cfg1,cfg2,cfg3,cfg4,cfg5,cfg6
-        if autoloadmod==True:Kernel._ModHandler(2)
+        if autoloadmod:Kernel._ModHandler(2)
         gc.collect()
         Kernel.Cout("[INFO]Config loading process completed.")
         return 1
@@ -207,7 +207,7 @@ class Kernel:#Code base class
         Kernel.Cout("[WARN]Mod already init.")
         Kernel.ErrChk(4,"Repeating init.")
     elif hdtp==3:
-      if vtk==True and ingamemod!="ingamemod":
+      if vtk and ingamemod!="ingamemod":
         modenb=True
         Kernel.Cout("[INFO]Mod is running.")
         return 0
@@ -217,7 +217,7 @@ class Kernel:#Code base class
         return -1
     elif hdtp==4:
       Kernel.Cout("Warning: do not let 2 types of mods installed together.")
-      if vtk==True:
+      if vtk:
         Kernel.Cout(tk.mod_info(3))
         Kernel.Cout(tk.mod_info(2))
       else:
@@ -237,7 +237,7 @@ class Kernel:#Code base class
         action=None
   @staticmethod
   def Cout(text,autoret=True):#built-in function.For someone who wants control output more.
-    if autoret==True:e="\n"
+    if autoret:e="\n"
     else:e=""
     sys.stdout.write(str(text)+e)
   @staticmethod
@@ -266,7 +266,7 @@ class Kernel:#Code base class
     if novid==False:Kernel.Opening()
     if ingamemod=="ingamemod":modenb=False
     StdUtil.ConsoleLog(5)
-    if modenb==True and ingamemod!="ingamemod":
+    if modenb and ingamemod!="ingamemod":
       Kernel.Cout("[INFO]Trying to load mod script.")
       tk.mod_main()
     else:
@@ -296,7 +296,7 @@ class Kernel:#Code base class
           Kernel.ErrChk(3,"Language type unknown.")
       elif g=="disablemod":Kernel._ModHandler(1)
       elif g=="autoloadmod":
-        if autoloadmod==True:autoloadmod=False
+        if autoloadmod:autoloadmod=False
         else:autoloadmod=True
         Kernel.Cout("[CONSOLE]Auto mod load process is now:"+str(autoloadmod))
       elif g=="modinit":Kernel._ModHandler(2)
@@ -462,7 +462,7 @@ class IO:#Input-Output class.
         store_value("ammo9",ammo9)
         store_value("ammo357",ammo357)
         store_value("item_suit",item_suit)
-        if logout==True:Kernel.Cout("[IO]Game saved.")
+        if logout:Kernel.Cout("[IO]Game saved.")
         return 0
       except Exception as e:
         Kernel.Cout("[ERROR]Operation failed."+str(e))
@@ -471,7 +471,7 @@ class IO:#Input-Output class.
     else:
       try:
         store_value(str(name),gamevar)
-        if logout==True:Kernel.Cout("[IO]Saved file:"+str(name)+".")
+        if logout:Kernel.Cout("[IO]Saved file:"+str(name)+".")
         return 0
       except Exception as e:
         Kernel.Cout("[ERROR]File operation on:"+str(name)+" failed.\n"+str(e))
@@ -498,7 +498,7 @@ class IO:#Input-Output class.
         store_value("ammo9",0)
         store_value("ammo357",0)
         store_value("item_suit",0)
-        if logout==True:Kernel.Cout("[IO]File deleted.")
+        if logout:Kernel.Cout("[IO]File deleted.")
         return 0
       except Exception as e:
         Kernel.Cout("[ERROR]Operation failed."+str(e))
@@ -507,7 +507,7 @@ class IO:#Input-Output class.
     else:
       try:
         store_value(str(name),gamevar)
-        if logout==True:Kernel.Cout("[IO]File operate success on:"+str(name)+".")
+        if logout:Kernel.Cout("[IO]File operate success on:"+str(name)+".")
         return 0
       except Exception as e:
         Kernel.Cout("[ERROR]File operate on:"+str(name)+" failed.\n"+str(e))
@@ -543,7 +543,7 @@ class IO:#Input-Output class.
           Kernel.ErrChk(5,"Can not load empty save.")
           return -2
         else:
-          if logout==True:Kernel.Cout("[IO]Game loaded from save.")
+          if logout:Kernel.Cout("[IO]Game loaded from save.")
           return 0
       except Exception as e:
         Kernel.Cout("[ERROR]Operation failed."+str(e))
@@ -552,7 +552,7 @@ class IO:#Input-Output class.
     else:
       try:
         returnval=recall_value(str(name))
-        if logout==True:Kernel.Cout("[IO]File operation on:"+str(name)+" success.")
+        if logout:Kernel.Cout("[IO]File operation on:"+str(name)+" success.")
         return returnval
       except Exception as e:
         Kernel.Cout("[ERROR]File operation failed on:"+str(name)+".\n"+str(e))
@@ -649,13 +649,14 @@ class UniFX:#Universal VFX class.
         Kernel.ErrChk(1,"VFX type not found.")
         return -1
 class Actors:#entity class.
+#in Actors class, Draw method return 1 is not rendered,0 is rendered.
   def __init__(self):pass
   class King:#Player class.
     def __init__(self):pass
     @staticmethod
     def Draw(hide=False):#built-in function, draw player.
       global plr,plg,plb,psy,psx,plw,plh,v_live
-      if v_live<=0 or v_live==0 or hide==True:return 1
+      if v_live<=0 or hide:return 1
       set_color(plr,plg,plb)
       fill_rect(psx,psy,plw,plh)
       return 0
@@ -732,7 +733,7 @@ class Actors:#entity class.
   class Queen:#npc entities.
     def __init__(self):pass
     def Draw(x,y,w=5,h=5,r=20,g=20,b=20,hide=False):#built-in function,for drawing entities.
-      if hide==True:return 1
+      if hide:return 1
       set_color(r,g,b)
       fill_rect(x,y,w,h)
       return 0
@@ -740,7 +741,7 @@ class Actors:#entity class.
     def __init__(self):pass
     @staticmethod
     def Draw(x,y,w=5,h=5,rd=2,r=25,g=25,b=20,shape=0,hide=False):#built-in function,for draw the pawn.
-      if hide==True:return 1
+      if hide:return 1
       set_color(r,g,b)
       if shape==0:fill_circle(x,y,rd);return 0
       elif shape==1:fill_rect(x,y,w,h);return 0
@@ -895,7 +896,7 @@ class ActionUI:#UI class
       Kernel.Cout("[INFO]Vgui window render request sent to client.")
       return 1
     elif wintp==2:
-      if debugs==True and dev==True:
+      if debugs and dev:
         set_color(0,0,0)
         draw_text(10,20,str(ActionUI.DispLanguage("memfree"))+str(gc.mem_free()))
         draw_text(10,35,str(ActionUI.DispLanguage("memalloc"))+str(gc.mem_alloc()))
@@ -1388,7 +1389,7 @@ def main():#main function.It's a very standard template for engine.
   global ingamemod,erxt,modscripts,langtype,mapslt,dev,dr,emptysave,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,usemod
   StdUtil.ConsoleLog(4)
   while True:#game logic loop
-    if inmenu==True:#menu guard
+    if inmenu:#menu guard
       Kernel._ResetGame()
       Assets.MainMenu()
       ActionUI.DispUi(0,0,4)
@@ -1450,10 +1451,10 @@ def main():#main function.It's a very standard template for engine.
             StdUtil.SettingMenu()
             paint_buffer()
             if k=="a":
-              if dr==True:dr=False
+              if dr:dr=False
               else:dr=True
             elif k=="b":
-              if dev==True:dev=False
+              if dev:dev=False
               else:dev=True
             elif k=="c":#add more conditions if you have more language.
               if langtype==1:
@@ -1461,7 +1462,7 @@ def main():#main function.It's a very standard template for engine.
               elif langtype==2:
                 langtype=1
             elif k=="d":
-              if usemod==True:usemod=False
+              if usemod:usemod=False
               else:usemod=True
             elif k=="e":
               if erxt==1:erxt=0
@@ -1479,7 +1480,7 @@ def main():#main function.It's a very standard template for engine.
           Kernel.quit()
       clear()
       gc.collect()
-    if dr==True:StdUtil.ConsoleLog(1)#Kernel.Cout a log when screen update.
+    if dr:StdUtil.ConsoleLog(1)#Kernel.Cout a log when screen update.
     StdUtil.MapStat()#logic check in here,define your trigger in this function.
     if v_live<=20 and v_live>=0:UniFX.LowHealth()
     if v_live<=0:#death detecting
@@ -1497,14 +1498,14 @@ def main():#main function.It's a very standard template for engine.
         k=get_key()
         Kernel.WaitUpdate()
         StdUtil.MapStat()
-        if ingamemod=="ingamemod" and tk.mod_info(3)=="ingamemod"and usemod==True:tk.mod_main()
+        if ingamemod=="ingamemod" and tk.mod_info(3)=="ingamemod"and usemod:tk.mod_main()
         if item_suit==1:#hud
           ActionUI.DispUi(0,0,6)
           ActionUI.DispUi(0,0,8)
         ActionUI.DispUi(0,0,2)
         Actors.King.Draw()
         if v_live<=20 and v_live>=0:UniFX.LowHealth()
-        if k=="u" and dev==True:
+        if k=="u" and dev:
           if debugs==False:
             debugs=True
             Kernel.Cout("[INFO]Debug drawing enabled.")
@@ -1524,23 +1525,23 @@ def main():#main function.It's a very standard template for engine.
         elif k=="down":
           Actors.King.Move(0,3)
           break
-        elif k=="t" and dev==True:
+        elif k=="t" and dev:
           v_hev-=10
           break
-        elif k=="s"and dev==True:
+        elif k=="s"and dev:
           v_hev+=10
           break
-        elif k=="z"and dev==True:
+        elif k=="z"and dev:
           v_live-=10
           break
-        elif k=="h"and dev==True:
+        elif k=="h"and dev:
           Wbase.EventAmmoPick(1,18)
           Wbase.EventAmmoPick(2,6)
           break
-        elif k=="y"and dev==True:
+        elif k=="y"and dev:
           v_live+=10
           break
-        elif k=="tab" and dev==True:
+        elif k=="tab" and dev:
           gc.collect()
           Kernel.Cout("[DEBUG]gc collect completed.")
           break
@@ -1606,7 +1607,7 @@ def main():#main function.It's a very standard template for engine.
           elif wpnslt==4:
             StdUtil.WaitStart(300,lambda:Wbase.WeaponClip(2))
           break
-        elif k=="menu"and dev==True:
+        elif k=="menu"and dev:
           Actors.King.Init(8,1)
           Actors.King.Init(9,1)
           Actors.King.Init(10,1)
@@ -1697,10 +1698,10 @@ def main():#main function.It's a very standard template for engine.
                     StdUtil.SettingMenu()
                     paint_buffer()
                     if k=="a":
-                      if dr==True:dr=False
+                      if dr:dr=False
                       else:dr=True
                     elif k=="b":
-                      if dev==True:dev=False
+                      if dev:dev=False
                       else:dev=True
                     elif k=="c":#add more conditions if you have more language.
                       if langtype==1:
