@@ -57,7 +57,7 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 28 Build(0105)");
+GAMEVER=str("Gyro 28 Build(0107)");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -295,7 +295,7 @@ class Kernel:#Code base class
           langtype=1
           Kernel.ErrChk(3,"Language type unknown.")
       elif g=="disablemod":Kernel._ModHandler(1)
-      elif g=="automodload":
+      elif g=="autoloadmod":
         if autoloadmod==True:autoloadmod=False
         else:autoloadmod=True
         Kernel.Cout("[CONSOLE]Auto mod load process is now:"+str(autoloadmod))
@@ -356,7 +356,7 @@ class Kernel:#Code base class
           erxt=1
           Kernel.Cout("[CONSOLE]Exit when error enabled.")
       elif g=="version":
-        Kernel.Cout("Gyro 2D Gaming engine.\n"+str(GAMEVER)+"\nFirst runned in 2025/05/31\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:"+str(sys.version)+"\nEngine built on Python 3.4.0")
+        Kernel.Cout("Gyro 2D Gaming engine.\n"+str(GAMEVER)+"\nFirst runned in 2025/06/04\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:"+str(sys.version)+"\nEngine built on Python 3.4.0")
       elif g=="novid":
         if novid==False:
           novid=True
@@ -653,10 +653,10 @@ class Actors:#entity class.
   class King:#Player class.
     def __init__(self):pass
     @staticmethod
-    def Draw():#built-in function, draw player.
+    def Draw(hide=False):#built-in function, draw player.
       global plr,plg,plb,psy,psx,plw,plh,v_live
+      if v_live<=0 or v_live==0 or hide==True:return 1
       set_color(plr,plg,plb)
-      if v_live<=0 or v_live==0:return 0
       fill_rect(psx,psy,plw,plh)
       return 0
     @staticmethod
@@ -731,14 +731,16 @@ class Actors:#entity class.
         return -1
   class Queen:#npc entities.
     def __init__(self):pass
-    def Draw(x,y,w=5,h=5,r=20,g=20,b=20):#built-in function,for drawing entities.
+    def Draw(x,y,w=5,h=5,r=20,g=20,b=20,hide=False):#built-in function,for drawing entities.
+      if hide==True:return 1
       set_color(r,g,b)
       fill_rect(x,y,w,h)
       return 0
   class Pawn():#props or other obj class.
     def __init__(self):pass
     @staticmethod
-    def Draw(x,y,w=5,h=5,rd=2,r=25,g=25,b=20,shape=0):#built-in function,for draw the pawn.
+    def Draw(x,y,w=5,h=5,rd=2,r=25,g=25,b=20,shape=0,hide=False):#built-in function,for draw the pawn.
+      if hide==True:return 1
       set_color(r,g,b)
       if shape==0:fill_circle(x,y,rd);return 0
       elif shape==1:fill_rect(x,y,w,h);return 0
