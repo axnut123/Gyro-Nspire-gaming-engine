@@ -1144,7 +1144,7 @@ class Wbase:#Weapon system class.
         return 2
   @staticmethod
   def WeaponClip(type):#built-in function,for detect clips in gun.
-    global inclip9,inclip357,ammo357,ammo9
+    global inclip9,inclip357,ammo357,ammo9,reload357,reload9
     if type==1:
       if inclip9==0 and ammo9>=18:
         reload9=0
