@@ -1480,7 +1480,7 @@ def main():#main function.It's a very standard template for engine.
           Kernel.quit()
       clear()
       gc.collect()
-    if dr:StdUtil.ConsoleLog(1)#Kernel.Cout a log when screen update.
+    if dr:StdUtil.ConsoleLog(1)#print a log when screen update.
     StdUtil.MapStat()#logic check in here,define your trigger in this function.
     if v_live<=20 and v_live>=0:UniFX.LowHealth()
     if v_live<=0:#death detecting
