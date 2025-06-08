@@ -28,12 +28,10 @@
 #if you need grid,run grid.py.
 #resolution is hard to set, do not touch unless you have to.
 #0,0,0,0 is default resolution.
-from random import randint
-from time import *
-from ti_system import *
 import sys
 import gc
-import micropython as mp
+from random import randint
+from time import *
 novid=bool(False);
 modamount=int(100);
 endtick=None;
@@ -57,7 +55,7 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 28 Build(0107)");
+GAMEVER=str("Gyro 28 Build(0108)");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -165,6 +163,22 @@ class Kernel:#Code base class
         Kernel.Cout("[ERROR]Failed on trying to load configs."+str(e))
         Kernel.ErrChk(3,"Cfg load process failed.")
         return 0
+    elif inittp==2:
+      pt=get_platform()
+      if pt not in ["hh","ios","dt"]:
+        use_buffer()
+        set_color(210,10,10)
+        fill_rect(0,0,500,300)
+        set_color(240,240,240)
+        draw_text(10,80,"The engine can not run on your system.")
+        draw_text(10,100,"hold esc to close.")
+        paint_buffer()
+        while True:pass
+      else:
+        del pt
+        gc.collect()
+        Kernel.Cout("[PRE-LOAD]Platform check done.")
+        return 2
   @staticmethod
   def ErrChk(errtype=None,reason="Unknown Reason."):#built-in function,for command "forceexitonerror".
     global erxt
@@ -356,7 +370,7 @@ class Kernel:#Code base class
           erxt=1
           Kernel.Cout("[CONSOLE]Exit when error enabled.")
       elif g=="version":
-        Kernel.Cout("Gyro 2D Gaming engine.\n"+str(GAMEVER)+"\nFirst runned in 2025/06/04\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:"+str(sys.version)+"\nEngine built on Python 3.4.0")
+        Kernel.Cout("Gyro 2D Gaming engine.\n"+str(GAMEVER)+"\nFirst runned in 2025/06/08\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:"+str(sys.version)+"\nEngine built on Python 3.4.0")
       elif g=="novid":
         if not novid:
           novid=True
@@ -1751,6 +1765,26 @@ def main():#main function.It's a very standard template for engine.
       break
   return 0
 if (__name__=="__main__"):#all program starts from here.
+  try:#import check.
+    from ti_system import *#normally,gui tools are also included in ti_system.
+    import micropython as mp
+    Kernel.Cout("[PRE-LOAD]Libraries are successfully loaded.")
+  except ImportError:
+    try:
+      from ti_draw import fill_rect,set_color,draw_text,use_buffer,paint_buffer
+      use_buffer()
+      set_color(210,10,10)
+      fill_rect(0,0,500,300)
+      set_color(240,240,240)
+      draw_text(10,80,"The engine can not run on your device.")
+      draw_text(10,100,"please check the libraries. Hold esc to close.")
+      paint_buffer()
+      Kernel.Cout("[FATAL]Library import failed.")
+      while True:pass
+    except:
+      Kernel.Cout("[FATAL]The engine can not run on your device.\nPlease check the libraries.")
+      Kernel.quit(-1)
+  Kernel.Init(2)
   Kernel.Init(1)
   Kernel._Console()
   Kernel._GameLauncher()
