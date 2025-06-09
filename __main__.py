@@ -183,7 +183,7 @@ class Kernel:#Code base class
         Kernel.Cout("[PRE-LOAD]Platform check done.")
         return 2
   @staticmethod
-  def ErrChk(forceraise=False,errtype=None,reason="Unknown Reason."):#built-in function,for command "forceexitonerror".
+  def ErrChk(errtype=None,reason="Unknown Reason.",forceraise=False):#built-in function,for command "forceexitonerror".
     global erxt
     if erxt==1 or forceraise:
       Kernel.Cout("[DEBUG]Error or warning encountered,\nstopped engine.")
