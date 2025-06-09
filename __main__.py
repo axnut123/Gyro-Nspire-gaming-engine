@@ -28,6 +28,8 @@
 #if you need grid,run grid.py.
 #resolution is hard to set, do not touch unless you have to.
 #0,0,0,0 is default resolution.
+#if you're trying to import engine on other file,do
+#not use functions with a leading underscore.
 import sys
 import gc
 from random import randint
@@ -55,7 +57,8 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 28 Build(0108)");
+GAMEVER=str("Gyro 28 Build(0109)");
+DEBUGDATE=str("Debugged in: 2025/06/09");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -180,9 +183,9 @@ class Kernel:#Code base class
         Kernel.Cout("[PRE-LOAD]Platform check done.")
         return 2
   @staticmethod
-  def ErrChk(errtype=None,reason="Unknown Reason."):#built-in function,for command "forceexitonerror".
+  def ErrChk(forceraise=False,errtype=None,reason="Unknown Reason."):#built-in function,for command "forceexitonerror".
     global erxt
-    if erxt==1:
+    if erxt==1 or forceraise:
       Kernel.Cout("[DEBUG]Error or warning encountered,\nstopped engine.")
       gc.collect()
       if errtype==1:raise ArgumentNotFound(reason)
@@ -251,8 +254,10 @@ class Kernel:#Code base class
         action=None
   @staticmethod
   def Cout(text,autoret=True):#built-in function.For someone who wants control output more.
-    if autoret:e="\n"
-    else:e=""
+    if autoret:
+      e="\n"
+    else:
+      e=""
     sys.stdout.write(str(text)+e)
   @staticmethod
   def _ResetGame():#built-in function,for soft reset.
@@ -370,7 +375,7 @@ class Kernel:#Code base class
           erxt=1
           Kernel.Cout("[CONSOLE]Exit when error enabled.")
       elif g=="version":
-        Kernel.Cout("Gyro 2D Gaming engine.\n"+str(GAMEVER)+"\nFirst runned in 2025/06/08\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:"+str(sys.version)+"\nEngine built on Python 3.4.0")
+        Kernel.Cout("Gyro 2D Gaming engine.\n"+str(GAMEVER)+"\n"+str(DEBUGDATE)+"\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:"+str(sys.version)+"\nEngine built on Python 3.4.0")
       elif g=="novid":
         if not novid:
           novid=True
@@ -675,9 +680,36 @@ class Actors:#entity class.
       fill_rect(psx,psy,plw,plh)
       return 0
     @staticmethod
+    def Status(*ignoretp):#built-in function, checking player status.
+      global v_live
+#Do not let "ignoredisable" mixed with other argument,
+#same as "ignoreall".
+      if "ignoredisable"in ignoretp:
+        pass
+      if "ignoreall"in ignoretp:
+        ignoretp=("ignorehud","ignoredeath","ignorevfx")
+      if "ignorevfx"not in ignoretp and v_live<=20 and v_live>=0:
+        UniFX.LowHealth()
+      if "ignoredeath"not in ignoretp and v_live<=0:#death detecting
+        ActionUI.DispUi(0,0,7)
+        Actors.King.Draw()
+        paint_buffer()
+        StdUtil.ConsoleLog(7)
+        while True:
+           k=get_key()
+           if k=="enter":
+             IO.Load()
+             break
+      if "ignorehud"not in ignoretp and item_suit==1:#hud
+        ActionUI.DispUi(0,0,6)
+        ActionUI.DispUi(0,0,8)
+    @staticmethod
     def Move(mvtp,direction,step=5,goto=(0,0)):#built-in function,for movements and teleporting.
-      global psx,psy
+      global psx,psy,v_live
       if mvtp==0:
+        if v_live<=0:
+          Kernel.Cout("[INFO]Player died,ignored input")
+          return -1
         if direction==1:psx+=step;return mvtp,direction,step
         elif direction==2:psx-=step;return mvtp,direction,step
         elif direction==3:psy+=step;return mvtp,direction,step
@@ -921,9 +953,10 @@ class ActionUI:#UI class
         draw_text(10,115,str(ActionUI.DispLanguage("ppos"))+str(psx)+","+str(psy))
         draw_text(10,130,str(ActionUI.DispLanguage("mapid"))+str(mapslt))
         draw_text(10,145,str(ActionUI.DispLanguage("ver"))+str(GAMEVER))
-        draw_text(10,160,str(ActionUI.DispLanguage("platform"))+str(get_platform()))
-        draw_text(10,175,str(ActionUI.DispLanguage("reso"))+str(scrgeometx)+","+str(scrgeomety)+","+str(scrgeometmx)+","+str(scrgeometmy))
-        draw_text(10,190,str(ActionUI.DispLanguage("modamount"))+str(modamount))
+        draw_text(10,160,str(DEBUGDATE))
+        draw_text(10,175,str(ActionUI.DispLanguage("platform"))+str(get_platform()))
+        draw_text(10,190,str(ActionUI.DispLanguage("reso"))+str(scrgeometx)+","+str(scrgeomety)+","+str(scrgeometmx)+","+str(scrgeometmy))
+        draw_text(10,205,str(ActionUI.DispLanguage("modamount"))+str(modamount))
         paint_buffer()
         return 2
     elif wintp==3:
@@ -1126,6 +1159,7 @@ class StdUtil:#Builtins class, Standard utilities.
     fill_rect(0,0,500,300)
     set_color(255,255,255)
     draw_text(150,17,GAMEVER)
+    draw_text(150,30,DEBUGDATE)
     ActionUI.DispUi(0,0,3)
     return 0
   @staticmethod
@@ -1396,6 +1430,7 @@ class Assets:#asset class
     set_color(255,255,255)
     draw_text(10,80,"HALF-LIFE²")
     draw_text(150,17,GAMEVER)
+    draw_text(150,30,DEBUGDATE)
     set_pen("thin","solid")
     return 0
 def main():#main function.It's a very standard template for engine.
@@ -1496,29 +1531,15 @@ def main():#main function.It's a very standard template for engine.
       gc.collect()
     if dr:StdUtil.ConsoleLog(1)#print a log when screen update.
     StdUtil.MapStat()#logic check in here,define your trigger in this function.
-    if v_live<=20 and v_live>=0:UniFX.LowHealth()
-    if v_live<=0:#death detecting
-      ActionUI.DispUi(0,0,7)
-      Actors.King.Draw()
-      paint_buffer()
-      StdUtil.ConsoleLog(7)
-      while True:
-         k=get_key()
-         if k=="enter":
-           IO.Load()
-           break
     for key in ["NULL"]:
       while k!=key:
         k=get_key()
         Kernel.WaitUpdate()
         StdUtil.MapStat()
         if ingamemod=="ingamemod" and tk.mod_info(3)=="ingamemod"and usemod:tk.mod_main()
-        if item_suit==1:#hud
-          ActionUI.DispUi(0,0,6)
-          ActionUI.DispUi(0,0,8)
         ActionUI.DispUi(0,0,2)
         Actors.King.Draw()
-        if v_live<=20 and v_live>=0:UniFX.LowHealth()
+        Actors.King.Status("ignoredisable")
         if k=="u" and dev:
           if not debugs:
             debugs=True
