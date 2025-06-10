@@ -57,8 +57,8 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 28 Build(0109)");
-DEBUGDATE=str("Debugged in: 2025/06/09");
+GAMEVER=str("Gyro 29 Build(0110)");
+DEBUGDATE=str("2025/06/10");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -174,9 +174,12 @@ class Kernel:#Code base class
         fill_rect(0,0,500,300)
         set_color(240,240,240)
         draw_text(10,80,"The engine can not run on your system.")
-        draw_text(10,100,"hold esc to close.")
+        draw_text(10,100,"Supported platform:hh,ios,dt. your platform:"+str(pt)+".")
+        draw_text(10,120,"Press esc to quit.")
         paint_buffer()
-        while True:pass
+        Kernel.Cout("[FATAL]Platform does not match.")
+        while get_key()!="esc":pass
+        Kernel.quit(-1)
       else:
         del pt
         gc.collect()
@@ -375,7 +378,7 @@ class Kernel:#Code base class
           erxt=1
           Kernel.Cout("[CONSOLE]Exit when error enabled.")
       elif g=="version":
-        Kernel.Cout("Gyro 2D Gaming engine.\n"+str(GAMEVER)+"\n"+str(DEBUGDATE)+"\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:"+str(sys.version)+"\nEngine built on Python 3.4.0")
+        Kernel.Cout("Gyro 2D Gaming engine.\n"+str(GAMEVER)+"\nDebugged in:"+str(DEBUGDATE)+"\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:"+str(sys.version)+"\nEngine built on Python 3.4.0")
       elif g=="novid":
         if not novid:
           novid=True
@@ -828,6 +831,7 @@ class ActionUI:#UI class
       "ppos":"player pos:",
       "mapid":"map id:",
       "ver":"Version:",
+      "dbdate":"Debugged in:",
       "platform":"current platform:",
       "escres":"esc:resume",
       "menu":"menu:main menu",
@@ -877,6 +881,7 @@ class ActionUI:#UI class
       "erxt":"发生错误时退出:",
       "set":"tab:设置",
       "savecfg":"s:保存设置",
+      "dbdate":"测试日期:",
       "dr":"当屏幕更新时输出",
       "dev":"开发者模式",
       "langset":"语言设置",
@@ -953,7 +958,7 @@ class ActionUI:#UI class
         draw_text(10,115,str(ActionUI.DispLanguage("ppos"))+str(psx)+","+str(psy))
         draw_text(10,130,str(ActionUI.DispLanguage("mapid"))+str(mapslt))
         draw_text(10,145,str(ActionUI.DispLanguage("ver"))+str(GAMEVER))
-        draw_text(10,160,str(DEBUGDATE))
+        draw_text(10,160,str(ActionUI.DispLanguage("dbdate")+str(DEBUGDATE)))
         draw_text(10,175,str(ActionUI.DispLanguage("platform"))+str(get_platform()))
         draw_text(10,190,str(ActionUI.DispLanguage("reso"))+str(scrgeometx)+","+str(scrgeomety)+","+str(scrgeometmx)+","+str(scrgeometmy))
         draw_text(10,205,str(ActionUI.DispLanguage("modamount"))+str(modamount))
@@ -1159,7 +1164,7 @@ class StdUtil:#Builtins class, Standard utilities.
     fill_rect(0,0,500,300)
     set_color(255,255,255)
     draw_text(150,17,GAMEVER)
-    draw_text(150,30,DEBUGDATE)
+    draw_text(150,30,str(ActionUI.DispLanguage("dbdate"))+DEBUGDATE)
     ActionUI.DispUi(0,0,3)
     return 0
   @staticmethod
@@ -1430,7 +1435,7 @@ class Assets:#asset class
     set_color(255,255,255)
     draw_text(10,80,"HALF-LIFE²")
     draw_text(150,17,GAMEVER)
-    draw_text(150,30,DEBUGDATE)
+    draw_text(150,30,str(ActionUI.DispLanguage("dbdate"))+DEBUGDATE)
     set_pen("thin","solid")
     return 0
 def main():#main function.It's a very standard template for engine.
