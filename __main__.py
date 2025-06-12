@@ -57,8 +57,8 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 29 Build(0110)");
-DEBUGDATE=str("2025/06/10");
+GAMEVER=str("Gyro 29 Build(0111)");
+DEBUGDATE=str("2025/06/12");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -684,7 +684,7 @@ class Actors:#entity class.
       return 0
     @staticmethod
     def Status(*ignoretp):#built-in function, checking player status.
-      global v_live
+      global v_live,item_suit
 #Do not let "ignoredisable" mixed with other argument,
 #same as "ignoreall".
       if "ignoredisable"in ignoretp:
