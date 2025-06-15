@@ -57,8 +57,8 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 29 Build(0111)");
-DEBUGDATE=str("2025/06/12");
+GAMEVER=str("Gyro 29 Build(0112)");
+DEBUGDATE=str("2025/06/15");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -173,9 +173,9 @@ class Kernel:#Code base class
         set_color(210,10,10)
         fill_rect(0,0,500,300)
         set_color(240,240,240)
-        draw_text(10,80,"The engine can not run on your system.")
-        draw_text(10,100,"Supported platform:hh,ios,dt. your platform:"+str(pt)+".")
-        draw_text(10,120,"Press esc to quit.")
+        draw_text(10,80,ActionUI.DispLanguage("plterr"))
+        draw_text(10,100,ActionUI.DispLanguage("supsys")+str(pt)+".")
+        draw_text(10,120,ActionUI.DispLanguage("prsesc"))
         paint_buffer()
         Kernel.Cout("[FATAL]Platform does not match.")
         while get_key()!="esc":pass
@@ -340,7 +340,7 @@ class Kernel:#Code base class
       elif g=="quit"or g=="stop"or g=="exit"or g=="esc":
         del g
         StdUtil.ConsoleLog(3)
-        Kernel.quit()
+        Kernel.quit(0)
         break
       elif g=="setmodamount":
         g=input("how many mods shold be load(default 100):")
@@ -781,6 +781,7 @@ class Actors:#entity class.
         return -1
   class Queen:#npc entities.
     def __init__(self):pass
+    @staticmethod
     def Draw(x,y,w=5,h=5,r=20,g=20,b=20,hide=False):#built-in function,for drawing entities.
       if hide:return 1
       set_color(r,g,b)
@@ -805,6 +806,12 @@ class ActionUI:#UI class
     global langtype
     if langtype==1:#English
       langdict1={
+      "plterr":"This engine cannot run on your system.",
+      "liberr":"The engine failed to start.",
+      "reqmis":"Required dependencies are missing.",
+      "supsys":"Supported platform:hh,ios,dt. your platform:",
+      "prsesc":"Press esc to quit.",
+      "libchk":"please check the libraries. Press esc to quit.",
       "cp0":"Made by:Alex_Nute",
       "cp1":"Copyright © Haoriwa 2024 - 2025, the Half-Life 2 is",
       "cp2":"copyright for Valve.The ti_draw,ti_system",
@@ -870,6 +877,9 @@ class ActionUI:#UI class
         return "Undef"
     elif langtype==2:#Schinese
       langdict2={
+      "plterr":"此引擎无法在你的系统运行。",
+      "supsys":" 可运行的平台:",
+      "prsesc":"按下esc以退出。",
       "cp0":"由Alex_Nute制作",
       "cp1":"版权所有 © Haoriwa 2024 - 2025, 半条命2",
       "cp2":"(半衰期2)由Valve所有。ti_draw,ti_system库",
@@ -1531,7 +1541,7 @@ def main():#main function.It's a very standard template for engine.
               break
         elif k=="esc":
           StdUtil.ConsoleLog(3)
-          Kernel.quit()
+          Kernel.quit(0)
       clear()
       gc.collect()
     if dr:StdUtil.ConsoleLog(1)#print a log when screen update.
@@ -1802,13 +1812,15 @@ if (__name__=="__main__"):#all program starts from here.
       set_color(210,10,10)
       fill_rect(0,0,500,300)
       set_color(240,240,240)
-      draw_text(10,80,"The engine can not run on your device.")
-      draw_text(10,100,"please check the libraries. Hold esc to close.")
+      draw_text(10,80,ActionUI.DispLanguage("liberr"))
+      draw_text(10,100,ActionUI.DispLanguage("reqmis"))
+      draw_text(10,120,ActionUI.DispLanguage("prsesc"))
       paint_buffer()
       Kernel.Cout("[FATAL]Library import failed.")
-      while True:pass
+      while get_key()!="esc":pass
+      Kernel.quit(-1)
     except:
-      Kernel.Cout("[FATAL]The engine can not run on your device.\nPlease check the libraries.")
+      Kernel.Cout("[FATAL]The engine cannot run on your device.\nPlease check the libraries installed.")
       Kernel.quit(-1)
   Kernel.Init(2)
   Kernel.Init(1)
