@@ -9,7 +9,7 @@ x1=0
 x2=0
 y1=0
 y2=0
-def MouseBox(minx,miny,maxx,maxy):
+def MouseBox():
   x, y=get_mouse()
   if x>=x1 and x<=x2 and y>=y1 and y<=y2:return True
   else:return False
@@ -26,5 +26,5 @@ def main():
   y1=int(input("miny"))
   y2=int(input("maxy"))
   while get_key()!="esc":
-    BoxHandler(MouseBox(x1,y1,x2,y2))
+    BoxHandler(MouseBox())
 if __name__=="__main__":main()

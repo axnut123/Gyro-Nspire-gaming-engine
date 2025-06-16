@@ -57,8 +57,8 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 29 Build(0112)");
-DEBUGDATE=str("2025/06/15");
+GAMEVER=str("Gyro 29 Build(0113)");
+DEBUGDATE=str("2025/06/16");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -877,8 +877,11 @@ class ActionUI:#UI class
         return "Undef"
     elif langtype==2:#Schinese
       langdict2={
+      "liberr":"引擎启动失败。",
+      "reqmis":"必要依赖项缺失。",
+      "libchk":"请检查安装的库,按下esc以退出。",
       "plterr":"此引擎无法在你的系统运行。",
-      "supsys":" 可运行的平台:",
+      "supsys":"可运行的平台:hh,ios,dt。当前平台:",
       "prsesc":"按下esc以退出。",
       "cp0":"由Alex_Nute制作",
       "cp1":"版权所有 © Haoriwa 2024 - 2025, 半条命2",
