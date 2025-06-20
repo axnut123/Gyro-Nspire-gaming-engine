@@ -37,7 +37,7 @@ from time import *
 novid=bool(False);
 modamount=int(100);
 endtick=None;
-langtype=int(1);
+langtype=int(2);
 active=bool(False);
 action=None;
 plr=int(0);
@@ -57,8 +57,8 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 29 Build(0113)");
-DEBUGDATE=str("2025/06/16");
+GAMEVER=str("Gyro 29 Build(0114)");
+DEBUGDATE=str("2025/06/20");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -109,7 +109,7 @@ class Kernel:#Code base class
         IO.Save(True,"langtype",2)
       else:
         IO.Save(True,"langtype",1)
-        Kernel.Cout("[WARN]Language type not found, using default language.")
+        Kernel.Cout.Msg("[WARN]Language type not found, using default language.")
         Kernel.ErrChk(1,"Language type not found.")
       IO.Save(True,"erxt",int(erxt))
       IO.Save(True,"modamount",int(modamount))
@@ -123,9 +123,9 @@ class Kernel:#Code base class
       else:IO.Save(True,"dr",0)
       if usemod:IO.Save(True,"usemod",1)
       else:IO.Save(True,"usemod",0)
-      Kernel.Cout("[INFO]Cfg saving success.")
+      Kernel.Cout.Msg("[INFO]Cfg saving success.")
     except Exception as e:
-      Kernel.Cout("[ERROR]Cfg saving failed."+str(e))
+      Kernel.Cout.Msg("[ERROR]Cfg saving failed."+str(e))
       Kernel.ErrChk(3,"Failed to save cfgs.")
     return 0
   @staticmethod
@@ -160,10 +160,10 @@ class Kernel:#Code base class
         del cfg1,cfg2,cfg3,cfg4,cfg5,cfg6
         if autoloadmod:Kernel._ModHandler(2)
         gc.collect()
-        Kernel.Cout("[INFO]Config loading process completed.")
+        Kernel.Cout.Msg("[INFO]Config loading process completed.")
         return 1
       except Exception as e:
-        Kernel.Cout("[ERROR]Failed on trying to load configs."+str(e))
+        Kernel.Cout.Msg("[ERROR]Failed on trying to load configs."+str(e))
         Kernel.ErrChk(3,"Cfg load process failed.")
         return 0
     elif inittp==2:
@@ -177,19 +177,20 @@ class Kernel:#Code base class
         draw_text(10,100,ActionUI.DispLanguage("supsys")+str(pt)+".")
         draw_text(10,120,ActionUI.DispLanguage("prsesc"))
         paint_buffer()
-        Kernel.Cout("[FATAL]Platform does not match.")
+        Kernel.Cout.Msg("[FATAL]Platform does not match.")
         while get_key()!="esc":pass
         Kernel.quit(-1)
       else:
         del pt
         gc.collect()
-        Kernel.Cout("[PRE-LOAD]Platform check done.")
+        Kernel.Cout.Msg("[PRE-LOAD]Platform check done.")
         return 2
   @staticmethod
   def ErrChk(errtype=None,reason="Unknown Reason.",forceraise=False):#built-in function,for command "forceexitonerror".
     global erxt
     if erxt==1 or forceraise:
-      Kernel.Cout("[DEBUG]Error or warning encountered,\nstopped engine.")
+      if not forceraise:Kernel.Cout.Msg("[DEBUG]Error or warning encountered,\nstopped engine.")
+      else:Kernel.Cout.Debug("Forcely raised an error!")
       gc.collect()
       if errtype==1:raise ArgumentNotFound(reason)
       elif errtype==2:raise IOError(reason)
@@ -203,17 +204,17 @@ class Kernel:#Code base class
     if hdtp==1:
       try:
         del tk
-        Kernel.Cout("[INFO]Mod is uninstalled, but reboot is recommended.")
+        Kernel.Cout.Msg("[INFO]Mod is uninstalled, but reboot is recommended.")
         gc.collect()
       except Exception as e:
-        Kernel.Cout("[ERROR]Mod cannot be uninstalled, "+str(e))
+        Kernel.Cout.Msg("[ERROR]Mod cannot be uninstalled, "+str(e))
         Kernel.ErrChk(4,"Can not uninstall mod.")
       vtk=False
       modenb=False
-      Kernel.Cout("[INFO]Mod disabled.")
+      Kernel.Cout.Msg("[INFO]Mod disabled.")
     elif hdtp==2:
       if vtk!=True:
-        Kernel.Cout("[INFO]Mod is loading... if mod loading amount is more than 100, it will take a long time to load, please wait.")
+        Kernel.Cout.Msg("[INFO]Mod is loading... if mod loading amount is more than 100, it will take a long time to load, please wait.")
         for i in range(int(modamount)):
           try:
             tk=__import__("gyro_addon_main"+str(i))
@@ -221,30 +222,30 @@ class Kernel:#Code base class
           except ImportError:
             continue
         vtk=True
-        Kernel.Cout("[INFO]Mod init success.")
+        Kernel.Cout.Msg("[INFO]Mod init success.")
         ingamemod=tk.mod_info(3)
       else:
-        Kernel.Cout("[WARN]Mod already init.")
+        Kernel.Cout.Msg("[WARN]Mod already init.")
         Kernel.ErrChk(4,"Repeating init.")
     elif hdtp==3:
       if vtk and ingamemod!="ingamemod":
         modenb=True
-        Kernel.Cout("[INFO]Mod is running.")
+        Kernel.Cout.Msg("[INFO]Mod is running.")
         return 0
       else:
-        Kernel.Cout("[ERROR]Mod script not found or mod type is not supported.")
+        Kernel.Cout.Msg("[ERROR]Mod script not found or mod type is not supported.")
         Kernel.ErrChk(4,"Mod not found.")
         return -1
     elif hdtp==4:
-      Kernel.Cout("Warning: do not let 2 types of mods installed together.")
+      Kernel.Cout.Msg("Warning: do not let 2 types of mods installed together.")
       if vtk:
-        Kernel.Cout(tk.mod_info(3))
-        Kernel.Cout(tk.mod_info(2))
+        Kernel.Cout.Msg(tk.mod_info(3))
+        Kernel.Cout.Msg(tk.mod_info(2))
       else:
-        Kernel.Cout("[ERROR]Mod is not found.")
+        Kernel.Cout.Msg("[ERROR]Mod is not found.")
         Kernel.ErrChk(4,"Mod not found.")
     else:
-      Kernel.Cout("[ERROR]Unknown argument.")
+      Kernel.Cout.Msg("[ERROR]Unknown argument.")
       Kernel.ErrChk(1,"Unknown argument.")
       return -1
   @staticmethod
@@ -255,23 +256,61 @@ class Kernel:#Code base class
       if action:
         action()
         action=None
-  @staticmethod
-  def Cout(text,autoret=True):#built-in function.For someone who wants control output more.
-    if autoret:
-      e="\n"
-    else:
-      e=""
-    sys.stdout.write(str(text)+e)
+  class Cout:#console output class.
+    def __init__(self):pass
+    @staticmethod
+    def _CoutBase(ctp,text,autoret,flush):#built-in function. Base function for console output methods.
+      if autoret:e="\n"
+      else:e=""
+      typedict={0:"",
+      1:"[WARN]",
+      2:"[ERROR]",
+      3:"[FATAL]",
+      4:"[DEBUG]",
+      5:"[INFO]"}
+      c=typedict.get(ctp)
+      if c is None:Kernel.ErrChk(1,"Output type is not defined.",True)
+      sys.stdout.write(c+str(text)+e)
+      if flush:sys.stdout.flush()
+    @staticmethod
+    def Msg(text,autoret=True):Kernel.Cout._CoutBase(0,text,autoret,flush=True)
+    @staticmethod
+    def Warning(text,autoret=True):Kernel.Cout._CoutBase(1,text,autoret,flush=True)
+    @staticmethod
+    def Error(text,autoret=True):Kernel.Cout._CoutBase(2,text,autoret,flush=True)
+    @staticmethod
+    def Fatal(text,autoret=True):Kernel.Cout._CoutBase(3,text,autoret,flush=True)
+    @staticmethod
+    def Debug(text,autoret=True):Kernel.Cout._CoutBase(4,text,autoret,flush=True)
+    @staticmethod
+    def Info(text,autoret=True):Kernel.Cout._CoutBase(5,text,autoret,flush=True)
+    @staticmethod
+    def DevMsg(text,autoret=True):
+      if dev:Kernel.Cout._CoutBase(0,text,autoret,flush=True)
+    @staticmethod
+    def DevWarning(text,autoret=True):
+      if dev:Kernel.Cout._CoutBase(1,text,autoret,flush=True)
+    @staticmethod
+    def DevError(text,autoret=True):
+      if dev:Kernel.Cout._CoutBase(2,text,autoret,flush=True)
+    @staticmethod
+    def DevFatal(text,autoret=True):
+      if dev:Kernel.Cout._CoutBase(3,text,autoret,flush=True)
+    @staticmethod
+    def DevDebug(text,autoret=True):
+      if dev:Kernel.Cout._CoutBase(4,text,autoret,flush=True)
+    @staticmethod
+    def DevInfo(text,autoret=True):
+      if dev:Kernel.Cout._CoutBase(5,text,autoret,flush=True)
   @staticmethod
   def _ResetGame():#built-in function,for soft reset.
     global reload357,reload9,ammo9max,ammo357max,mapslt,psx,v_live,v_hev,plh,plw,plr,plg,plb,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
     mapslt=0;plh=0;plw=0;plg=0;plb=0;plr=0;psx=0;psy=0;v_hev=0;wpnslt=0;item_suit=0;weapon_crb=0;weapon_physcnn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0;v_live=100;ammo9max=180;ammo357max=12;inclip9=0;inclip357=0;reload9=0;reload357=0
-    Kernel.Cout("[INFO]Game reset completed.")
+    Kernel.Cout.Msg("[INFO]Game reset completed.")
     return 0
   @staticmethod
-  def _CreateWindow():#built-in function,for creating window.
-    global scrgeomety,scrgeometx,scrgeometmx,scrgeometmy
-    set_window(scrgeometx,scrgeometmx,scrgeomety,scrgeometmy)
+  def _CreateWindow(geomety,geometx,geometmx,geometmy):#built-in function,for creating window.
+    set_window(geometx,geometmx,geomety,geometmy)
     set_color(0,0,0)
     fill_rect(0,0,500,300)
     ActionUI.DispUi(0,0,9)
@@ -279,48 +318,48 @@ class Kernel:#Code base class
     return 0
   @staticmethod
   def _GameLauncher():#Built-in function, for game loading process.
-    global novid,modenb,g,tk,ingamemod
+    global novid,modenb,g,tk,ingamemod,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy
     del g
-    Kernel.Cout("[CONSOLE]Console is being closed.\n[INFO]Engine is now started.")
+    Kernel.Cout.Msg("[CONSOLE]Console is being closed.\n[INFO]Engine is now started.")
     gc.collect()
     StdUtil.ConsoleLog(2)
-    Kernel._CreateWindow()
+    Kernel._CreateWindow(scrgeomety,scrgeometx,scrgeometmx,scrgeometmy)
     if not novid:Kernel.Opening()
     if ingamemod=="ingamemod":modenb=False
     StdUtil.ConsoleLog(5)
     if modenb and ingamemod!="ingamemod":
-      Kernel.Cout("[INFO]Trying to load mod script.")
+      Kernel.Cout.Msg("[INFO]Trying to load mod script.")
       tk.mod_main()
     else:
-      Kernel.Cout("[INFO]Mod loader was not enabled,loading main script.")
+      Kernel.Cout.Msg("[INFO]Mod loader was not enabled,loading main script.")
       main()
   @staticmethod
   def _Console():#built-in function,for console.
     global scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,ingamemod,modscripts,g,modenb,vtk,erxt,novid,tk,dev,dr,langtype,usemod,modamount,autoloadmod
-    Kernel.Cout("[PRE-LOAD]Starting console.")
+    Kernel.Cout.Msg("[PRE-LOAD]Starting console.")
     while g!="run"or g!="start"or g!="begin":
       g=str(input("]"))
       if g=="run"or g=="start"or g=="begin":
-        Kernel.Cout("[CONSOLE]Running engine.")
+        Kernel.Cout.Msg("[CONSOLE]Running engine.")
         break
       elif g=="setlang":
         g=str(input("1:English,2:Simplified Chinese,3.Cancel"))
         if g=="1":
           langtype=1
-          Kernel.Cout("[CONSOLE]Language set.")
+          Kernel.Cout.Msg("[CONSOLE]Language set.")
         elif g=="2":
           langtype=2
-          Kernel.Cout("[CONSOLE]Language set.")
+          Kernel.Cout.Msg("[CONSOLE]Language set.")
         elif g=="3":pass
         else:
-          Kernel.Cout("[ERROR]Language type unknown, using default language.")
+          Kernel.Cout.Msg("[ERROR]Language type unknown, using default language.")
           langtype=1
           Kernel.ErrChk(3,"Language type unknown.")
       elif g=="disablemod":Kernel._ModHandler(1)
       elif g=="autoloadmod":
         if autoloadmod:autoloadmod=False
         else:autoloadmod=True
-        Kernel.Cout("[CONSOLE]Auto mod load process is now:"+str(autoloadmod))
+        Kernel.Cout.Msg("[CONSOLE]Auto mod load process is now:"+str(autoloadmod))
       elif g=="modinit":Kernel._ModHandler(2)
       elif g=="runmod":
         a=Kernel._ModHandler(3)
@@ -330,13 +369,13 @@ class Kernel:#Code base class
       elif g=="savecfg":
         Kernel.SaveCfg()
       elif g=="help 1":
-        Kernel.Cout("Gyro engine help page 1:\nrun:start engine.\nhelp <page(1/2/3)>:get help.\nquit:stop engine and console.\nsetgeomet:set a new resolution for screen.\nforceexitonerror:forcely stop whole engine when encounting any error and warn.\nversion:get engine version and credits.\nhwinfo:get hardware info.\ncls:clear screen.")
+        Kernel.Cout.Msg("Gyro engine help page 1:\nrun:start engine.\nhelp <page(1/2/3)>:get help.\nquit:stop engine and console.\nsetgeomet:set a new resolution for screen.\nforceexitonerror:forcely stop whole engine when encounting any error and warn.\nversion:get engine version and credits.\nhwinfo:get hardware info.\ncls:clear screen.")
       elif g=="help 2":
-        Kernel.Cout("Gyro engine help page 2:\nloadgame:load game from saved file.\ndeletesave:delete saved game.\nmodinit:init installed mod.\nrunmod:start mod.\nmodver:get version for mod.\ndisablemod:disable mod.(pop)\nadjustthreshold:change the value for gc.threshold()\ndev: toggle devloper mode.")
+        Kernel.Cout.Msg("Gyro engine help page 2:\nloadgame:load game from saved file.\ndeletesave:delete saved game.\nmodinit:init installed mod.\nrunmod:start mod.\nmodver:get version for mod.\ndisablemod:disable mod.(pop)\nadjustthreshold:change the value for gc.threshold()\ndev: toggle devloper mode.")
       elif g=="help 3":
-        Kernel.Cout("Gyro engine help page 3:\nscuptoggle: toggle the output when screen \nupdate.\nexec:use exec() to execute python code.\nnovid:disable launch video.\ninitcfg:execute cfg init process manually.\nsavecfg:save current configs.\ngetcfgs:get current cfg status.\nsetmodamount:tell mod loader how many mods shold be loaded.")
+        Kernel.Cout.Msg("Gyro engine help page 3:\nscuptoggle: toggle the output when screen \nupdate.\nexec:use exec() to execute python code.\nnovid:disable launch video.\ninitcfg:execute cfg init process manually.\nsavecfg:save current configs.\ngetcfgs:get current cfg status.\nsetmodamount:tell mod loader how many mods shold be loaded.")
       elif g=="help 4":
-        Kernel.Cout("Gyro engine help page 4:\nautoloadmod:toggle the auto mod loading process.\nsetlang:set a language for engine.")
+        Kernel.Cout.Msg("Gyro engine help page 4:\nautoloadmod:toggle the auto mod loading process.\nsetlang:set a language for engine.")
       elif g=="quit"or g=="stop"or g=="exit"or g=="esc":
         del g
         StdUtil.ConsoleLog(3)
@@ -345,83 +384,83 @@ class Kernel:#Code base class
       elif g=="setmodamount":
         g=input("how many mods shold be load(default 100):")
         modamount=g
-        Kernel.Cout("[CONSOLE]"+str(modamount)+" mods will be trying to load.")
+        Kernel.Cout.Msg("[CONSOLE]"+str(modamount)+" mods will be trying to load.")
       elif g=="scuptoggle":
         if not dr:
-          dr=True;Kernel.Cout("[CONSOLE]Enabled.")
-        else:dr=False;Kernel.Cout("[CONSOLE]Disabled.")
+          dr=True;Kernel.Cout.Msg("[CONSOLE]Enabled.")
+        else:dr=False;Kernel.Cout.Msg("[CONSOLE]Disabled.")
       elif g=="setgeomet":
         try:
           scrgeometx=int(input("xmin:"))
           scrgeomety=int(input("ymin:"))
           scrgeometmx=int(input("xmax:"))
           scrgeometmy=int(input("ymax:"))
-          Kernel.Cout("[INFO]Resolution set to:"+str(scrgeometx)+","+str(scrgeomety)+","+str(scrgeometmx)+","+str(scrgeometmy))
+          Kernel.Cout.Msg("[INFO]Resolution set to:"+str(scrgeometx)+","+str(scrgeomety)+","+str(scrgeometmx)+","+str(scrgeometmy))
         except Exception as e:
-          Kernel.Cout("[ERROR]Setting was failed. "+str(e))
+          Kernel.Cout.Msg("[ERROR]Setting was failed. "+str(e))
           Kernel.ErrChk(3,"Bad arguments.")
       elif g=="getcfgs":
-        Kernel.Cout("exit on error:"+str(erxt))
-        Kernel.Cout("novid:"+str(novid))
-        Kernel.Cout("log output on screen draw:"+str(dr))
-        Kernel.Cout("dev:"+str(dev))
-        Kernel.Cout("lang:"+str(ActionUI.DispLanguage("lang")))
-        Kernel.Cout("use mod:"+str(usemod))
-        Kernel.Cout("mod amounts:"+str(modamount))
-        Kernel.Cout("auto load mod:"+str(autoloadmod))
-        Kernel.Cout("Resolution:"+str(scrgeometx)+","+str(scrgeomety)+","+str(scrgeometmx)+","+str(scrgeometmy))
+        Kernel.Cout.Msg("exit on error:"+str(erxt))
+        Kernel.Cout.Msg("novid:"+str(novid))
+        Kernel.Cout.Msg("log output on screen draw:"+str(dr))
+        Kernel.Cout.Msg("dev:"+str(dev))
+        Kernel.Cout.Msg("lang:"+str(ActionUI.DispLanguage("lang")))
+        Kernel.Cout.Msg("use mod:"+str(usemod))
+        Kernel.Cout.Msg("mod amounts:"+str(modamount))
+        Kernel.Cout.Msg("auto load mod:"+str(autoloadmod))
+        Kernel.Cout.Msg("Resolution:"+str(scrgeometx)+","+str(scrgeomety)+","+str(scrgeometmx)+","+str(scrgeometmy))
       elif g=="forceexitonerror":
         if erxt==1:
           erxt=0
-          Kernel.Cout("[CONSOLE]Exit when error disabled.")
+          Kernel.Cout.Msg("[CONSOLE]Exit when error disabled.")
         else:
           erxt=1
-          Kernel.Cout("[CONSOLE]Exit when error enabled.")
+          Kernel.Cout.Msg("[CONSOLE]Exit when error enabled.")
       elif g=="version":
-        Kernel.Cout("Gyro 2D Gaming engine.\n"+str(GAMEVER)+"\nDebugged in:"+str(DEBUGDATE)+"\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:"+str(sys.version)+"\nEngine built on Python 3.4.0")
+        Kernel.Cout.Msg("Gyro 2D Gaming engine.\n"+str(GAMEVER)+"\nDebugged in:"+str(DEBUGDATE)+"\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:"+str(sys.version)+"\nEngine built on Python 3.4.0")
       elif g=="novid":
         if not novid:
           novid=True
-          Kernel.Cout("[CONSOLE]Disabled launch video")
+          Kernel.Cout.Msg("[CONSOLE]Disabled launch video")
         else:
           novid=False
-          Kernel.Cout("[CONSOLE]Enabled launch video")
+          Kernel.Cout.Msg("[CONSOLE]Enabled launch video")
       elif g=="hwinfo":
-        Kernel.Cout("Version"+str(GAMEVER))
-        Kernel.Cout("Platform"+str(get_platform()))
-        Kernel.Cout("mem free"+str(gc.mem_free()))
-        Kernel.Cout("mem alloc"+str(gc.mem_alloc()))
-        Kernel.Cout("stack use"+str(mp.stack_use()))
-        Kernel.Cout("pystack use"+str(mp.pystack_use()))
-        Kernel.Cout("cpu tick"+str(ticks_cpu()))
-        Kernel.Cout("local time"+str(localtime()))
+        Kernel.Cout.Msg("Version"+str(GAMEVER))
+        Kernel.Cout.Msg("Platform"+str(get_platform()))
+        Kernel.Cout.Msg("mem free"+str(gc.mem_free()))
+        Kernel.Cout.Msg("mem alloc"+str(gc.mem_alloc()))
+        Kernel.Cout.Msg("stack use"+str(mp.stack_use()))
+        Kernel.Cout.Msg("pystack use"+str(mp.pystack_use()))
+        Kernel.Cout.Msg("cpu tick"+str(ticks_cpu()))
+        Kernel.Cout.Msg("local time"+str(localtime()))
       elif g=="deletesave":
         IO.Delete()
       elif g=="loadgame":
         IO.Load()
       elif g=="help":
-        Kernel.Cout("Usage: help <1/2/3>. example: help 1 for page 1.")
+        Kernel.Cout.Msg("Usage: help <1/2/3>. example: help 1 for page 1.")
       elif g=="cls":
         clear_history()
       elif g=="dev":
         if not dev:
           dev=True
-          Kernel.Cout("[CONSOLE]Dev mode enabled.")
-        else:dev=False;Kernel.Cout("[CONSOLE]Dev mode disabled")
+          Kernel.Cout.Msg("[CONSOLE]Dev mode enabled.")
+        else:dev=False;Kernel.Cout.Msg("[CONSOLE]Dev mode disabled")
       elif g=="adjustthreshold":
         try:
           b=int(input("gc.threshold:"))
           gc.threshold(int(b))
-          Kernel.Cout("[CONSOLE]New value given.")
+          Kernel.Cout.Msg("[CONSOLE]New value given.")
         except Exception as e:
-          Kernel.Cout("[ERROR]Failed. "+str(e))
+          Kernel.Cout.Msg("[ERROR]Failed. "+str(e))
       elif g=="exec":
         g=str(input("execute:"))
         try:
           exec(g)
-          Kernel.Cout("[INFO]Executed code.")
+          Kernel.Cout.Msg("[INFO]Executed code.")
         except Exception as e:
-          Kernel.Cout("[ERROR]Unable to execute code. "+str(e))
+          Kernel.Cout.Msg("[ERROR]Unable to execute code. "+str(e))
           Kernel.ErrChk(5,"Can not execute code.")
         except SystemExit:
           StdUtil.ConsoleLog(3)
@@ -429,7 +468,7 @@ class Kernel:#Code base class
           Kernel.quit(0)
       elif g=="":pass
       else:
-        Kernel.Cout("[CONSOLE]Unknown command:"+str(g)+".type help <page(1/2/3)> to get help.")
+        Kernel.Cout.Msg("[CONSOLE]Unknown command:"+str(g)+".type help <page(1/2/3)> to get help.")
   @staticmethod
   def Info(infotype):#built-in function.For output information about engine.
     infos={
@@ -484,19 +523,19 @@ class IO:#Input-Output class.
         store_value("ammo9",ammo9)
         store_value("ammo357",ammo357)
         store_value("item_suit",item_suit)
-        if logout:Kernel.Cout("[IO]Game saved.")
+        if logout:Kernel.Cout.Msg("[IO]Game saved.")
         return 0
       except Exception as e:
-        Kernel.Cout("[ERROR]Operation failed."+str(e))
+        Kernel.Cout.Msg("[ERROR]Operation failed."+str(e))
         Kernel.ErrChk(2,"Can not save file.")
         return -1
     else:
       try:
         store_value(str(name),gamevar)
-        if logout:Kernel.Cout("[IO]Saved file:"+str(name)+".")
+        if logout:Kernel.Cout.Msg("[IO]Saved file:"+str(name)+".")
         return 0
       except Exception as e:
-        Kernel.Cout("[ERROR]File operation on:"+str(name)+" failed.\n"+str(e))
+        Kernel.Cout.Msg("[ERROR]File operation on:"+str(name)+" failed.\n"+str(e))
         Kernel.ErrChk(2,"Can not save file.")
         return -1
   @staticmethod
@@ -520,19 +559,19 @@ class IO:#Input-Output class.
         store_value("ammo9",0)
         store_value("ammo357",0)
         store_value("item_suit",0)
-        if logout:Kernel.Cout("[IO]File deleted.")
+        if logout:Kernel.Cout.Msg("[IO]File deleted.")
         return 0
       except Exception as e:
-        Kernel.Cout("[ERROR]Operation failed."+str(e))
+        Kernel.Cout.Msg("[ERROR]Operation failed."+str(e))
         Kernel.ErrChk(4,"Can not delete file.")
         return -1
     else:
       try:
         store_value(str(name),gamevar)
-        if logout:Kernel.Cout("[IO]File operate success on:"+str(name)+".")
+        if logout:Kernel.Cout.Msg("[IO]File operate success on:"+str(name)+".")
         return 0
       except Exception as e:
-        Kernel.Cout("[ERROR]File operate on:"+str(name)+" failed.\n"+str(e))
+        Kernel.Cout.Msg("[ERROR]File operate on:"+str(name)+" failed.\n"+str(e))
         Kernel.ErrChk(2,"Can not operate file.")
         return -1
   @staticmethod
@@ -557,27 +596,27 @@ class IO:#Input-Output class.
         weapon_physcnn=recall_value("weapon_physcnn")
         item_suit=recall_value("item_suit")
         if v_live<=0:
-          Kernel.Cout("[WARN]Game save is invalid with health:"+str(v_live)+".\n please reset current save. with savereset.py")
+          Kernel.Cout.Msg("[WARN]Game save is invalid with health:"+str(v_live)+".\n please reset current save. with savereset.py")
           Kernel.ErrChk(5,"Health is 0 at game save.")
           return -2
         if emptysave==1:
-          Kernel.Cout("[WARN]Trying to load an empty save.")
+          Kernel.Cout.Msg("[WARN]Trying to load an empty save.")
           Kernel.ErrChk(5,"Can not load empty save.")
           return -2
         else:
-          if logout:Kernel.Cout("[IO]Game loaded from save.")
+          if logout:Kernel.Cout.Msg("[IO]Game loaded from save.")
           return 0
       except Exception as e:
-        Kernel.Cout("[ERROR]Operation failed."+str(e))
+        Kernel.Cout.Msg("[ERROR]Operation failed."+str(e))
         Kernel.ErrChk(2,"Can not load file.")
         return -1
     else:
       try:
         returnval=recall_value(str(name))
-        if logout:Kernel.Cout("[IO]File operation on:"+str(name)+" success.")
+        if logout:Kernel.Cout.Msg("[IO]File operation on:"+str(name)+" success.")
         return returnval
       except Exception as e:
-        Kernel.Cout("[ERROR]File operation failed on:"+str(name)+".\n"+str(e))
+        Kernel.Cout.Msg("[ERROR]File operation failed on:"+str(name)+".\n"+str(e))
         Kernel.ErrChk(2,"Can not load file")
         return "ERR"
 class UniFX:#Universal VFX class.
@@ -667,7 +706,7 @@ class UniFX:#Universal VFX class.
         set_pen("thin","solid")
         return 16
       else:
-        Kernel.Cout("[ERROR]Cannot find type of the VFX that dedicated")
+        Kernel.Cout.Msg("[ERROR]Cannot find type of the VFX that dedicated")
         Kernel.ErrChk(1,"VFX type not found.")
         return -1
 class Actors:#entity class.
@@ -711,14 +750,14 @@ class Actors:#entity class.
       global psx,psy,v_live
       if mvtp==0:
         if v_live<=0:
-          Kernel.Cout("[INFO]Player died,ignored input")
+          Kernel.Cout.Msg("[INFO]Player died,ignored input")
           return -1
         if direction==1:psx+=step;return mvtp,direction,step
         elif direction==2:psx-=step;return mvtp,direction,step
         elif direction==3:psy+=step;return mvtp,direction,step
         elif direction==4:psy-=step;return mvtp,direction,step
         else:
-          Kernel.Cout("[ERROR]Undefined direction.")
+          Kernel.Cout.Msg("[ERROR]Undefined direction.")
           Kernel.ErrChk(1,"Undefined direction.")
           return -1
       elif mvtp==1:
@@ -727,7 +766,7 @@ class Actors:#entity class.
         psy=y
         return mvtp,x,y
       else:
-        Kernel.Cout("[ERROR]Undefined movement type.")
+        Kernel.Cout.Msg("[ERROR]Undefined movement type.")
         Kernel.ErrChk(1,"Undefined movement type.")
         return -1
     @staticmethod
@@ -776,7 +815,7 @@ class Actors:#entity class.
         item_suit=ar1
         return 12
       else:
-        Kernel.Cout("[ERROR]Unknown init type.")
+        Kernel.Cout.Msg("[ERROR]Unknown init type.")
         Kernel.ErrChk(1,"Unknown init type.")
         return -1
   class Queen:#npc entities.
@@ -796,7 +835,7 @@ class Actors:#entity class.
       if shape==0:fill_circle(x,y,rd);return 0
       elif shape==1:fill_rect(x,y,w,h);return 0
       else:
-        Kernel.Cout("[ERROR]Pawn shape type unknown.")
+        Kernel.Cout.Msg("[ERROR]Pawn shape type unknown.")
         Kernel.ErrChk(1,"Pawn shape type undef.")
         return -1
 class ActionUI:#UI class
@@ -804,151 +843,143 @@ class ActionUI:#UI class
   @staticmethod
   def DispLanguage(langstr):#built-in function,for replacing given key to specific value.
     global langtype
-    if langtype==1:#English
-      langdict1={
-      "plterr":"This engine cannot run on your system.",
-      "liberr":"The engine failed to start.",
-      "reqmis":"Required dependencies are missing.",
-      "supsys":"Supported platform:hh,ios,dt. your platform:",
-      "prsesc":"Press esc to quit.",
-      "libchk":"please check the libraries. Press esc to quit.",
-      "cp0":"Made by:Alex_Nute",
-      "cp1":"Copyright © Haoriwa 2024 - 2025, the Half-Life 2 is",
-      "cp2":"copyright for Valve.The ti_draw,ti_system",
-      "cp3":"is copyright for Texas Instruments.Using this",
-      "cp4":"software represents you agreed our terms.",
-      "usemod":"Enable mod:",
-      "lang":"English",
-      "gofuckyourself":"Go fuck your self!",
-      "riseandshine":"Rise and shine mister Freeman,rise and shine.",
-      "sleepingonthejob":"No one is deserving to sleeping on the job,",
-      "effortoftheworld":"But the effort of the world will have gone to waste untill...",
-      "em":"emm...",
-      "yourhourhascome":"Well,let's just say your hour has come again.",
-      "rightman":"The right man in the wrong place",
-      "maketheworld":"Will make the whole world difference.",
-      "wakeup":"So,wake up,Mr.Freeman.",
-      "smell":"Wake up and smell the ashes...",
-      "memfree":"mem free:",
-      "memalloc":"mem alloc:",
-      "stackuse":"stack use:",
-      "pystackuse":"pystack use:",
-      "cputick":"cpu tick:",
-      "localtime":"local time:",
-      "ppos":"player pos:",
-      "mapid":"map id:",
-      "ver":"Version:",
-      "dbdate":"Debugged in:",
-      "platform":"current platform:",
-      "escres":"esc:resume",
-      "menu":"menu:main menu",
-      "savegm":"s:save game",
-      "loadgm":"l:load game",
-      "modamount":"loaded mods:",
-      "delgm":"d:delete save",
-      "quitgm":"q:quit game",
-      "start1":"enter:start a new game",
-      "start2":"a:quick start",
-      "loadgm1":"b:load game",
-      "delgm1":"c:delete save",
-      "escquit":"esc:quit game",
-      "suit":"SUIT",
-      "health":"HEALTH",
-      "youdied":"You died,press enter to continue",
-      "ammo":"AMMO",
-      "crb":"CROWBAR",
-      "physcnn":"GRAVITY GUN",
-      "pst":"PISTOL",
-      "357":".357 MAGNUM",
-      "load":"Loading...",
-      "dr":"log output when screen update",
-      "dev":"developer mode",
-      "savecfg":"s:save cfg",
-      "langset":"language setting",
-      "reso":"Resolution:",
-      "set":"tab:settings",
-      "titset":"Settings(press to toggle)",
-      "erxt":"force exit on error:"}
-      try:
-        return str(langdict1.get(langstr))
-      except Exception as e:
-        Kernel.Cout("[ERROR]ActionUI.DispLanguage() method has an error occured."+str(e))
-        Kernel.ErrChk(1,"Missing key and value or dict error.")
-        return "Undef"
-    elif langtype==2:#Schinese
-      langdict2={
-      "liberr":"引擎启动失败。",
-      "reqmis":"必要依赖项缺失。",
-      "libchk":"请检查安装的库,按下esc以退出。",
-      "plterr":"此引擎无法在你的系统运行。",
-      "supsys":"可运行的平台:hh,ios,dt。当前平台:",
-      "prsesc":"按下esc以退出。",
-      "cp0":"由Alex_Nute制作",
-      "cp1":"版权所有 © Haoriwa 2024 - 2025, 半条命2",
-      "cp2":"(半衰期2)由Valve所有。ti_draw,ti_system库",
-      "cp3":"由德州仪器所有(TI)。使用此",
-      "cp4":"软件将代表你同意使用规则。",
-      "modamount":"模组加载数:",
-      "usemod":"启用模组:",
-      "lang":"简体中文",
-      "erxt":"发生错误时退出:",
-      "set":"tab:设置",
-      "savecfg":"s:保存设置",
-      "dbdate":"测试日期:",
-      "dr":"当屏幕更新时输出",
-      "dev":"开发者模式",
-      "langset":"语言设置",
-      "gofuckyourself":"滚你妈的！",
-      "riseandshine":"该醒了,弗里曼先生,该醒了。",
-      "sleepingonthejob":"还有谁比你更有资格享受空闲呢,",
-      "effortoftheworld":"但是整个世界的努力都将因此而徒劳",
-      "em":"恩...",
-      "yourhourhascome":"我只是想说是你该再次出手的时候了。",
-      "rightman":"正义之子在有悖常理的世界",
-      "maketheworld":"会让世界天翻地腹。",
-      "wakeup":"醒来吧,弗里曼先生",
-      "smell":"振作起来,战斗吧",
-      "memfree":"可用内存:",
-      "memalloc":"分配的内存:",
-      "stackuse":"已用栈:",
-      "pystackuse":"已用py栈:",
-      "cputick":"处理器刻:",
-      "localtime":"本地时间:",
-      "ppos":"玩家坐标:",
-      "mapid":"地图编号:",
-      "ver":"版本号:",
-      "platform":"当前平台:",
-      "escres":"esc:回到游戏",
-      "menu":"menu:主菜单",
-      "savegm":"s:保存",
-      "loadgm":"l:加载",
-      "delgm":"d:删除存档",
-      "quitgm":"q:退出",
-      "start1":"enter:新游戏",
-      "start2":"a:快速开始",
-      "loadgm1":"b:加载",
-      "delgm1":"c:删除存档",
-      "escquit":"esc:退出",
-      "suit":"防护衣",
-      "health":"生命值",
-      "youdied":"你死了,按下enter继续",
-      "ammo":"弹药",
-      "crb":"翘棍",
-      "physcnn":"重力枪",
-      "pst":"手枪",
-      "357":".357 马格南",
-      "load":"载入中...",
-      "reso":"分辩率:",
-      "titset":"设置(按下切换)"}
-      try:
-        return str(langdict2.get(langstr))
-      except Exception as e:
-        Kernel.Cout("[ERROR]ActionUI.DispLanguage() method has an error occured."+str(e))
-        Kernel.ErrChk(1,"Missing key and value or dict error.")
-        return "Undef"
+    langdict1={
+    "plterr":"This engine cannot run on your system.",
+    "liberr":"The engine failed to start.",
+    "reqmis":"Required dependencies are missing.",
+    "supsys":"Supported platform:hh,ios,dt. your platform:",
+    "prsesc":"Press esc to quit.",
+    "libchk":"please check the libraries. Press esc to quit.",
+    "cp0":"Made by:Alex_Nute",
+    "cp1":"Copyright © Haoriwa 2024 - 2025, the Half-Life 2 is",
+    "cp2":"copyright for Valve.The ti_draw,ti_system",
+    "cp3":"is copyright for Texas Instruments.Using this",
+    "cp4":"software represents you agreed our terms.",
+    "usemod":"Enable mod:",
+    "lang":"English",
+    "gofuckyourself":"Go fuck your self!",
+    "riseandshine":"Rise and shine mister Freeman,rise and shine.",
+    "sleepingonthejob":"No one is deserving to sleeping on the job,",
+    "effortoftheworld":"But the effort of the world will have gone to waste untill...",
+    "em":"emm...",
+    "yourhourhascome":"Well,let's just say your hour has come again.",
+    "rightman":"The right man in the wrong place",
+    "maketheworld":"Will make the whole world difference.",
+    "wakeup":"So,wake up,Mr.Freeman.",
+    "smell":"Wake up and smell the ashes...",
+    "memfree":"mem free:",
+    "memalloc":"mem alloc:",
+    "stackuse":"stack use:",
+    "pystackuse":"pystack use:",
+    "cputick":"cpu tick:",
+    "localtime":"local time:",
+    "ppos":"player pos:",
+    "mapid":"map id:",
+    "ver":"Version:",
+    "dbdate":"Debugged in:",
+    "platform":"current platform:",
+    "escres":"esc:resume",
+    "menu":"menu:main menu",
+    "savegm":"s:save game",
+    "loadgm":"l:load game",
+    "modamount":"loaded mods:",
+    "delgm":"d:delete save",
+    "quitgm":"q:quit game",
+    "start1":"enter:start a new game",
+    "start2":"a:quick start",
+    "loadgm1":"b:load game",
+    "delgm1":"c:delete save",
+    "escquit":"esc:quit game",
+    "suit":"SUIT",
+    "health":"HEALTH",
+    "youdied":"You died,press enter to continue",
+    "ammo":"AMMO",
+    "crb":"CROWBAR",
+    "physcnn":"GRAVITY GUN",
+    "pst":"PISTOL",
+    "357":".357 MAGNUM",
+    "load":"Loading...",
+    "dr":"log output when screen update",
+    "dev":"developer mode",
+    "savecfg":"s:save cfg",
+    "langset":"language setting",
+    "reso":"Resolution:",
+    "set":"tab:settings",
+    "titset":"Settings(press to toggle)",
+    "erxt":"force exit on error:"}
+    langdict2={
+    "liberr":"引擎启动失败。",
+    "reqmis":"必要依赖项缺失。",
+    "libchk":"请检查安装的库,按下esc以退出。",
+    "plterr":"此引擎无法在你的系统运行。",
+    "supsys":"可运行的平台:hh,ios,dt。当前平台:",
+    "prsesc":"按下esc以退出。",
+    "cp0":"由Alex_Nute制作",
+    "cp1":"版权所有 © Haoriwa 2024 - 2025, 半条命2",
+    "cp2":"(半衰期2)由Valve所有。ti_draw,ti_system库",
+    "cp3":"由德州仪器所有(TI)。使用此",
+    "cp4":"软件将代表你同意使用规则。",
+    "modamount":"模组加载数:",
+    "usemod":"启用模组:",
+    "lang":"简体中文",
+    "erxt":"发生错误时退出:",
+    "set":"tab:设置",
+    "savecfg":"s:保存设置",
+    "dbdate":"测试日期:",
+    "dr":"当屏幕更新时输出",
+    "dev":"开发者模式",
+    "langset":"语言设置",
+    "gofuckyourself":"滚你妈的！",
+    "riseandshine":"该醒了,弗里曼先生,该醒了。",
+    "sleepingonthejob":"还有谁比你更有资格享受空闲呢,",
+    "effortoftheworld":"但是整个世界的努力都将因此而徒劳",
+    "em":"恩...",
+    "yourhourhascome":"我只是想说是你该再次出手的时候了。",
+    "rightman":"正义之子在有悖常理的世界",
+    "maketheworld":"会让世界天翻地腹。",
+    "wakeup":"醒来吧,弗里曼先生",
+    "smell":"振作起来,战斗吧",
+    "memfree":"可用内存:",
+    "memalloc":"分配的内存:",
+    "stackuse":"已用栈:",
+    "pystackuse":"已用py栈:",
+    "cputick":"处理器刻:",
+    "localtime":"本地时间:",
+    "ppos":"玩家坐标:",
+    "mapid":"地图编号:",
+    "ver":"版本号:",
+    "platform":"当前平台:",
+    "escres":"esc:回到游戏",
+    "menu":"menu:主菜单",
+    "savegm":"s:保存",
+    "loadgm":"l:加载",
+    "delgm":"d:删除存档",
+    "quitgm":"q:退出",
+    "start1":"enter:新游戏",
+    "start2":"a:快速开始",
+    "loadgm1":"b:加载",
+    "delgm1":"c:删除存档",
+    "escquit":"esc:退出",
+    "suit":"防护衣",
+    "health":"生命值",
+    "youdied":"你死了,按下enter继续",
+    "ammo":"弹药",
+    "crb":"翘棍",
+    "physcnn":"重力枪",
+    "pst":"手枪",
+    "357":".357 马格南",
+    "load":"载入中...",
+    "reso":"分辩率:",
+    "titset":"设置(按下切换)"}
+    if langtype==1:out=str(langdict1.get(langstr))
+    elif langtype==2:out=str(langdict2.get(langstr))
+    else:out=str(langdict1.get(langstr))
+    if out is not None:
+      return out
     else:
-      Kernel.ErrChk(1,"Missing language.")
-      return "[ERROR]Language not found."
+      Kernel.Cout.Msg("[ERROR]ActionUI.DispLanguage() method has an error occurred.")
+      Kernel.ErrChk(1,"Missing key and value or dict error.")
+      return "Undef"
   @staticmethod
   def DispUi(x,y,wintp):#built-in function,for display window, gui elements.
     global emptysave,erxt,dev,mapslt,debugs,v_live,v_hev,wpnslt,ammo9,ammo357,inclip9,inclip357,weapon_pst,weapon_crb,weapon_physcnn,weapon_357,dr,langtype,usemod,modamount
@@ -957,7 +988,7 @@ class ActionUI:#UI class
       fill_rect(x,y,120,40)
       set_color(255,255,255)
       draw_text(x+10,y+20,"Vgui window")
-      Kernel.Cout("[INFO]Vgui window render request sent to client.")
+      Kernel.Cout.Msg("[INFO]Vgui window render request sent to client.")
       return 1
     elif wintp==2:
       if debugs and dev:
@@ -1099,7 +1130,7 @@ class ActionUI:#UI class
       draw_text(10,200,str(ActionUI.DispLanguage("escres")))
       return 14
     else:
-      Kernel.Cout("[ERROR]Window type is not defined.")
+      Kernel.Cout.Msg("[ERROR]Window type is not defined.")
       Kernel.ErrChk(1,"Missing UI type.")
       return -1
   @staticmethod
@@ -1107,10 +1138,10 @@ class ActionUI:#UI class
     if texttp==1:
       set_color(255,0,0)
       draw_text(x,y,"Trigger")
-      Kernel.Cout("[INFO]Title displayed.")
+      Kernel.Cout.Msg("[INFO]Title displayed.")
       return 1
     else:
-      Kernel.Cout("[INFO]Title type not defined.")
+      Kernel.Cout.Msg("[INFO]Title type not defined.")
       Kernel.ErrChk(1,"Unknown title type.")
       return -1
 class StdUtil:#Builtins class, Standard utilities.
@@ -1125,7 +1156,7 @@ class StdUtil:#Builtins class, Standard utilities.
       5:"[INFO]Game start",
       6:"[INFO]Map loaded",
       7:"[INFO]Player died."}
-    Kernel.Cout(typeforlog.get(numoflog))
+    Kernel.Cout.Msg(typeforlog.get(numoflog))
     return numoflog
   @staticmethod
   def WaitStart(sec,callback):#built-in function. similar to sleep but will not stop engine.
@@ -1139,18 +1170,18 @@ class StdUtil:#Builtins class, Standard utilities.
     if psx>=minx and psx<=maxx and psy>=miny and psy<=maxy:
       if trgtp==1:
         ActionUI.Title(120,80,1)
-        Kernel.Cout("[INFO]Trigger executed.")
+        Kernel.Cout.Msg("[INFO]Trigger executed.")
         return 1
       elif trgtp==2:
         mapslt=1
-        Kernel.Cout("[INFO]Trigger executed.")
+        Kernel.Cout.Msg("[INFO]Trigger executed.")
         return 2
       elif trgtp==3:
         mapslt=0
-        Kernel.Cout("[INFO]Trigger executed.")
+        Kernel.Cout.Msg("[INFO]Trigger executed.")
         return 3
       else:
-        Kernel.Cout("[ERROR]Trigger is not defined.")
+        Kernel.Cout.Msg("[ERROR]Trigger is not defined.")
         Kernel.ErrChk(1,"Unknown trigger.")
         return -1
   @staticmethod
@@ -1192,7 +1223,7 @@ class StdUtil:#Builtins class, Standard utilities.
       StdUtil.Trigger(125,75,225,175,3)
       return 1
     else:
-      Kernel.Cout("[ERROR]MapStat function cannot find defined type.")
+      Kernel.Cout.Msg("[ERROR]MapStat function cannot find defined type.")
       Kernel.ErrChk(1,"Missing type")
       return -1
 class Wbase:#Weapon system class.
@@ -1561,10 +1592,10 @@ def main():#main function.It's a very standard template for engine.
         if k=="u" and dev:
           if not debugs:
             debugs=True
-            Kernel.Cout("[INFO]Debug drawing enabled.")
+            Kernel.Cout.Msg("[INFO]Debug drawing enabled.")
           else:
             debugs=False
-            Kernel.Cout("[INFO]Debug drawing disabled.")
+            Kernel.Cout.Msg("[INFO]Debug drawing disabled.")
             break
         elif k=="right":
           Actors.King.Move(0,1)
@@ -1596,7 +1627,7 @@ def main():#main function.It's a very standard template for engine.
           break
         elif k=="tab" and dev:
           gc.collect()
-          Kernel.Cout("[DEBUG]gc collect completed.")
+          Kernel.Cout.Msg("[DEBUG]gc collect completed.")
           break
         elif k=="d":#maybe create a new function to recall the effects.
           if wpnslt==3 and reload9==0 and weapon_pst==1 and inclip9!=0:
@@ -1786,17 +1817,17 @@ def main():#main function.It's a very standard template for engine.
                   IO.Load()
                   break
                 elif k=="menu":
-                  Kernel.Cout("[INFO]Return to main menu.")
+                  Kernel.Cout.Msg("[INFO]Return to main menu.")
                   ActionUI.DispUi(0,0,9)
                   inmenu=True
                   break
                 elif k=="u":
                   if not debugs:
                     debugs=True
-                    Kernel.Cout("[INFO]Debug drawing enabled.")
+                    Kernel.Cout.Msg("[INFO]Debug drawing enabled.")
                   else:
                     debugs=False
-                    Kernel.Cout("[INFO]Debug drawing disabled.")
+                    Kernel.Cout.Msg("[INFO]Debug drawing disabled.")
               break
             break
           break
@@ -1807,7 +1838,7 @@ if (__name__=="__main__"):#all program starts from here.
   try:#import check.
     from ti_system import *#normally,gui tools are also included in ti_system.
     import micropython as mp
-    Kernel.Cout("[PRE-LOAD]Libraries are successfully loaded.")
+    Kernel.Cout.Msg("[PRE-LOAD]Libraries are successfully loaded.")
   except ImportError:
     try:
       from ti_draw import fill_rect,set_color,draw_text,use_buffer,paint_buffer
@@ -1819,11 +1850,11 @@ if (__name__=="__main__"):#all program starts from here.
       draw_text(10,100,ActionUI.DispLanguage("reqmis"))
       draw_text(10,120,ActionUI.DispLanguage("prsesc"))
       paint_buffer()
-      Kernel.Cout("[FATAL]Library import failed.")
+      Kernel.Cout.Msg("[FATAL]Library import failed.")
       while get_key()!="esc":pass
       Kernel.quit(-1)
     except:
-      Kernel.Cout("[FATAL]The engine cannot run on your device.\nPlease check the libraries installed.")
+      Kernel.Cout.Msg("[FATAL]The engine cannot run on your device.\nPlease check the libraries installed.")
       Kernel.quit(-1)
   Kernel.Init(2)
   Kernel.Init(1)
