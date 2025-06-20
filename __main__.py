@@ -37,7 +37,7 @@ from time import *
 novid=bool(False);
 modamount=int(100);
 endtick=None;
-langtype=int(2);
+langtype=int(1);
 active=bool(False);
 action=None;
 plr=int(0);
@@ -262,12 +262,14 @@ class Kernel:#Code base class
     def _CoutBase(ctp,text,autoret,flush):#built-in function. Base function for console output methods.
       if autoret:e="\n"
       else:e=""
-      typedict={0:"",
+      typedict={
+      0:"",
       1:"[WARN]",
       2:"[ERROR]",
       3:"[FATAL]",
       4:"[DEBUG]",
-      5:"[INFO]"}
+      5:"[INFO]",
+      6:"[CONSOLE]"}
       c=typedict.get(ctp)
       if c is None:Kernel.ErrChk(1,"Output type is not defined.",True)
       sys.stdout.write(c+str(text)+e)
@@ -284,6 +286,8 @@ class Kernel:#Code base class
     def Debug(text,autoret=True):Kernel.Cout._CoutBase(4,text,autoret,flush=True)
     @staticmethod
     def Info(text,autoret=True):Kernel.Cout._CoutBase(5,text,autoret,flush=True)
+    @staticmethod
+    def Console(text,autoret=True):Kernel.Cout._CoutBase(6,text,autoret,flush=True)
     @staticmethod
     def DevMsg(text,autoret=True):
       if dev:Kernel.Cout._CoutBase(0,text,autoret,flush=True)
@@ -302,6 +306,9 @@ class Kernel:#Code base class
     @staticmethod
     def DevInfo(text,autoret=True):
       if dev:Kernel.Cout._CoutBase(5,text,autoret,flush=True)
+    @staticmethod
+    def DevConsole(text,autoret=True):
+      if dev:Kernel.Cout._CoutBase(6,text,autoret,flush=True)
   @staticmethod
   def _ResetGame():#built-in function,for soft reset.
     global reload357,reload9,ammo9max,ammo357max,mapslt,psx,v_live,v_hev,plh,plw,plr,plg,plb,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
