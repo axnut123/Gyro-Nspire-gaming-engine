@@ -271,6 +271,7 @@ class Kernel:#Code base class
 #which means it will not add "\n" at the endline.
 #Kernel.Cout.Msg("hello but no flush",flush=False)
 #output: hello but no flush
+#which means the text on console might not showing instantly.
     @staticmethod
     def _CoutBase(ctp,text,autoret,flush):#built-in function. Base function for console output methods.
       if autoret:e="\n"
@@ -290,50 +291,50 @@ class Kernel:#Code base class
       sys.stdout.write(c+str(text)+e)
       if flush:sys.stdout.flush()
     @staticmethod
-    def Msg(text,autoret=True):Kernel.Cout._CoutBase(0,text,autoret,flush=True)
+    def Msg(text,autoret=True,flush=True):Kernel.Cout._CoutBase(0,text,autoret,flush)
     @staticmethod
-    def Warning(text,autoret=True):Kernel.Cout._CoutBase(1,text,autoret,flush=True)
+    def Warning(text,autoret=True,flush=True):Kernel.Cout._CoutBase(1,text,autoret,flush)
     @staticmethod
-    def Error(text,autoret=True):Kernel.Cout._CoutBase(2,text,autoret,flush=True)
+    def Error(text,autoret=True,flush=True):Kernel.Cout._CoutBase(2,text,autoret,flush)
     @staticmethod
-    def Fatal(text,autoret=True):Kernel.Cout._CoutBase(3,text,autoret,flush=True)
+    def Fatal(text,autoret=True,flush=True):Kernel.Cout._CoutBase(3,text,autoret,flush)
     @staticmethod
-    def Debug(text,autoret=True):Kernel.Cout._CoutBase(4,text,autoret,flush=True)
+    def Debug(text,autoret=True,flush=True):Kernel.Cout._CoutBase(4,text,autoret,flush)
     @staticmethod
-    def Info(text,autoret=True):Kernel.Cout._CoutBase(5,text,autoret,flush=True)
+    def Info(text,autoret=True,flush=True):Kernel.Cout._CoutBase(5,text,autoret,flush)
     @staticmethod
-    def Console(text,autoret=True):Kernel.Cout._CoutBase(6,text,autoret,flush=True)
+    def Console(text,autoret=True,flush=True):Kernel.Cout._CoutBase(6,text,autoret,flush)
     @staticmethod
-    def Preload(text,autoret=True):Kernel.Cout._CoutBase(7,text,autoret,flush=True)
+    def Preload(text,autoret=True,flush=True):Kernel.Cout._CoutBase(7,text,autoret,flush)
     @staticmethod
-    def IO(text,autoret=True):Kernel.Cout._CoutBase(8,text,autoret,flush=True)
+    def IO(text,autoret=True,flush=True):Kernel.Cout._CoutBase(8,text,autoret,flush)
     @staticmethod
-    def DevMsg(text,autoret=True):
-      if dev:Kernel.Cout._CoutBase(0,text,autoret,flush=True)
+    def DevMsg(text,autoret=True,flush=True):
+      if dev:Kernel.Cout._CoutBase(0,text,autoret,flush)
     @staticmethod
-    def DevWarning(text,autoret=True):
-      if dev:Kernel.Cout._CoutBase(1,text,autoret,flush=True)
+    def DevWarning(text,autoret=True,flush=True):
+      if dev:Kernel.Cout._CoutBase(1,text,autoret,flush)
     @staticmethod
-    def DevError(text,autoret=True):
-      if dev:Kernel.Cout._CoutBase(2,text,autoret,flush=True)
+    def DevError(text,autoret=True,flush=True):
+      if dev:Kernel.Cout._CoutBase(2,text,autoret,flush)
     @staticmethod
-    def DevFatal(text,autoret=True):
-      if dev:Kernel.Cout._CoutBase(3,text,autoret,flush=True)
+    def DevFatal(text,autoret=True,flush=True):
+      if dev:Kernel.Cout._CoutBase(3,text,autoret,flush)
     @staticmethod
-    def DevDebug(text,autoret=True):
-      if dev:Kernel.Cout._CoutBase(4,text,autoret,flush=True)
+    def DevDebug(text,autoret=True,flush=True):
+      if dev:Kernel.Cout._CoutBase(4,text,autoret,flush)
     @staticmethod
-    def DevInfo(text,autoret=True):
-      if dev:Kernel.Cout._CoutBase(5,text,autoret,flush=True)
+    def DevInfo(text,autoret=True,flush=True):
+      if dev:Kernel.Cout._CoutBase(5,text,autoret,flush)
     @staticmethod
-    def DevConsole(text,autoret=True):
-      if dev:Kernel.Cout._CoutBase(6,text,autoret,flush=True)
+    def DevConsole(text,autoret=True,flush=True):
+      if dev:Kernel.Cout._CoutBase(6,text,autoret,flush)
     @staticmethod
-    def DevPreload(text,autoret=True):
-      if dev:Kernel.Cout._CoutBase(7,text,autoret,flush=True)
+    def DevPreload(text,autoret=True,flush=True):
+      if dev:Kernel.Cout._CoutBase(7,text,autoret,flush)
     @staticmethod
-    def DevIO(text,autoret=True):
-      if dev:Kernel.Cout._CoutBase(8,text,autoret,flush=True)
+    def DevIO(text,autoret=True,flush=True):
+      if dev:Kernel.Cout._CoutBase(8,text,autoret,flush)
   @staticmethod
   def _ResetGame():#built-in function,for soft reset.
     global reload357,reload9,ammo9max,ammo357max,mapslt,psx,v_live,v_hev,plh,plw,plr,plg,plb,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
