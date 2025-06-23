@@ -57,8 +57,8 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 30 Build(0115)");
-DEBUGDATE=str("2025/06/21");
+GAMEVER=str("Gyro 30 Build(0116)");
+DEBUGDATE=str("2025/06/23");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -130,7 +130,7 @@ class Kernel:#Code base class
     return 0
   @staticmethod
   def Init(inittp):#built-in function.for init cfgs or other files engine needed.
-    global scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,autoloadmod,dev,dr,novid,langtype,usemod,modamount,erxt
+    global scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,autoloadmod,dev,dr,novid,langtype,usemod,modamount,erxt,tk
     if inittp==1:
       try:
         cfg1=IO.Load(True,"novid",returnval=None)
@@ -214,7 +214,7 @@ class Kernel:#Code base class
       Kernel.Cout.Info("Mod disabled.")
     elif hdtp==2:
       if vtk!=True:
-        Kernel.Cout.Info("Mod is loading... if mod loading amount is more than 100, it will take a long time to load, please wait.")
+        Kernel.Cout.Info("Mod is loading... if mod loading amount is more than 100, it will take a long time to load,\nplease wait.")
         for i in range(int(modamount)):
           try:
             tk=__import__("gyro_addon_main"+str(i))
@@ -222,8 +222,10 @@ class Kernel:#Code base class
           except ImportError:
             continue
         vtk=True
-        Kernel.Cout.Info("Mod init success.")
-        ingamemod=tk.mod_info(3)
+        Kernel.Cout.Info("Mod init process done.")
+        try:
+          ingamemod=tk.mod_info(3)
+        except:pass
       else:
         Kernel.Cout.Info("Mod already init.")
         Kernel.ErrChk(4,"Repeating init.")
