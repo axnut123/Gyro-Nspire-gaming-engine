@@ -357,7 +357,7 @@ class Kernel:#Code base class
     return 0
   @staticmethod
   def _GameLauncher():#Built-in function, for game loading process.
-    global novid,modenb,g,tk,ingamemod,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy  
+    global novid,modenb,g,tk,ingamemod,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,gcthresholdint
     del g
     Kernel.Cout.Console("Console is being closed.\n[INFO]Engine is now started.")
     gc.collect()
