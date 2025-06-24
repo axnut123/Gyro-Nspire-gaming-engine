@@ -57,8 +57,8 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 30 Build(0116)");
-DEBUGDATE=str("2025/06/23");
+GAMEVER=str("Gyro 30 Build(0117)");
+DEBUGDATE=str("2025/06/24");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -82,6 +82,7 @@ scrgeometx=int(0);
 scrgeomety=int(0);
 scrgeometmx=int(0);
 scrgeometmy=int(0);
+gcthresholdint=int(-1);
 emptysave=int(1);#True or False dosent work.
 class CfgError(Exception):pass
 class ArgumentNotFound(Exception):pass
@@ -97,7 +98,7 @@ class Kernel:#Code base class
     raise SystemExit(code)
   @staticmethod
   def SaveCfg():
-    global scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,autoloadmod,langtype,dev,dr,usemod,novid,modamount,erxt
+    global scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,gcthresholdint,autoloadmod,langtype,dev,dr,usemod,novid,modamount,erxt
     try:
       IO.Save(True,"scgx",scrgeometx)
       IO.Save(True,"scgy",scrgeomety)
@@ -109,10 +110,11 @@ class Kernel:#Code base class
         IO.Save(True,"langtype",2)
       else:
         IO.Save(True,"langtype",1)
-        Kernel.Cout.Warning("Language type not found, using default language.")
+        Kernel.Cout.Warning("Language type not found, saving as default language.")
         Kernel.ErrChk(1,"Language type not found.")
       IO.Save(True,"erxt",int(erxt))
-      IO.Save(True,"modamount",int(modamount))
+      IO.Save(True,"modamount",modamount)
+      IO.Save(True,"gcthint",int(gcthresholdint))
       if novid:IO.Save(True,"novid",1)#True or false dosent work here. use 1 or 0.
       else:IO.Save(True,"novid",0)
       if autoloadmod:IO.Save(True,"autoloadmod",1)
@@ -130,7 +132,7 @@ class Kernel:#Code base class
     return 0
   @staticmethod
   def Init(inittp):#built-in function.for init cfgs or other files engine needed.
-    global scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,autoloadmod,dev,dr,novid,langtype,usemod,modamount,erxt,tk
+    global scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,autoloadmod,gcthresholdint,dev,dr,novid,langtype,usemod,modamount,erxt,tk
     if inittp==1:
       try:
         cfg1=IO.Load(True,"novid",returnval=None)
@@ -145,6 +147,7 @@ class Kernel:#Code base class
         scrgeometmx=IO.Load(True,"scgmx",returnval=None)
         scrgeometmy=IO.Load(True,"scgmy",returnval=None)
         modamount=IO.Load(True,"modamount",returnval=None)
+        gcthresholdint=IO.Load(True,"gcthint",returnval=None)
         if cfg1==1:novid=True
         else:novid=False
         if cfg2==1:dev=True
@@ -153,6 +156,7 @@ class Kernel:#Code base class
         else:dr=False
         if cfg4==2:langtype=2
         elif cfg4==1:langtype=1#add more condition if more languages needed.
+        else:langtype=1;Kernel.Cout.Warning("Language type not found, using default language.")
         if cfg5==1:usemod=True
         else:usemod=False
         if cfg6==1:autoloadmod=True
@@ -265,7 +269,7 @@ class Kernel:#Code base class
 #output: hello
 #Kernel.Cout.Info("hello")
 #output: [INFO]hello
-#kernel.Cout.DevInfo("hello for dev")
+#kernel.Cout.DevMsg("hello for dev")
 #when dev is True then output: hello for dev
 #otherwise it will not print the message.
 #Kernel.Cout.Msg("hello but no auto return",autoret=False)
@@ -353,11 +357,12 @@ class Kernel:#Code base class
     return 0
   @staticmethod
   def _GameLauncher():#Built-in function, for game loading process.
-    global novid,modenb,g,tk,ingamemod,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy
+    global novid,modenb,g,tk,ingamemod,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy  
     del g
     Kernel.Cout.Console("Console is being closed.\n[INFO]Engine is now started.")
     gc.collect()
     StdUtil.ConsoleLog(2)
+    gc.threshold(int(gcthresholdint))
     Kernel._CreateWindow(scrgeomety,scrgeometx,scrgeometmx,scrgeometmy)
     if not novid:Kernel.Opening()
     if ingamemod=="ingamemod":modenb=False
@@ -370,7 +375,7 @@ class Kernel:#Code base class
       main()
   @staticmethod
   def _Console():#built-in function,for console.
-    global scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,ingamemod,modscripts,g,modenb,vtk,erxt,novid,tk,dev,dr,langtype,usemod,modamount,autoloadmod
+    global scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,ingamemod,modscripts,g,modenb,vtk,erxt,novid,tk,dev,dr,langtype,usemod,modamount,autoloadmod,gcthresholdint
     Kernel.Cout.Preload("Starting console.")
     while g!="run"or g!="start"or g!="begin":
       g=str(input("]"))
@@ -436,6 +441,7 @@ class Kernel:#Code base class
           Kernel.ErrChk(3,"Bad arguments.")
       elif g=="getcfgs":
         Kernel.Cout.Msg("exit on error:"+str(erxt))
+        Kernel.Cout.Msg("gc threshold:"+str(gcthresholdint))
         Kernel.Cout.Msg("novid:"+str(novid))
         Kernel.Cout.Msg("log output on screen draw:"+str(dr))
         Kernel.Cout.Msg("dev:"+str(dev))
@@ -469,6 +475,7 @@ class Kernel:#Code base class
         Kernel.Cout.Msg("pystack use"+str(mp.pystack_use()))
         Kernel.Cout.Msg("cpu tick"+str(ticks_cpu()))
         Kernel.Cout.Msg("local time"+str(localtime()))
+        Kernel.Cout.Msg("gc threshold:"+str(gcthresholdint))
       elif g=="deletesave":
         IO.Delete()
       elif g=="loadgame":
@@ -484,8 +491,7 @@ class Kernel:#Code base class
         else:dev=False;Kernel.Cout.Console("Dev mode disabled")
       elif g=="adjustthreshold":
         try:
-          b=int(input("gc.threshold:"))
-          gc.threshold(int(b))
+          gcthresholdint=int(input("gc.threshold:"))
           Kernel.Cout.Console("New value given.")
         except Exception as e:
           Kernel.Cout.Error("Failed. "+str(e))
@@ -502,8 +508,7 @@ class Kernel:#Code base class
           del g
           Kernel.quit(0)
       elif g=="":pass
-      else:
-        Kernel.Cout.Console("Unknown command:"+str(g)+".type help <page(1/2/3/4)> to get help.")
+      else:Kernel.Cout.Console("Unknown command:"+str(g)+".type help <page(1/2/3/4)> to get help.")
   @staticmethod
   def Info(infotype):#built-in function.For output information about engine.
     infos={
