@@ -127,10 +127,11 @@ class Kernel:#Code base class
       if usemod:IO.Save(True,"usemod",1)
       else:IO.Save(True,"usemod",0)
       Kernel.Cout.Info("Cfg saving success.")
+      return 0
     except Exception as e:
       Kernel.Cout.Error("Cfg saving failed."+str(e))
       Kernel.ErrChk(3,"Failed to save cfgs.")
-    return 0
+      return -1
   @staticmethod
   def Init(inittp):#built-in function.for init cfgs or other files engine needed.
     global scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,autoloadmod,gcthresholdint,dev,dr,novid,langtype,usemod,modamount,erxt,tk
@@ -171,7 +172,7 @@ class Kernel:#Code base class
       except Exception as e:
         Kernel.Cout.Error("Failed on trying to load configs."+str(e))
         Kernel.ErrChk(3,"Cfg load process failed.")
-        return 0
+        return -1
     elif inittp==2:
       pt=get_platform()
       if pt not in ["hh","ios","dt"]:
@@ -232,7 +233,7 @@ class Kernel:#Code base class
         try:
           ingamemod=tk.mod_info(3)
         except:
-          ingamemod=NULL
+          ingamemod=str("")
           Kernel.Cout.Info("No mod file detected.")
       else:
         Kernel.Cout.Info("Mod already init.")
