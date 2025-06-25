@@ -34,12 +34,13 @@ import sys
 import gc
 from random import randint
 from time import *
+NULL=None;
 novid=bool(False);
 modamount=int(100);
-endtick=None;
+endtick=NULL;
 langtype=int(1);
 active=bool(False);
-action=None;
+action=NULL;
 plr=int(0);
 plg=int(0);
 plb=int(0);
@@ -57,8 +58,8 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 30 Build(0117)");
-DEBUGDATE=str("2025/06/24");
+GAMEVER=str("Gyro 30 Build(0118)");
+DEBUGDATE=str("2025/06/25");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -93,7 +94,7 @@ class GameError(Exception):pass#Error classes.
 class Kernel:#Code base class
   def __init__(self):pass
   @staticmethod
-  def quit(code=None):#built-in function, in nspire cx ii python the quit function is not defined.
+  def quit(code=NULL):#built-in function, in nspire cx ii python the quit function is not defined.
     gc.collect()
     raise SystemExit(code)
   @staticmethod
@@ -135,33 +136,34 @@ class Kernel:#Code base class
     global scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,autoloadmod,gcthresholdint,dev,dr,novid,langtype,usemod,modamount,erxt,tk
     if inittp==1:
       try:
-        cfg1=IO.Load(True,"novid",returnval=None)
-        cfg2=IO.Load(True,"dev",returnval=None)
-        cfg3=IO.Load(True,"dr",returnval=None)
-        cfg4=IO.Load(True,"langtype",returnval=None)
-        cfg5=IO.Load(True,"usemod",returnval=None)
-        cfg6=IO.Load(True,"autoloadmod",returnval=None)
-        erxt=IO.Load(True,"erxt",returnval=None)
-        scrgeometx=IO.Load(True,"scgx",returnval=None)
-        scrgeomety=IO.Load(True,"scgy",returnval=None)
-        scrgeometmx=IO.Load(True,"scgmx",returnval=None)
-        scrgeometmy=IO.Load(True,"scgmy",returnval=None)
-        modamount=IO.Load(True,"modamount",returnval=None)
-        gcthresholdint=IO.Load(True,"gcthint",returnval=None)
+        cfg1=IO.Load(True,"novid",returnval=NULL)
+        cfg2=IO.Load(True,"dev",returnval=NULL)
+        cfg3=IO.Load(True,"dr",returnval=NULL)
+        langtype=IO.Load(True,"langtype",returnval=NULL)
+        cfg4=IO.Load(True,"usemod",returnval=NULL)
+        cfg5=IO.Load(True,"autoloadmod",returnval=NULL)
+        erxt=IO.Load(True,"erxt",returnval=NULL)
+        scrgeometx=IO.Load(True,"scgx",returnval=NULL)
+        scrgeomety=IO.Load(True,"scgy",returnval=NULL)
+        scrgeometmx=IO.Load(True,"scgmx",returnval=NULL)
+        scrgeometmy=IO.Load(True,"scgmy",returnval=NULL)
+        modamount=IO.Load(True,"modamount",returnval=NULL)
+        gcthresholdint=IO.Load(True,"gcthint",returnval=NULL)
         if cfg1==1:novid=True
         else:novid=False
         if cfg2==1:dev=True
         else:dev=False
         if cfg3==1:dr=True
         else:dr=False
-        if cfg4==2:langtype=2
-        elif cfg4==1:langtype=1#add more condition if more languages needed.
-        else:langtype=1;Kernel.Cout.Warning("Language type not found, using default language.")
-        if cfg5==1:usemod=True
+        if langtype not in (1,2):
+          langtype=1
+          Kernel.Cout.Warning("Language type not found, using default language.")
+          Kernel.ErrChk(1,"Language type not found.")
+        if cfg4==1:usemod=True
         else:usemod=False
-        if cfg6==1:autoloadmod=True
+        if cfg5==1:autoloadmod=True
         else:autoloadmod=False
-        del cfg1,cfg2,cfg3,cfg4,cfg5,cfg6
+        del cfg1,cfg2,cfg3,cfg4,cfg5
         if autoloadmod:Kernel._ModHandler(2)
         gc.collect()
         Kernel.Cout.Info("Config loading process completed.")
@@ -181,7 +183,7 @@ class Kernel:#Code base class
         draw_text(10,100,ActionUI.DispLanguage("supsys")+str(pt)+".")
         draw_text(10,120,ActionUI.DispLanguage("prsesc"))
         paint_buffer()
-        Kernel.Cout.Fatal("Platform does not match.")
+        Kernel.Cout.Fatal("Platform not supported.")
         while get_key()!="esc":pass
         Kernel.quit(-1)
       else:
@@ -190,7 +192,7 @@ class Kernel:#Code base class
         Kernel.Cout.Preload("Platform check done.")
         return 2
   @staticmethod
-  def ErrChk(errtype=None,reason="Unknown Reason.",forceraise=False):#built-in function,for command "forceexitonerror".
+  def ErrChk(errtype=NULL,reason="Unknown Reason.",forceraise=False):#built-in function,for command "forceexitonerror".
     global erxt
     if erxt==1 or forceraise:
       if not forceraise:Kernel.Cout.Debug("Error or warning encountered,\nstopped engine.")
@@ -229,7 +231,9 @@ class Kernel:#Code base class
         Kernel.Cout.Info("Mod init process done.")
         try:
           ingamemod=tk.mod_info(3)
-        except:pass
+        except:
+          ingamemod=NULL
+          Kernel.Cout.Info("No mod file detected.")
       else:
         Kernel.Cout.Info("Mod already init.")
         Kernel.ErrChk(4,"Repeating init.")
@@ -261,7 +265,7 @@ class Kernel:#Code base class
       active=False
       if action:
         action()
-        action=None
+        action=NULL
   class Cout:#console output class.
     def __init__(self):pass
 #Example for Cout class:
@@ -293,7 +297,7 @@ class Kernel:#Code base class
       7:"[PRE-LOAD]",
       8:"[IO]"}
       c=typedict.get(ctp)
-      if c is None:Kernel.ErrChk(1,"Output type is not defined.",True)
+      if c is NULL:Kernel.ErrChk(1,"Output type is not defined.",True)
       sys.stdout.write(c+str(text)+e)
       if flush:sys.stdout.flush()
     @staticmethod
@@ -543,7 +547,7 @@ class Kernel:#Code base class
 class IO:#Input-Output class.
   def __init__(self):pass
   @staticmethod
-  def Save(custom=False,name="customFile",gamevar=None,logout=True):#built-in function, for saving game.
+  def Save(custom=False,name="customFile",gamevar=NULL,logout=True):#built-in function, for saving game.
     global emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
     if not custom:
       try:
@@ -567,7 +571,7 @@ class IO:#Input-Output class.
         return 0
       except Exception as e:
         Kernel.Cout.Error("Operation failed."+str(e))
-        Kernel.ErrChk(2,"Can not save file.")
+        Kernel.ErrChk(2,"Cannot save file.")
         return -1
     else:
       try:
@@ -576,10 +580,10 @@ class IO:#Input-Output class.
         return 0
       except Exception as e:
         Kernel.Cout.Error("File operation on:"+str(name)+" failed.\n"+str(e))
-        Kernel.ErrChk(2,"Can not save file.")
+        Kernel.ErrChk(2,"Cannot save file.")
         return -1
   @staticmethod
-  def Delete(custom=False,name="customFile",gamevar=None,logout=True):#built-in function, for delete saved game.
+  def Delete(custom=False,name="customFile",gamevar=NULL,logout=True):#built-in function, for delete saved game.
     global emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
     if not custom:
       try:
@@ -603,7 +607,7 @@ class IO:#Input-Output class.
         return 0
       except Exception as e:
         Kernel.Cout.Error("Operation failed."+str(e))
-        Kernel.ErrChk(4,"Can not delete file.")
+        Kernel.ErrChk(4,"Cannot delete file.")
         return -1
     else:
       try:
@@ -612,10 +616,10 @@ class IO:#Input-Output class.
         return 0
       except Exception as e:
         Kernel.Cout.Error("File operate on:"+str(name)+" failed.\n"+str(e))
-        Kernel.ErrChk(2,"Can not operate file.")
+        Kernel.ErrChk(2,"Cannot operate file.")
         return -1
   @staticmethod
-  def Load(custom=False,name="customFile",logout=True,returnval=0):#built-in function, for load a saved game.
+  def Load(custom=False,name="customFile",logout=True,returnval=NULL):#built-in function, for load a saved game.
     global emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
     if not custom:
       try:
@@ -641,14 +645,14 @@ class IO:#Input-Output class.
           return -2
         if emptysave==1:
           Kernel.Cout.Warning("Trying to load an empty save.")
-          Kernel.ErrChk(5,"Can not load empty save.")
+          Kernel.ErrChk(5,"Cannot load empty save.")
           return -2
         else:
           if logout:Kernel.Cout.IO("Game loaded from save.")
           return 0
       except Exception as e:
         Kernel.Cout.Error("Operation failed."+str(e))
-        Kernel.ErrChk(2,"Can not load file.")
+        Kernel.ErrChk(2,"Cannot load file.")
         return -1
     else:
       try:
@@ -657,8 +661,8 @@ class IO:#Input-Output class.
         return returnval
       except Exception as e:
         Kernel.Cout.Error("File operation failed on:"+str(name)+".\n"+str(e))
-        Kernel.ErrChk(2,"Can not load file")
-        return "ERR"
+        Kernel.ErrChk(2,"Cannot load file")
+        return NULL
 class UniFX:#Universal VFX class.
   def __init__(self):pass
   @staticmethod
@@ -810,7 +814,7 @@ class Actors:#entity class.
         Kernel.ErrChk(1,"Undefined movement type.")
         return -1
     @staticmethod
-    def Init(inittype,ar1=None,ar2=None,ar3=None):#built-in function,for init player vars
+    def Init(inittype,ar1=NULL,ar2=NULL,ar3=NULL):#built-in function,for init player vars
       global plr,plg,plb,psy,psx,plw,plh,v_live,v_hev,ammo9,ammo357,inclip9,inclip357,item_suit,weapon_crb,weapon_pst,weapon_357,weapon_physcnn
       if inittype==1:
         plr=ar1
@@ -1014,7 +1018,7 @@ class ActionUI:#UI class
     if langtype==1:out=str(langdict1.get(langstr))
     elif langtype==2:out=str(langdict2.get(langstr))
     else:out=str(langdict1.get(langstr))
-    if out is not None:
+    if out is not NULL:
       return out
     else:
       Kernel.Cout.Error("ActionUI.DispLanguage() method has an error occurred.")
@@ -1535,7 +1539,7 @@ def main():#main function.It's a very standard template for engine.
       paint_buffer()
       while True:#main menu
         k=get_key()
-        emptysave=IO.Load(True,"emptysave",False,None)
+        emptysave=IO.Load(True,"emptysave",False,NULL)
         if k=="enter":
           Assets.gmanintro()
           inmenu=False
@@ -1805,7 +1809,7 @@ def main():#main function.It's a very standard template for engine.
                 clear()
                 StdUtil.PauseMenu()
                 k=get_key()
-                emptysave=IO.Load(True,"emptysave",False,None)
+                emptysave=IO.Load(True,"emptysave",False,NULL)
                 ActionUI.DispUi(0,0,2)
                 paint_buffer()
                 if k=="esc":
