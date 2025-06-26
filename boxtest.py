@@ -20,7 +20,7 @@ def BoxHandler(ipt):
   fill_rect(x1,y1,x2,y2)
 def main():
   global x1,x2,y1,y2
-  print("Box test, hold ecs to stop.")
+  print("Box test, hold esc to stop.")
   x1=int(input("minx"))
   x2=int(input("maxx"))
   y1=int(input("miny"))
