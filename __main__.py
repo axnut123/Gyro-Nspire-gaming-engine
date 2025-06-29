@@ -57,8 +57,8 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 30 Build(0119)");
-DEBUGDATE=str("2025/06/26");
+GAMEVER=str("Gyro 31 Build(0120)");
+DEBUGDATE=str("2025/06/28");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -619,7 +619,8 @@ class IO:#Input-Output class.
         Kernel.ErrChk(2,"Cannot operate file.")
         return -1
   @staticmethod
-  def Load(custom=False,name="customFile",logout=True,returnval=None):#built-in function, for load a saved game.
+  def Load(custom=False,name="customFile",logout=True):#built-in function, for load a saved game.
+    returnval=None
     global emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
     if not custom:
       try:
