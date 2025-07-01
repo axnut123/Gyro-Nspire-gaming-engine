@@ -57,8 +57,8 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 31 Build(0120)");
-DEBUGDATE=str("2025/06/28");
+GAMEVER=str("Gyro 31 Build(0121)");
+DEBUGDATE=str("2025/07/01");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -210,7 +210,7 @@ class Kernel:#Code base class
     if hdtp==1:
       try:
         del tk
-        Kernel.Cout.Info("Mod is uninstalled, but reboot is recommended.")
+        Kernel.Cout.Info("Mod is uninstalled, but reboot is\nrecommended.")
         gc.collect()
       except Exception as e:
         Kernel.Cout.Error("Mod cannot be uninstalled, "+str(e))
@@ -230,7 +230,7 @@ class Kernel:#Code base class
         vtk=True
         Kernel.Cout.Info("Mod init process done.")
         try:
-          ingamemod=tk.mod_info(3)
+          ingamemod=tk.mod_type()
         except:
           ingamemod=str("")
           Kernel.Cout.Info("No mod file detected.")
@@ -249,8 +249,8 @@ class Kernel:#Code base class
     elif hdtp==4:
       Kernel.Cout.Msg("Warning: do not let 2 types of mods installed together.")
       if vtk:
-        Kernel.Cout.Msg(tk.mod_info(3))
-        Kernel.Cout.Msg(tk.mod_info(2))
+        Kernel.Cout.Msg(tk.mod_type())
+        Kernel.Cout.Msg(tk.mod_info(draw=False))
       else:
         Kernel.Cout.Error("Mod is not found.")
         Kernel.ErrChk(4,"Mod not found.")
@@ -1540,7 +1540,7 @@ def main():#main function.It's a very standard template for engine.
       paint_buffer()
       while True:#main menu
         k=get_key()
-        emptysave=IO.Load(True,"emptysave",False,None)
+        emptysave=IO.Load(True,"emptysave",False)
         if k=="enter":
           Assets.gmanintro()
           inmenu=False
@@ -1630,7 +1630,7 @@ def main():#main function.It's a very standard template for engine.
         k=get_key()
         Kernel.WaitUpdate()
         StdUtil.MapStat()
-        if ingamemod=="ingamemod" and tk.mod_info(3)=="ingamemod"and usemod:tk.mod_main()
+        if ingamemod=="ingamemod" and tk.mod_type()=="ingamemod"and usemod and tk is not None:tk.mod_main()
         ActionUI.DispUi(0,0,2)
         Actors.King.Draw()
         Actors.King.Status("ignoredisable")
@@ -1810,7 +1810,7 @@ def main():#main function.It's a very standard template for engine.
                 clear()
                 StdUtil.PauseMenu()
                 k=get_key()
-                emptysave=IO.Load(True,"emptysave",False,None)
+                emptysave=IO.Load(True,"emptysave",False)
                 ActionUI.DispUi(0,0,2)
                 paint_buffer()
                 if k=="esc":

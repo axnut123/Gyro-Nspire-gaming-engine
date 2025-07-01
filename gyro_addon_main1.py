@@ -4,17 +4,14 @@
 #Example for out game mod
 #out game mod is a type of mod that loaded with
 #"runmod" command. one mod at a time.
-from ti_draw import *
-from time import *
 from ti_system import *
-from random import *
-def mod_info(draw=1):#Your addon info should be here.
-  aover=str("GyroModLoader v:1.1|Out game mod example")
+import __main__ as k
+def mod_type():#mod type here.
+  return "outgamemod"
+def mod_info(draw=False):#Your addon info should be here.
+  aover=str("GyroModLoader v:1.2|Out game mod example")
   aocrd=str("By axnut123")
-  returnmod="outgamemod"
-  if returnmod=="ingamemod":
-    return "ingamemod"
-  if draw==1:
+  if draw:
     draw_text(5,15,aover)
     draw_text(5,25,aocrd)
   else:
@@ -28,6 +25,6 @@ def mod_main():#your addon main program should start from here.
     draw_text(200,200,"Press esc to quit")
     paint_buffer()
     keysi=get_key()
-    if keysi=="esc":raise SystemExit(0);print("[INFO]Mod stopped.")
+    if keysi=="esc":k.Kernel.Cout.Info("Mod stopped.");k.Kernel.quit(0)
   return 0
 if __name__=="__main__":mod_main()
