@@ -57,8 +57,8 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 31 Build(0121)");
-DEBUGDATE=str("2025/07/01");
+GAMEVER=str("Gyro 31 Build(0122)");
+DEBUGDATE=str("2025/07/02");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -83,6 +83,7 @@ scrgeomety=int(0);
 scrgeometmx=int(0);
 scrgeometmy=int(0);
 gcthresholdint=int(-1);
+runprgm=str("");
 emptysave=int(1);#True or False dosent work.
 class CfgError(Exception):pass
 class ArgumentNotFound(Exception):pass
@@ -357,11 +358,11 @@ class Kernel:#Code base class
     set_color(0,0,0)
     fill_rect(0,0,500,300)
     ActionUI.DispUi(0,0,9)
-    use_buffer()#Reduce white flash.
+    use_buffer()#Start buffer system
     return 0
   @staticmethod
   def _GameLauncher():#Built-in function, for game loading process.
-    global novid,modenb,g,tk,ingamemod,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,gcthresholdint
+    global novid,modenb,g,tk,ingamemod,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,gcthresholdint,runprgm
     del g
     Kernel.Cout.Console("Console is being closed.\n[INFO]Engine is now started.")
     gc.collect()
@@ -375,16 +376,20 @@ class Kernel:#Code base class
       Kernel.Cout.Info("Trying to load mod script.")
       tk.mod_main()
     else:
-      Kernel.Cout.Info("Mod loader was not enabled,loading main script.")
-      main()
+      Kernel.Cout.Info("Mod loader was not enabled,\nloading dedicated script.")
+      exec(runprgm)
   @staticmethod
   def _Console():#built-in function,for console.
-    global scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,ingamemod,modscripts,g,modenb,vtk,erxt,novid,tk,dev,dr,langtype,usemod,modamount,autoloadmod,gcthresholdint
+    global runprgm,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,ingamemod,modscripts,g,modenb,vtk,erxt,novid,tk,dev,dr,langtype,usemod,modamount,autoloadmod,gcthresholdint
     Kernel.Cout.Preload("Starting console.")
-    while g!="run"or g!="start"or g!="begin":
+    while True:
       g=str(input("]"))
-      if g=="run"or g=="start"or g=="begin":
+      if g=="run"or g=="start":
         Kernel.Cout.Console("Running engine.")
+        runprgm="Prgm.Main()"
+        break
+      elif g=="begin":
+        runprgm=str(input("function name:"))
         break
       elif g=="setlang":
         g=str(input("1:English,2:Simplified Chinese,3.Cancel"))
@@ -419,7 +424,7 @@ class Kernel:#Code base class
       elif g=="help 3":
         Kernel.Cout.Msg("Gyro engine help page 3:\nscuptoggle: toggle the output when screen \nupdate.\nexec:use exec() to execute python code.\nnovid:disable launch video.\ninitcfg:execute cfg init process manually.\nsavecfg:save current configs.\ngetcfgs:get current cfg status.\nsetmodamount:tell mod loader how many mods shold be loaded.")
       elif g=="help 4":
-        Kernel.Cout.Msg("Gyro engine help page 4:\nautoloadmod:toggle the auto mod loading process.\nsetlang:set a language for engine.")
+        Kernel.Cout.Msg("Gyro engine help page 4:\nautoloadmod:toggle the auto mod loading process.\nsetlang:set a language for engine.\nbegin:start a dedicated function\ne.g. 'Prgm.Main()' for main function.")
       elif g=="quit"or g=="stop"or g=="exit"or g=="esc":
         del g
         StdUtil.ConsoleLog(3)
@@ -1527,358 +1532,361 @@ class Assets:#asset class
     draw_text(150,30,str(ActionUI.DispLanguage("dbdate"))+DEBUGDATE)
     set_pen("thin","solid")
     return 0
-def main():#main function.It's a very standard template for engine.
-  inmenu=True
-  global ingamemod,erxt,modscripts,langtype,mapslt,dev,dr,emptysave,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,usemod
-  StdUtil.ConsoleLog(4)
-  while True:#game logic loop
-    if inmenu:#menu guard
-      Kernel._ResetGame()
-      Assets.MainMenu()
-      ActionUI.DispUi(0,0,4)
-      gc.collect()
-      paint_buffer()
-      while True:#main menu
-        k=get_key()
-        emptysave=IO.Load(True,"emptysave",False)
-        if k=="enter":
-          Assets.gmanintro()
-          inmenu=False
-          Actors.King.Init(1,0,0,0)
-          Actors.King.Init(2,95,95)
-          Actors.King.Init(3,5,5)
-          Actors.King.Init(4,100)
-          Actors.King.Init(5,0)
-          Actors.King.Init(6,0,0)
-          Actors.King.Init(7,0,0)
-          Actors.King.Init(8,0)
-          Actors.King.Init(9,0)
-          Actors.King.Init(10,0)
-          Actors.King.Init(11,0)
-          Actors.King.Init(12,0)
-          break
-        elif k=="b":
-          for i in range(2):
-            if emptysave==1:IO.Load()
-          if emptysave==1:continue
-          IO.Load()
-          inmenu=False
-          break
-        elif k=="c":
-          IO.Delete()
-        elif k=="menu":
-          ActionUI.DispUi(0,0,9)
-          Assets.MainMenu()
-          ActionUI.DispUi(0,0,4)
-          paint_buffer()
-        elif k=="a":
-          Assets.gmanintlol()
-          inmenu=False
-          Actors.King.Init(1,0,0,0)
-          Actors.King.Init(2,95,95)
-          Actors.King.Init(3,5,5)
-          Actors.King.Init(4,100)
-          Actors.King.Init(5,0)
-          Actors.King.Init(6,0,0)
-          Actors.King.Init(7,0,0)
-          Actors.King.Init(8,0)
-          Actors.King.Init(9,0)
-          Actors.King.Init(10,0)
-          Actors.King.Init(11,0)
-          Actors.King.Init(12,0)
-          break
-        elif k=="tab":
-          while True:
-            k=get_key()
-            clear()
-            StdUtil.SettingMenu()
-            paint_buffer()
-            if k=="a":
-              if dr:dr=False
-              else:dr=True
-            elif k=="b":
-              if dev:dev=False
-              else:dev=True
-            elif k=="c":#add more conditions if you have more language.
-              if langtype==1:
-                langtype=2
-              elif langtype==2:
-                langtype=1
-            elif k=="d":
-              if usemod:usemod=False
-              else:usemod=True
-            elif k=="e":
-              if erxt==1:erxt=0
-              else:erxt=1
-            elif k=="s":
-              Kernel.SaveCfg()
-            elif k=="esc":
-              ActionUI.DispUi(0,0,9)
-              Assets.MainMenu()
-              ActionUI.DispUi(0,0,4)
-              paint_buffer()
-              break
-        elif k=="esc":
-          StdUtil.ConsoleLog(3)
-          Kernel.quit(0)
-      clear()
-      gc.collect()
-    if dr:StdUtil.ConsoleLog(1)#print a log when screen update.
-    StdUtil.MapStat()#logic check in here,define your trigger in this function.
-    for key in ["None"]:
-      while k!=key:
-        k=get_key()
-        Kernel.WaitUpdate()
-        StdUtil.MapStat()
-        if ingamemod=="ingamemod" and tk.mod_type()=="ingamemod"and usemod and tk is not None:tk.mod_main()
-        ActionUI.DispUi(0,0,2)
-        Actors.King.Draw()
-        Actors.King.Status("ignoredisable")
-        if k=="u" and dev:
-          if not debugs:
-            debugs=True
-            Kernel.Cout.Info("Debug drawing enabled.")
-          else:
-            debugs=False
-            Kernel.Cout.Info("Debug drawing disabled.")
-            break
-        elif k=="right":
-          Actors.King.Move(0,1)
-          break
-        elif k=="left":
-          Actors.King.Move(0,2)
-          break
-        elif k=="up":
-          Actors.King.Move(0,4)
-          break
-        elif k=="down":
-          Actors.King.Move(0,3)
-          break
-        elif k=="t" and dev:
-          v_hev-=10
-          break
-        elif k=="s"and dev:
-          v_hev+=10
-          break
-        elif k=="z"and dev:
-          v_live-=10
-          break
-        elif k=="h"and dev:
-          Wbase.EventAmmoPick(1,18)
-          Wbase.EventAmmoPick(2,6)
-          break
-        elif k=="y"and dev:
-          v_live+=10
-          break
-        elif k=="tab" and dev:
-          gc.collect()
-          Kernel.Cout.Debug("gc collect completed.")
-          break
-        elif k=="d":#maybe create a new function to recall the effects.
-          if wpnslt==3 and reload9==0 and weapon_pst==1 and inclip9!=0:
-            inclip9-=1
-            UniFX.BulletFX.BltFlr(1)
-          if wpnslt==4 and reload357==0 and weapon_357==1 and inclip357!=0:
-            inclip357-=1
-            UniFX.BulletFX.BltFlr(2)
-          if wpnslt==1 and weapon_crb==1:
-            UniFX.BulletFX.BltFlr(3)
-          if wpnslt==2 and weapon_physcnn==1:
-            UniFX.BulletFX.BltFlr(4)
-          paint_buffer()
-          sleep(0.1)
-          break
-        elif k=="r":
-          if wpnslt==3 and reload9==0 and weapon_pst==1 and inclip9!=0:
-            inclip9-=1
-            UniFX.BulletFX.BltFlr(5)
-          if wpnslt==4 and reload357==0 and weapon_357==1 and inclip357!=0:
-            inclip357-=1
-            UniFX.BulletFX.BltFlr(6)
-          if wpnslt==1 and weapon_crb==1:
-            UniFX.BulletFX.BltFlr(7)
-          if wpnslt==2 and weapon_physcnn==1:
-            UniFX.BulletFX.BltFlr(8)
-          paint_buffer()
-          sleep(0.1)
-          break
-        elif k=="j":
-          if wpnslt==3 and reload9==0 and weapon_pst==1 and inclip9!=0:
-            inclip9-=1
-            UniFX.BulletFX.BltFlr(9)
-          if wpnslt==4 and reload357==0 and weapon_357==1 and inclip357!=0:
-            inclip357-=1
-            UniFX.BulletFX.BltFlr(10)
-          if wpnslt==1 and weapon_crb==1:
-            UniFX.BulletFX.BltFlr(11)
-          if wpnslt==2 and weapon_physcnn==1:
-            UniFX.BulletFX.BltFlr(12)
-          paint_buffer()
-          sleep(0.1)
-          break
-        elif k=="l":
-          if wpnslt==3 and reload9==0 and weapon_pst==1 and inclip9!=0:
-            inclip9-=1
-            UniFX.BulletFX.BltFlr(13)
-          if wpnslt==4 and reload357==0 and weapon_357==1 and inclip357!=0:
-            inclip357-=1
-            UniFX.BulletFX.BltFlr(14)
-          if wpnslt==1 and weapon_crb==1:
-            UniFX.BulletFX.BltFlr(15)
-          if wpnslt==2 and weapon_physcnn==1:
-            UniFX.BulletFX.BltFlr(16)
-          paint_buffer()
-          sleep(0.1)
-          break
-        elif k=="f":
-          if wpnslt==3:#Dont be afraid from lambda, its just letting the method waiting for wait function.
-            StdUtil.WaitStart(150,lambda:Wbase.WeaponClip(1))
-          elif wpnslt==4:
-            StdUtil.WaitStart(300,lambda:Wbase.WeaponClip(2))
-          break
-        elif k=="menu"and dev:
-          Actors.King.Init(8,1)
-          Actors.King.Init(9,1)
-          Actors.King.Init(10,1)
-          Actors.King.Init(11,1)
-          Actors.King.Init(12,1)
-        elif k=="1":
-          if item_suit==1:pass
-          else:break
-          ActionUI.DispUi(0,0,5)
-          if weapon_crb==1:
-            ActionUI.DispUi(0,0,10)
-          if weapon_physcnn==1:
-            ActionUI.DispUi(0,0,11)
-          paint_buffer()
-          while k!="0":
-            k=get_key()
-            if k=="0":
-              clear()
-              StdUtil.MapStat()
-              Actors.King.Draw()
-              break
-            elif k=="1" and weapon_crb==1:
-              wpnslt=1
-              clear()
-              StdUtil.MapStat()
-              Actors.King.Draw()
-              break
-            elif k=="2" and weapon_physcnn==1:
-              wpnslt=2
-              clear()
-              StdUtil.MapStat()
-              Actors.King.Draw()
-              break
-        elif k=="2":
-          if item_suit==1:pass
-          else:break
-          ActionUI.DispUi(0,0,5)
-          if weapon_pst==1:
-            ActionUI.DispUi(0,0,12)
-          if weapon_357==1:
-            ActionUI.DispUi(0,0,13)
-          paint_buffer()
-          while k!="0":
-            k=get_key()
-            if k=="0":
-              clear()
-              StdUtil.MapStat()
-              Actors.King.Draw()
-              break
-            elif k=="1" and weapon_pst==1 and ammo9!=0:
-              wpnslt=3
-              clear()
-              StdUtil.MapStat()
-              Actors.King.Draw()
-              break
-            elif k=="2" and weapon_357==1 and ammo357!=0:
-              wpnslt=4
-              clear()
-              StdUtil.MapStat()
-              Actors.King.Draw()
-              break
-            paint_buffer()
-          break
-        elif k=="esc":
-          while True:#pause menu
-            StdUtil.PauseMenu()
-            ky="0"
-            paint_buffer()
-            for ky in["None"]:
-              while k!=ky:
-                clear()
-                StdUtil.PauseMenu()
-                k=get_key()
-                emptysave=IO.Load(True,"emptysave",False)
-                ActionUI.DispUi(0,0,2)
-                paint_buffer()
-                if k=="esc":
-                  clear()
-                  break
-                elif k=="q":
-                  StdUtil.ConsoleLog(3)
-                  Kernel.quit(0)
-                  break
-                elif k=="tab":
-                  while True:
-                    k=get_key()
-                    clear()
-                    StdUtil.SettingMenu()
-                    paint_buffer()
-                    if k=="a":
-                      if dr:dr=False
-                      else:dr=True
-                    elif k=="b":
-                      if dev:dev=False
-                      else:dev=True
-                    elif k=="c":#add more conditions if you have more language.
-                      if langtype==1:
-                        langtype=2
-                      elif langtype==2:
-                        langtype=1
-                    elif k=="d":
-                      if not usemod:usemod=True
-                      else:usemod=False
-                    elif k=="e":
-                      if erxt==1:erxt=0
-                      else:erxt=1
-                    elif k=="s":
-                      Kernel.SaveCfg()
-                    elif k=="esc":
-                      ActionUI.DispUi(0,0,9)
-                      paint_buffer()
-                      clear()
-                      break
-                elif k=="d":
-                  IO.Delete()
-                elif k=="s":
-                  IO.Save()
-                elif k=="l":
-                  if emptysave==1:
-                    for i in range(2):
-                      if emptysave==1:IO.Load()
-                  if emptysave==1:continue
-                  IO.Load()
-                  break
-                elif k=="menu":
-                  Kernel.Cout.Info("Return to main menu.")
-                  ActionUI.DispUi(0,0,9)
-                  inmenu=True
-                  break
-                elif k=="u":
-                  if not debugs:
-                    debugs=True
-                    Kernel.Cout.Info("Debug drawing enabled.")
-                  else:
-                    debugs=False
-                    Kernel.Cout.Info("Debug drawing disabled.")
-              break
-            break
-          break
+class Prgm:#program class.
+  def __init__():pass
+  @staticmethod
+  def Main():#main function.It's a very standard template for engine.
+    inmenu=True
+    global ingamemod,erxt,modscripts,langtype,mapslt,dev,dr,emptysave,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,usemod
+    StdUtil.ConsoleLog(4)
+    while True:#game logic loop
+      if inmenu:#menu guard
+        Kernel._ResetGame()
+        Assets.MainMenu()
+        ActionUI.DispUi(0,0,4)
+        gc.collect()
         paint_buffer()
-      break
-  return 0
+        while True:#main menu
+          k=get_key()
+          emptysave=IO.Load(True,"emptysave",False)
+          if k=="enter":
+            Assets.gmanintro()
+            inmenu=False
+            Actors.King.Init(1,0,0,0)
+            Actors.King.Init(2,95,95)
+            Actors.King.Init(3,5,5)
+            Actors.King.Init(4,100)
+            Actors.King.Init(5,0)
+            Actors.King.Init(6,0,0)
+            Actors.King.Init(7,0,0)
+            Actors.King.Init(8,0)
+            Actors.King.Init(9,0)
+            Actors.King.Init(10,0)
+            Actors.King.Init(11,0)
+            Actors.King.Init(12,0)
+            break
+          elif k=="b":
+            for i in range(2):
+              if emptysave==1:IO.Load()
+            if emptysave==1:continue
+            IO.Load()
+            inmenu=False
+            break
+          elif k=="c":
+            IO.Delete()
+          elif k=="menu":
+            ActionUI.DispUi(0,0,9)
+            Assets.MainMenu()
+            ActionUI.DispUi(0,0,4)
+            paint_buffer()
+          elif k=="a":
+            Assets.gmanintlol()
+            inmenu=False
+            Actors.King.Init(1,0,0,0)
+            Actors.King.Init(2,95,95)
+            Actors.King.Init(3,5,5)
+            Actors.King.Init(4,100)
+            Actors.King.Init(5,0)
+            Actors.King.Init(6,0,0)
+            Actors.King.Init(7,0,0)
+            Actors.King.Init(8,0)
+            Actors.King.Init(9,0)
+            Actors.King.Init(10,0)
+            Actors.King.Init(11,0)
+            Actors.King.Init(12,0)
+            break
+          elif k=="tab":
+            while True:
+              k=get_key()
+              clear()
+              StdUtil.SettingMenu()
+              paint_buffer()
+              if k=="a":
+                if dr:dr=False
+                else:dr=True
+              elif k=="b":
+                if dev:dev=False
+                else:dev=True
+              elif k=="c":#add more conditions if you have more language.
+                if langtype==1:
+                  langtype=2
+                elif langtype==2:
+                  langtype=1
+              elif k=="d":
+                if usemod:usemod=False
+                else:usemod=True
+              elif k=="e":
+                if erxt==1:erxt=0
+                else:erxt=1
+              elif k=="s":
+                Kernel.SaveCfg()
+              elif k=="esc":
+                ActionUI.DispUi(0,0,9)
+                Assets.MainMenu()
+                ActionUI.DispUi(0,0,4)
+                paint_buffer()
+                break
+          elif k=="esc":
+            StdUtil.ConsoleLog(3)
+            Kernel.quit(0)
+        clear()
+        gc.collect()
+      if dr:StdUtil.ConsoleLog(1)#print a log when screen update.
+      StdUtil.MapStat()#logic check in here,define your trigger in this function.
+      for key in ["None"]:
+        while k!=key:
+          k=get_key()
+          Kernel.WaitUpdate()
+          StdUtil.MapStat()
+          if ingamemod=="ingamemod" and tk.mod_type()=="ingamemod"and usemod and tk is not None:tk.mod_main()
+          ActionUI.DispUi(0,0,2)
+          Actors.King.Draw()
+          Actors.King.Status("ignoredisable")
+          if k=="u" and dev:
+            if not debugs:
+              debugs=True
+              Kernel.Cout.Info("Debug drawing enabled.")
+            else:
+              debugs=False
+              Kernel.Cout.Info("Debug drawing disabled.")
+              break
+          elif k=="right":
+            Actors.King.Move(0,1)
+            break
+          elif k=="left":
+            Actors.King.Move(0,2)
+            break
+          elif k=="up":
+            Actors.King.Move(0,4)
+            break
+          elif k=="down":
+            Actors.King.Move(0,3)
+            break
+          elif k=="t" and dev:
+            v_hev-=10
+            break
+          elif k=="s"and dev:
+            v_hev+=10
+            break
+          elif k=="z"and dev:
+            v_live-=10
+            break
+          elif k=="h"and dev:
+            Wbase.EventAmmoPick(1,18)
+            Wbase.EventAmmoPick(2,6)
+            break
+          elif k=="y"and dev:
+            v_live+=10
+            break
+          elif k=="tab" and dev:
+            gc.collect()
+            Kernel.Cout.Debug("gc collect completed.")
+            break
+          elif k=="d":#maybe create a new function to recall the effects.
+            if wpnslt==3 and reload9==0 and weapon_pst==1 and inclip9!=0:
+              inclip9-=1
+              UniFX.BulletFX.BltFlr(1)
+            if wpnslt==4 and reload357==0 and weapon_357==1 and inclip357!=0:
+              inclip357-=1
+              UniFX.BulletFX.BltFlr(2)
+            if wpnslt==1 and weapon_crb==1:
+              UniFX.BulletFX.BltFlr(3)
+            if wpnslt==2 and weapon_physcnn==1:
+              UniFX.BulletFX.BltFlr(4)
+            paint_buffer()
+            sleep(0.1)
+            break
+          elif k=="r":
+            if wpnslt==3 and reload9==0 and weapon_pst==1 and inclip9!=0:
+              inclip9-=1
+              UniFX.BulletFX.BltFlr(5)
+            if wpnslt==4 and reload357==0 and weapon_357==1 and inclip357!=0:
+              inclip357-=1
+              UniFX.BulletFX.BltFlr(6)
+            if wpnslt==1 and weapon_crb==1:
+              UniFX.BulletFX.BltFlr(7)
+            if wpnslt==2 and weapon_physcnn==1:
+              UniFX.BulletFX.BltFlr(8)
+            paint_buffer()
+            sleep(0.1)
+            break
+          elif k=="j":
+            if wpnslt==3 and reload9==0 and weapon_pst==1 and inclip9!=0:
+              inclip9-=1
+              UniFX.BulletFX.BltFlr(9)
+            if wpnslt==4 and reload357==0 and weapon_357==1 and inclip357!=0:
+              inclip357-=1
+              UniFX.BulletFX.BltFlr(10)
+            if wpnslt==1 and weapon_crb==1:
+              UniFX.BulletFX.BltFlr(11)
+            if wpnslt==2 and weapon_physcnn==1:
+              UniFX.BulletFX.BltFlr(12)
+            paint_buffer()
+            sleep(0.1)
+            break
+          elif k=="l":
+            if wpnslt==3 and reload9==0 and weapon_pst==1 and inclip9!=0:
+              inclip9-=1
+              UniFX.BulletFX.BltFlr(13)
+            if wpnslt==4 and reload357==0 and weapon_357==1 and inclip357!=0:
+              inclip357-=1
+              UniFX.BulletFX.BltFlr(14)
+            if wpnslt==1 and weapon_crb==1:
+              UniFX.BulletFX.BltFlr(15)
+            if wpnslt==2 and weapon_physcnn==1:
+              UniFX.BulletFX.BltFlr(16)
+            paint_buffer()
+            sleep(0.1)
+            break
+          elif k=="f":
+            if wpnslt==3:#Dont be afraid from lambda, its just letting the method waiting for wait function.
+              StdUtil.WaitStart(150,lambda:Wbase.WeaponClip(1))
+            elif wpnslt==4:
+              StdUtil.WaitStart(300,lambda:Wbase.WeaponClip(2))
+            break
+          elif k=="menu"and dev:
+            Actors.King.Init(8,1)
+            Actors.King.Init(9,1)
+            Actors.King.Init(10,1)
+            Actors.King.Init(11,1)
+            Actors.King.Init(12,1)
+          elif k=="1":
+            if item_suit==1:pass
+            else:break
+            ActionUI.DispUi(0,0,5)
+            if weapon_crb==1:
+              ActionUI.DispUi(0,0,10)
+            if weapon_physcnn==1:
+              ActionUI.DispUi(0,0,11)
+            paint_buffer()
+            while k!="0":
+              k=get_key()
+              if k=="0":
+                clear()
+                StdUtil.MapStat()
+                Actors.King.Draw()
+                break
+              elif k=="1" and weapon_crb==1:
+                wpnslt=1
+                clear()
+                StdUtil.MapStat()
+                Actors.King.Draw()
+                break
+              elif k=="2" and weapon_physcnn==1:
+                wpnslt=2
+                clear()
+                StdUtil.MapStat()
+                Actors.King.Draw()
+                break
+          elif k=="2":
+            if item_suit==1:pass
+            else:break
+            ActionUI.DispUi(0,0,5)
+            if weapon_pst==1:
+              ActionUI.DispUi(0,0,12)
+            if weapon_357==1:
+              ActionUI.DispUi(0,0,13)
+            paint_buffer()
+            while k!="0":
+              k=get_key()
+              if k=="0":
+                clear()
+                StdUtil.MapStat()
+                Actors.King.Draw()
+                break
+              elif k=="1" and weapon_pst==1 and ammo9!=0:
+                wpnslt=3
+                clear()
+                StdUtil.MapStat()
+                Actors.King.Draw()
+                break
+              elif k=="2" and weapon_357==1 and ammo357!=0:
+                wpnslt=4
+                clear()
+                StdUtil.MapStat()
+                Actors.King.Draw()
+                break
+              paint_buffer()
+            break
+          elif k=="esc":
+            while True:#pause menu
+              StdUtil.PauseMenu()
+              ky="0"
+              paint_buffer()
+              for ky in["None"]:
+                while k!=ky:
+                  clear()
+                  StdUtil.PauseMenu()
+                  k=get_key()
+                  emptysave=IO.Load(True,"emptysave",False)
+                  ActionUI.DispUi(0,0,2)
+                  paint_buffer()
+                  if k=="esc":
+                    clear()
+                    break
+                  elif k=="q":
+                    StdUtil.ConsoleLog(3)
+                    Kernel.quit(0)
+                    break
+                  elif k=="tab":
+                    while True:
+                      k=get_key()
+                      clear()
+                      StdUtil.SettingMenu()
+                      paint_buffer()
+                      if k=="a":
+                        if dr:dr=False
+                        else:dr=True
+                      elif k=="b":
+                        if dev:dev=False
+                        else:dev=True
+                      elif k=="c":#add more conditions if you have more language.
+                        if langtype==1:
+                          langtype=2
+                        elif langtype==2:
+                          langtype=1
+                      elif k=="d":
+                        if not usemod:usemod=True
+                        else:usemod=False
+                      elif k=="e":
+                        if erxt==1:erxt=0
+                        else:erxt=1
+                      elif k=="s":
+                        Kernel.SaveCfg()
+                      elif k=="esc":
+                        ActionUI.DispUi(0,0,9)
+                        paint_buffer()
+                        clear()
+                        break
+                  elif k=="d":
+                    IO.Delete()
+                  elif k=="s":
+                    IO.Save()
+                  elif k=="l":
+                    if emptysave==1:
+                      for i in range(2):
+                        if emptysave==1:IO.Load()
+                    if emptysave==1:continue
+                    IO.Load()
+                    break
+                  elif k=="menu":
+                    Kernel.Cout.Info("Return to main menu.")
+                    ActionUI.DispUi(0,0,9)
+                    inmenu=True
+                    break
+                  elif k=="u":
+                    if not debugs:
+                      debugs=True
+                      Kernel.Cout.Info("Debug drawing enabled.")
+                    else:
+                      debugs=False
+                      Kernel.Cout.Info("Debug drawing disabled.")
+                break
+              break
+            break
+          paint_buffer()
+        break
+    return 0
 if (__name__=="__main__"):#all program starts from here.
   try:#import check.
     from ti_system import *#normally,gui tools are also included in ti_system.
