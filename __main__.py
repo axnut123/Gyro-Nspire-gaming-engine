@@ -57,8 +57,8 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 31 Build(0122)");
-DEBUGDATE=str("2025/07/02");
+GAMEVER=str("Gyro 31 Build(0123)");
+DEBUGDATE=str("2025/07/14");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -287,7 +287,7 @@ class Kernel:#Code base class
     def _CoutBase(ctp,text,autoret,flush):#built-in function. Base function for console output methods.
       if autoret:e="\n"
       else:e=""
-      typedict={
+      c={
       0:"",
       1:"[WARN]",
       2:"[ERROR]",
@@ -296,8 +296,7 @@ class Kernel:#Code base class
       5:"[INFO]",
       6:"[CONSOLE]",
       7:"[PRE-LOAD]",
-      8:"[IO]"}
-      c=typedict.get(ctp)
+      8:"[IO]"}.get(ctp)
       if c is None:Kernel.ErrChk(1,"Output type is not defined.",True)
       sys.stdout.write(c+str(text)+e)
       if flush:sys.stdout.flush()
@@ -520,12 +519,11 @@ class Kernel:#Code base class
       else:Kernel.Cout.Console("Unknown command:"+str(g)+".type help <page(1/2/3/4)> to get help.")
   @staticmethod
   def Info(infotype):#built-in function.For output information about engine.
-    infos={
+    return {
     1:"(C) Haoriwa 2024-2025. All rights reserved.",
     2:"Built on MicroPython 3.4.0.",
     3:"Built for ARM Cortex-M7.",
-    4:"License type is GPL3.0,under the license.txt."}
-    return infos.get(infotype)
+    4:"License type is GPL3.0,under the license.txt."}.get(infotype)
   @staticmethod
   def Opening():#the engine opening
     set_color(0,0,0)
@@ -1198,15 +1196,14 @@ class StdUtil:#Builtins class, Standard utilities.
   def __init__(self):pass
   @staticmethod
   def ConsoleLog(numoflog):#built-in function,for console output.
-    typeforlog={
+    Kernel.Cout.Msg({
       1:"[INFO]Screen updated.",
       2:"[INFO]Start the Opening.",
       3:"[INFO]Exit success,code:0",
       4:"[INFO]All assets are ready to use.",
       5:"[INFO]Game start",
       6:"[INFO]Map loaded",
-      7:"[INFO]Player died."}
-    Kernel.Cout.Msg(typeforlog.get(numoflog))
+      7:"[INFO]Player died."}.get(numoflog))
     return numoflog
   @staticmethod
   def WaitStart(sec,callback):#built-in function. similar to sleep but will not stop engine.
