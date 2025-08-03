@@ -45,6 +45,7 @@ plg=int(0);
 plb=int(0);
 plw=int(0);
 plh=int(0);
+plspd=int(5);
 autoloadmod=bool(False);
 dev=bool(False);
 usemod=bool(True);
@@ -57,8 +58,8 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 31 Build(0123)");
-DEBUGDATE=str("2025/07/14");
+GAMEVER=str("Gyro 31 Build(0124)");
+DEBUGDATE=str("2025/08/04");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -99,12 +100,13 @@ class Kernel:#Code base class
     raise SystemExit(code)
   @staticmethod
   def SaveCfg():#built-in function, saving cfg variable to nspire document.
-    global scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,gcthresholdint,autoloadmod,langtype,dev,dr,usemod,novid,modamount,erxt
+    global scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,gcthresholdint,autoloadmod,langtype,dev,dr,usemod,novid,modamount,erxt,plspd
     try:
       IO.Save(True,"scgx",scrgeometx)
       IO.Save(True,"scgy",scrgeomety)
       IO.Save(True,"scgmx",scrgeometmx)
       IO.Save(True,"scgmy",scrgeometmy)
+      IO.Save(True,"plspd",plspd)
       if langtype==1:
         IO.Save(True,"langtype",1)
       elif langtype==2:
@@ -134,7 +136,7 @@ class Kernel:#Code base class
       return -1
   @staticmethod
   def Init(inittp):#built-in function.for init cfgs or other files engine needed.
-    global scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,autoloadmod,gcthresholdint,dev,dr,novid,langtype,usemod,modamount,erxt,tk
+    global scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,autoloadmod,gcthresholdint,dev,dr,novid,langtype,usemod,modamount,erxt,tk,plspd
     if inittp==1:
       try:
         cfg1=IO.Load(True,"novid")
@@ -150,6 +152,7 @@ class Kernel:#Code base class
         scrgeometmy=IO.Load(True,"scgmy")
         modamount=IO.Load(True,"modamount")
         gcthresholdint=IO.Load(True,"gcthint")
+        plspd=IO.Load(True,"plspd")
         if cfg1==1:novid=True
         else:novid=False
         if cfg2==1:dev=True
@@ -175,7 +178,7 @@ class Kernel:#Code base class
         return -1
     elif inittp==2:
       pt=get_platform()
-      if pt not in ["hh","ios","dt"]:
+      if pt not in ("hh","ios","dt"):
         use_buffer()
         set_color(210,10,10)
         fill_rect(0,0,500,300)
@@ -379,7 +382,7 @@ class Kernel:#Code base class
       exec(runprgm)
   @staticmethod
   def _Console():#built-in function,for console.
-    global runprgm,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,ingamemod,modscripts,g,modenb,vtk,erxt,novid,tk,dev,dr,langtype,usemod,modamount,autoloadmod,gcthresholdint
+    global runprgm,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,ingamemod,modscripts,g,modenb,vtk,erxt,novid,tk,dev,dr,langtype,usemod,modamount,autoloadmod,gcthresholdint,plspd
     Kernel.Cout.Preload("Starting console.")
     while True:
       g=str(input("]"))
@@ -423,12 +426,15 @@ class Kernel:#Code base class
       elif g=="help 3":
         Kernel.Cout.Msg("Gyro engine help page 3:\nscuptoggle: toggle the output when screen \nupdate.\nexec:use exec() to execute python code.\nnovid:disable launch video.\ninitcfg:execute cfg init process manually.\nsavecfg:save current configs.\ngetcfgs:get current cfg status.\nsetmodamount:tell mod loader how many mods shold be loaded.")
       elif g=="help 4":
-        Kernel.Cout.Msg("Gyro engine help page 4:\nautoloadmod:toggle the auto mod loading process.\nsetlang:set a language for engine.\nbegin:start a dedicated function\ne.g. 'Prgm.Main()' for main function.")
+        Kernel.Cout.Msg("Gyro engine help page 4:\nautoloadmod:toggle the auto mod loading process.\nsetlang:set a language for engine.\nbegin:start a dedicated function\ne.g. 'Prgm.Main()' for main function.\nplayerspeed:modify player speed.")
       elif g=="quit"or g=="stop"or g=="exit"or g=="esc":
         del g
         StdUtil.ConsoleLog(3)
         Kernel.quit(0)
         break
+      elif g=="playerspeed":
+        plspd=int(input("New player speed(int):"))
+        Kernel.Cout.Console("player speed is now:%s"%(plspd))
       elif g=="setmodamount":
         g=input("how many mods shold be load(default 100):")
         modamount=g
@@ -448,6 +454,7 @@ class Kernel:#Code base class
           Kernel.Cout.Error("Setting was failed. "+str(e))
           Kernel.ErrChk(3,"Bad arguments.")
       elif g=="getcfgs":
+        Kernel.Cout.Msg("player speed:%s"%(plspd))
         Kernel.Cout.Msg("exit on error:"+str(erxt))
         Kernel.Cout.Msg("gc threshold:"+str(gcthresholdint))
         Kernel.Cout.Msg("novid:"+str(novid))
@@ -1534,7 +1541,7 @@ class Prgm:#program class.
   @staticmethod
   def Main():#main function.It's a very standard template for engine.
     inmenu=True
-    global ingamemod,erxt,modscripts,langtype,mapslt,dev,dr,emptysave,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,usemod
+    global ingamemod,erxt,modscripts,langtype,mapslt,dev,dr,emptysave,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,usemod,plspd
     StdUtil.ConsoleLog(4)
     while True:#game logic loop
       if inmenu:#menu guard
@@ -1648,16 +1655,16 @@ class Prgm:#program class.
               Kernel.Cout.Info("Debug drawing disabled.")
               break
           elif k=="right":
-            Actors.King.Move(0,1)
+            Actors.King.Move(0,1,plspd)
             break
           elif k=="left":
-            Actors.King.Move(0,2)
+            Actors.King.Move(0,2,plspd)
             break
           elif k=="up":
-            Actors.King.Move(0,4)
+            Actors.King.Move(0,4,plspd)
             break
           elif k=="down":
-            Actors.King.Move(0,3)
+            Actors.King.Move(0,3,plspd)
             break
           elif k=="t" and dev:
             v_hev-=10
