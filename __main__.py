@@ -774,8 +774,8 @@ class Actors:#entity class.
       global plr,plg,plb,psy,psx,plw,plh,v_live
       if not ignorehide and v_live<=0 or hide:return 1
       if plw<=0 or plh<=0:
-        Kernel.Cout.Warning("Player height and width is 0 or under 0!")
-        Kernel.ErrChk(5,"Player height and width is 0 or under 0.")
+        Kernel.Cout.Error("Player height or width is 0 or under 0!")
+        Kernel.ErrChk(5,"Player height or width is 0 or under 0.",True)
       set_color(plr,plg,plb)
       fill_rect(psx,psy,plw,plh)
       return 0
