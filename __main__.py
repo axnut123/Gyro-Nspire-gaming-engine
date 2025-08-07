@@ -58,8 +58,8 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 32 Build(0125)");
-DEBUGDATE=str("2025/08/07");
+GAMEVER=str("Gyro 32 Build(0126)");
+DEBUGDATE=str("2025/08/08");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -350,8 +350,8 @@ class Kernel:#Code base class
       if dev:Kernel.Cout._CoutBase(8,text,autoret,flush)
   @staticmethod
   def _ResetGame():#built-in function,for soft reset.
-    global reload357,reload9,ammo9max,ammo357max,mapslt,psx,v_live,v_hev,plh,plw,plr,plg,plb,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
-    mapslt=0;plh=0;plw=0;plg=0;plb=0;plr=0;psx=0;psy=0;v_hev=0;wpnslt=0;item_suit=0;weapon_crb=0;weapon_physcnn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0;v_live=100;ammo9max=180;ammo357max=12;inclip9=0;inclip357=0;reload9=0;reload357=0
+    global plspd,reload357,reload9,ammo9max,ammo357max,mapslt,psx,v_live,v_hev,plh,plw,plr,plg,plb,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
+    plspd=0;mapslt=0;plh=0;plw=0;plg=0;plb=0;plr=0;psx=0;psy=0;v_hev=0;wpnslt=0;item_suit=0;weapon_crb=0;weapon_physcnn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0;v_live=100;ammo9max=180;ammo357max=12;inclip9=0;inclip357=0;reload9=0;reload357=0
     Kernel.Cout.Info("Game reset completed.")
     return 0
   @staticmethod
@@ -773,6 +773,9 @@ class Actors:#entity class.
     def Draw(hide=False,ignorehide=False):#built-in function, draw player.
       global plr,plg,plb,psy,psx,plw,plh,v_live
       if not ignorehide and v_live<=0 or hide:return 1
+      if plw<=0 or plh<=0:
+        Kernel.Cout.Warning("Player height and width is 0 or under 0!")
+        Kernel.ErrChk(5,"Player height and width is 0 or under 0.")
       set_color(plr,plg,plb)
       fill_rect(psx,psy,plw,plh)
       return 0
@@ -801,7 +804,7 @@ class Actors:#entity class.
         ActionUI.DispUi(0,0,6)
         ActionUI.DispUi(0,0,8)
     @staticmethod
-    def Move(mvtp,direction,step=5,goto=(0,0),ignorefreeze=False):#built-in function,for movements and teleporting.
+    def Move(mvtp,direction=None,step=5,goto=(0,0),ignorefreeze=False):#built-in function,for movements and teleporting.
       global psx,psy,v_live
       if mvtp==0:
         if not ignorefreeze and v_live<=0:
@@ -812,8 +815,8 @@ class Actors:#entity class.
         elif direction==3:psy+=step;return mvtp,direction,step,psx,psy
         elif direction==4:psy-=step;return mvtp,direction,step,psx,psy
         else:
-          Kernel.Cout.Error("Undefined direction.")
-          Kernel.ErrChk(1,"Undefined direction for King in Actors.")
+          Kernel.Cout.Error("Undefined direction or None in direction.")
+          Kernel.ErrChk(1,"Undefined direction or None in direction for Actors.King.Move().")
           return -1
       elif mvtp==1:
         x,y=goto
@@ -826,7 +829,7 @@ class Actors:#entity class.
         return -1
     @staticmethod
     def Init(inittype,ar1=None,ar2=None,ar3=None):#built-in function,for init player vars.
-      global plr,plg,plb,psy,psx,plw,plh,v_live,v_hev,ammo9,ammo357,inclip9,inclip357,item_suit,weapon_crb,weapon_pst,weapon_357,weapon_physcnn
+      global plspd,plr,plg,plb,psy,psx,plw,plh,v_live,v_hev,ammo9,ammo357,inclip9,inclip357,item_suit,weapon_crb,weapon_pst,weapon_357,weapon_physcnn
       if inittype==1:
         plr=ar1
         plg=ar2
@@ -868,6 +871,9 @@ class Actors:#entity class.
         return 11
       elif inittype==12:
         item_suit=ar1
+        return 12
+      elif inittype==13:
+        plspd=ar1
         return 12
       else:
         Kernel.Cout.Error("Unknown init type.")
