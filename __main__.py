@@ -58,8 +58,8 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 31 Build(0124)");
-DEBUGDATE=str("2025/08/04");
+GAMEVER=str("Gyro 32 Build(0125)");
+DEBUGDATE=str("2025/08/07");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -218,7 +218,7 @@ class Kernel:#Code base class
         gc.collect()
       except Exception as e:
         Kernel.Cout.Error("Mod cannot be uninstalled, "+str(e))
-        Kernel.ErrChk(4,"Can not uninstall mod.")
+        Kernel.ErrChk(4,"Cannot uninstall mod.")
       vtk=False
       modenb=False
       Kernel.Cout.Info("Mod disabled.")
@@ -517,7 +517,7 @@ class Kernel:#Code base class
           Kernel.Cout.Info("Executed code.")
         except Exception as e:
           Kernel.Cout.Error("Unable to execute code. "+str(e))
-          Kernel.ErrChk(5,"Can not execute code.")
+          Kernel.ErrChk(5,"Cannot execute code.")
         except SystemExit:
           StdUtil.ConsoleLog(3)
           del g
@@ -761,7 +761,7 @@ class UniFX:#Universal VFX class.
         set_pen("thin","solid")
         return 16
       else:
-        Kernel.Cout.Error("Cannot find type of the VFX that dedicated")
+        Kernel.Cout.Error("Cannot find type of the VFX that dedicated.")
         Kernel.ErrChk(1,"VFX type not found.")
         return -1
 class Actors:#entity class.
@@ -770,9 +770,9 @@ class Actors:#entity class.
   class King:#Player class.
     def __init__(self):pass
     @staticmethod
-    def Draw(hide=False):#built-in function, draw player.
+    def Draw(hide=False,ignorehide=False):#built-in function, draw player.
       global plr,plg,plb,psy,psx,plw,plh,v_live
-      if v_live<=0 or hide:return 1
+      if not ignorehide and v_live<=0 or hide:return 1
       set_color(plr,plg,plb)
       fill_rect(psx,psy,plw,plh)
       return 0
@@ -785,9 +785,9 @@ class Actors:#entity class.
         pass
       if "ignoreall"in ignoretp:
         ignoretp=("ignorehud","ignoredeath","ignorevfx")
-      if "ignorevfx"not in ignoretp and v_live<=20 and v_live>=0:
+      if "ignorevfx"not in ignoretp and v_live<=20 and v_live>=0:#low health VFX.
         UniFX.LowHealth()
-      if "ignoredeath"not in ignoretp and v_live<=0:#death detecting
+      if "ignoredeath"not in ignoretp and v_live<=0:#death detecting.
         ActionUI.DispUi(0,0,7)
         Actors.King.Draw()
         paint_buffer()
@@ -797,29 +797,29 @@ class Actors:#entity class.
            if k=="enter":
              IO.Load()
              break
-      if "ignorehud"not in ignoretp and item_suit==1:#hud
+      if "ignorehud"not in ignoretp and item_suit==1:#hud.
         ActionUI.DispUi(0,0,6)
         ActionUI.DispUi(0,0,8)
     @staticmethod
-    def Move(mvtp,direction,step=5,goto=(0,0)):#built-in function,for movements and teleporting.
+    def Move(mvtp,direction,step=5,goto=(0,0),ignorefreeze=False):#built-in function,for movements and teleporting.
       global psx,psy,v_live
       if mvtp==0:
-        if v_live<=0:
-          Kernel.Cout.Info("Player died,ignored input")
+        if not ignorefreeze and v_live<=0:
+          Kernel.Cout.Info("Player died,ignored input.")
           return -1
-        if direction==1:psx+=step;return mvtp,direction,step
-        elif direction==2:psx-=step;return mvtp,direction,step
-        elif direction==3:psy+=step;return mvtp,direction,step
-        elif direction==4:psy-=step;return mvtp,direction,step
+        if direction==1:psx+=step;return mvtp,direction,step,psx,psy
+        elif direction==2:psx-=step;return mvtp,direction,step,psx,psy
+        elif direction==3:psy+=step;return mvtp,direction,step,psx,psy
+        elif direction==4:psy-=step;return mvtp,direction,step,psx,psy
         else:
           Kernel.Cout.Error("Undefined direction.")
-          Kernel.ErrChk(1,"Undefined direction.")
+          Kernel.ErrChk(1,"Undefined direction for King in Actors.")
           return -1
       elif mvtp==1:
         x,y=goto
         psx=x
         psy=y
-        return mvtp,x,y
+        return mvtp,x,y,psx,psy
       else:
         Kernel.Cout.Error("Undefined movement type.")
         Kernel.ErrChk(1,"Undefined movement type.")
@@ -1206,10 +1206,10 @@ class StdUtil:#Builtins class, Standard utilities.
     Kernel.Cout.Msg({
       1:"[INFO]Screen updated.",
       2:"[INFO]Start the Opening.",
-      3:"[INFO]Exit success,code:0",
+      3:"[INFO]Exit success,code:0.",
       4:"[INFO]All assets are ready to use.",
-      5:"[INFO]Game start",
-      6:"[INFO]Map loaded",
+      5:"[INFO]Game start.",
+      6:"[INFO]Map loaded.",
       7:"[INFO]Player died."}.get(numoflog))
     return numoflog
   @staticmethod
@@ -1278,7 +1278,7 @@ class StdUtil:#Builtins class, Standard utilities.
       return 1
     else:
       Kernel.Cout.Error("MapStat function cannot find defined type.")
-      Kernel.ErrChk(1,"Missing type")
+      Kernel.ErrChk(1,"Missing type.")
       return -1
 class Wbase:#Weapon system class.
   def __init__(self):pass
