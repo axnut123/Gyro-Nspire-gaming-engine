@@ -46,6 +46,7 @@ plb=int(0);
 plw=int(0);
 plh=int(0);
 plspd=int(5);
+kingignores=str("");
 autoloadmod=bool(False);
 dev=bool(False);
 usemod=bool(True);
@@ -100,13 +101,12 @@ class Kernel:#Code base class
     raise SystemExit(code)
   @staticmethod
   def SaveCfg():#built-in function, saving cfg variable to nspire document.
-    global scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,gcthresholdint,autoloadmod,langtype,dev,dr,usemod,novid,modamount,erxt,plspd
+    global scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,gcthresholdint,autoloadmod,langtype,dev,dr,usemod,novid,modamount,erxt
     try:
       IO.Save(True,"scgx",scrgeometx)
       IO.Save(True,"scgy",scrgeomety)
       IO.Save(True,"scgmx",scrgeometmx)
       IO.Save(True,"scgmy",scrgeometmy)
-      IO.Save(True,"plspd",plspd)
       if langtype==1:
         IO.Save(True,"langtype",1)
       elif langtype==2:
@@ -136,7 +136,7 @@ class Kernel:#Code base class
       return -1
   @staticmethod
   def Init(inittp):#built-in function.for init cfgs or other files engine needed.
-    global scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,autoloadmod,gcthresholdint,dev,dr,novid,langtype,usemod,modamount,erxt,tk,plspd
+    global scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,autoloadmod,gcthresholdint,dev,dr,novid,langtype,usemod,modamount,erxt,tk
     if inittp==1:
       try:
         cfg1=IO.Load(True,"novid")
@@ -152,7 +152,6 @@ class Kernel:#Code base class
         scrgeometmy=IO.Load(True,"scgmy")
         modamount=IO.Load(True,"modamount")
         gcthresholdint=IO.Load(True,"gcthint")
-        plspd=IO.Load(True,"plspd")
         if cfg1==1:novid=True
         else:novid=False
         if cfg2==1:dev=True
@@ -196,7 +195,7 @@ class Kernel:#Code base class
         Kernel.Cout.Preload("Platform check done.")
         return 2
   @staticmethod
-  def ErrChk(errtype=None,reason="Unknown Reason.",forceraise=False):#built-in function,for command "forceexitonerror".
+  def ErrChk(errtype=None,reason="Unknown Reason.",forceraise=False):#built-in function, error check. also used in command "forceexitonerror".
     global erxt
     if erxt==1 or forceraise:
       if not forceraise:Kernel.Cout.Debug("Error or warning encountered,\nstopped engine.")
@@ -382,7 +381,7 @@ class Kernel:#Code base class
       exec(runprgm)
   @staticmethod
   def _Console():#built-in function,for console.
-    global runprgm,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,ingamemod,modscripts,g,modenb,vtk,erxt,novid,tk,dev,dr,langtype,usemod,modamount,autoloadmod,gcthresholdint,plspd
+    global runprgm,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,ingamemod,modscripts,g,modenb,vtk,erxt,novid,tk,dev,dr,langtype,usemod,modamount,autoloadmod,gcthresholdint,kingignores
     Kernel.Cout.Preload("Starting console.")
     while True:
       g=str(input("]"))
@@ -426,15 +425,12 @@ class Kernel:#Code base class
       elif g=="help 3":
         Kernel.Cout.Msg("Gyro engine help page 3:\nscuptoggle: toggle the output when screen \nupdate.\nexec:use exec() to execute python code.\nnovid:disable launch video.\ninitcfg:execute cfg init process manually.\nsavecfg:save current configs.\ngetcfgs:get current cfg status.\nsetmodamount:tell mod loader how many mods shold be loaded.")
       elif g=="help 4":
-        Kernel.Cout.Msg("Gyro engine help page 4:\nautoloadmod:toggle the auto mod loading process.\nsetlang:set a language for engine.\nbegin:start a dedicated function\ne.g. 'Prgm.Main()' for main function.\nplayerspeed:modify player speed.")
+        Kernel.Cout.Msg("Gyro engine help page 4:\nautoloadmod:toggle the auto mod loading process.\nsetlang:set a language for engine.\nbegin:start a dedicated function\ne.g. 'Prgm.Main()' for main function.")
       elif g=="quit"or g=="stop"or g=="exit"or g=="esc":
         del g
         StdUtil.ConsoleLog(3)
         Kernel.quit(0)
         break
-      elif g=="playerspeed":
-        plspd=int(input("New player speed(int):"))
-        Kernel.Cout.Console("player speed is now:%s"%(plspd))
       elif g=="setmodamount":
         g=input("how many mods shold be load(default 100):")
         modamount=g
@@ -454,7 +450,6 @@ class Kernel:#Code base class
           Kernel.Cout.Error("Setting was failed. "+str(e))
           Kernel.ErrChk(3,"Bad arguments.")
       elif g=="getcfgs":
-        Kernel.Cout.Msg("player speed:%s"%(plspd))
         Kernel.Cout.Msg("exit on error:"+str(erxt))
         Kernel.Cout.Msg("gc threshold:"+str(gcthresholdint))
         Kernel.Cout.Msg("novid:"+str(novid))
@@ -477,10 +472,10 @@ class Kernel:#Code base class
       elif g=="novid":
         if not novid:
           novid=True
-          Kernel.Cout.Console("Disabled launch video")
+          Kernel.Cout.Console("Disabled launch video.")
         else:
           novid=False
-          Kernel.Cout.Console("Enabled launch video")
+          Kernel.Cout.Console("Enabled launch video.")
       elif g=="hwinfo":
         Kernel.Cout.Msg("Version"+str(GAMEVER))
         Kernel.Cout.Msg("Platform"+str(get_platform()))
@@ -503,7 +498,7 @@ class Kernel:#Code base class
         if not dev:
           dev=True
           Kernel.Cout.Console("Dev mode enabled.")
-        else:dev=False;Kernel.Cout.Console("Dev mode disabled")
+        else:dev=False;Kernel.Cout.Console("Dev mode disabled.")
       elif g=="adjustthreshold":
         try:
           gcthresholdint=int(input("gc.threshold:"))
@@ -558,7 +553,7 @@ class IO:#Input-Output class.
   def __init__(self):pass
   @staticmethod
   def Save(custom=False,name="customFile",gamevar=None,logout=True):#built-in function, for saving game.
-    global emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
+    global emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,plspd,plr,plg,plb,plh,plw,kingignores
     if not custom:
       try:
         store_value("playery",psy)
@@ -577,6 +572,13 @@ class IO:#Input-Output class.
         store_value("ammo9",ammo9)
         store_value("ammo357",ammo357)
         store_value("item_suit",item_suit)
+        store_value("plspd",plspd)
+        store_value("plw",plw)
+        store_value("plh",plh)
+        store_value("plr",plr)
+        store_value("plg",plg)
+        store_value("plb",plb)
+        store_value("kingignores",kingignores)
         if logout:Kernel.Cout.IO("Game saved.")
         return 0
       except Exception as e:
@@ -594,11 +596,13 @@ class IO:#Input-Output class.
         return -1
   @staticmethod
   def Delete(custom=False,name="customFile",gamevar=None,logout=True):#built-in function, for delete saved game.
-    global emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
+    global emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,plspd,plr,plg,plb,plh,plw,kingignores
     if not custom:
       try:
         store_value("playery",95)
         store_value("playerx",95)
+        store_value("plspd",5)
+        store_value("kingignores",kingignores)
         store_value("v_hev",0)
         store_value("emptysave",1)
         store_value("inclip9",0)
@@ -611,6 +615,11 @@ class IO:#Input-Output class.
         store_value("weapon_357",0)
         store_value("mapslt",0)
         store_value("ammo9",0)
+        store_value("plh",5)
+        store_value("plw",5)
+        store_value("plr",0)
+        store_value("plg",0)
+        store_value("plb",0)
         store_value("ammo357",0)
         store_value("item_suit",0)
         if logout:Kernel.Cout.IO("File deleted.")
@@ -631,9 +640,15 @@ class IO:#Input-Output class.
   @staticmethod
   def Load(custom=False,name="customFile",logout=True):#built-in function, for load a saved game.
     returnval=None
-    global emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
+    global emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,plspd,plw,plh,plr,plg,plb,kingignores
     if not custom:
       try:
+        plr=recall_value("plr")
+        plg=recall_value("plg")
+        plb=recall_value("plb")
+        plw=recall_value("plw")
+        plh=recall_value("plh")
+        kingignores=recall_value("kingignores")
         mapslt=recall_value("mapslt")
         emptysave=recall_value("emptysave")
         wpnslt=recall_value("wpnslt")
@@ -774,8 +789,8 @@ class Actors:#entity class.
       global plr,plg,plb,psy,psx,plw,plh,v_live
       if not ignorehide and v_live<=0 or hide:return 1
       if plw<=0 or plh<=0:
-        Kernel.Cout.Error("Player height or width is 0 or under 0!")
-        Kernel.ErrChk(5,"Player height or width is 0 or under 0.",True)
+        Kernel.Cout.Error("Player height or width is 0 or\nunder 0!")
+        Kernel.ErrChk(5,"Player height or width is 0 or\nunder 0.",True)
       set_color(plr,plg,plb)
       fill_rect(psx,psy,plw,plh)
       return 0
@@ -834,47 +849,50 @@ class Actors:#entity class.
         plr=ar1
         plg=ar2
         plb=ar3
-        return 1
+        return 1,plr,plg,plb
       elif inittype==2:
         psx=ar1
         psy=ar2
-        return 2
+        return 2,psx,psy
       elif inittype==3:
         plw=ar1
         plh=ar2
-        return 3
+        return 3,plw,plh
       elif inittype==4:
         v_live=ar1
-        return 4
+        return 4,v_live
       elif inittype==5:
         v_hev=ar1
-        return 5
+        return 5,v_hev
       elif inittype==6:
         ammo9=ar1
         inclip9=ar2
-        return 6
+        return 6,ammo9,inclip9
       elif inittype==7:
         ammo357=ar1
         inclip357=ar2
-        return 7
+        return 7,ammo357,inclip357
       elif inittype==8:
         weapon_crb=ar1
-        return 8
+        return 8,weapon_crb
       elif inittype==9:
         weapon_pst=ar1
-        return 9
+        return 9,weapon_pst
       elif inittype==10:
         weapon_357=ar1
-        return 10
+        return 10,weapon_357
       elif inittype==11:
         weapon_physcnn=ar1
-        return 11
+        return 11,weapon_physcnn
       elif inittype==12:
         item_suit=ar1
-        return 12
+        return 12,item_suit
       elif inittype==13:
         plspd=ar1
-        return 12
+        return 13,plspd
+      elif inittype==14:
+        kingignore=ar1
+        return 14,kingignore
       else:
         Kernel.Cout.Error("Unknown init type.")
         Kernel.ErrChk(1,"Unknown init type.")
@@ -1040,7 +1058,7 @@ class ActionUI:#UI class
     else:
       Kernel.Cout.Error("ActionUI.DispLanguage() method has an error occurred.")
       Kernel.ErrChk(1,"Missing key and value or dict error.")
-      return "Undef"
+      return langstr
   @staticmethod
   def DispUi(x,y,wintp):#built-in function,for display window, gui elements.
     global emptysave,erxt,dev,mapslt,debugs,v_live,v_hev,wpnslt,ammo9,ammo357,inclip9,inclip357,weapon_pst,weapon_crb,weapon_physcnn,weapon_357,dr,langtype,usemod,modamount
@@ -1547,7 +1565,7 @@ class Prgm:#program class.
   @staticmethod
   def Main():#main function.It's a very standard template for engine.
     inmenu=True
-    global ingamemod,erxt,modscripts,langtype,mapslt,dev,dr,emptysave,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,usemod,plspd
+    global ingamemod,erxt,modscripts,langtype,mapslt,dev,dr,emptysave,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,usemod,plspd,plw,plh,plr,plg,plb,kingignores
     StdUtil.ConsoleLog(4)
     while True:#game logic loop
       if inmenu:#menu guard
@@ -1574,6 +1592,8 @@ class Prgm:#program class.
             Actors.King.Init(10,0)
             Actors.King.Init(11,0)
             Actors.King.Init(12,0)
+            Actors.King.Init(13,5)
+            Actors.King.Init(14,"ignoredisable")
             break
           elif k=="b":
             for i in range(2):
@@ -1604,6 +1624,8 @@ class Prgm:#program class.
             Actors.King.Init(10,0)
             Actors.King.Init(11,0)
             Actors.King.Init(12,0)
+            Actors.King.Init(13,5)
+            Actors.King.Init(14,"ignoredisable")
             break
           elif k=="tab":
             while True:
@@ -1651,7 +1673,7 @@ class Prgm:#program class.
           if ingamemod=="ingamemod" and tk.mod_type()=="ingamemod"and usemod and tk is not None:tk.mod_main()
           ActionUI.DispUi(0,0,2)
           Actors.King.Draw()
-          Actors.King.Status("ignoredisable")
+          Actors.King.Status(kingignores)
           if k=="u" and dev:
             if not debugs:
               debugs=True
