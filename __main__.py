@@ -59,8 +59,8 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 32 Build(0126)");
-DEBUGDATE=str("2025/08/08");
+GAMEVER=str("Gyro 32 Build(0127)");
+DEBUGDATE=str("2025/08/12");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -86,6 +86,7 @@ scrgeometmx=int(0);
 scrgeometmy=int(0);
 gcthresholdint=int(-1);
 runprgm=str("");
+released=int(0);
 emptysave=int(1);#True or False dosent work.
 class CfgError(Exception):pass
 class ArgumentNotFound(Exception):pass
@@ -136,7 +137,7 @@ class Kernel:#Code base class
       return -1
   @staticmethod
   def Init(inittp):#built-in function.for init cfgs or other files engine needed.
-    global scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,autoloadmod,gcthresholdint,dev,dr,novid,langtype,usemod,modamount,erxt,tk
+    global scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,autoloadmod,gcthresholdint,dev,dr,novid,langtype,usemod,modamount,erxt,tk,released
     if inittp==1:
       try:
         cfg1=IO.Load(True,"novid")
@@ -146,6 +147,7 @@ class Kernel:#Code base class
         cfg5=IO.Load(True,"autoloadmod",)
         erxt=IO.Load(True,"erxt")
         langtype=IO.Load(True,"langtype")
+        released=IO.Load(True,"released")
         scrgeometx=IO.Load(True,"scgx")
         scrgeomety=IO.Load(True,"scgy")
         scrgeometmx=IO.Load(True,"scgmx")
@@ -360,12 +362,18 @@ class Kernel:#Code base class
     fill_rect(0,0,500,300)
     ActionUI.DispUi(0,0,9)
     use_buffer()#Start buffer system
+    Kernel.Cout.Info("Window created with size:\nX:%s,MAXX:%s,Y:%s,MAXY:%s."%(geometx,geometmx,geomety,geometmy))
     return 0
   @staticmethod
   def _GameLauncher():#Built-in function, for game loading process.
-    global novid,modenb,g,tk,ingamemod,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,gcthresholdint,runprgm
-    del g
-    Kernel.Cout.Console("Console is being closed.\n[INFO]Engine is now started.")
+    global novid,modenb,g,tk,ingamemod,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,gcthresholdint,runprgm,released
+    Kernel.Cout.Preload("Starting console.")
+    if not released:Kernel._Console()
+    else:
+      Kernel.Cout.Console("Console is being closed.")
+      runprgm="Prgm.Main()"
+      Kernel.Cout.Console("Set default script to main function.")
+    Kernel.Cout.Info("Engine is now started.")
     gc.collect()
     StdUtil.ConsoleLog(2)
     gc.threshold(int(gcthresholdint))
@@ -381,17 +389,36 @@ class Kernel:#Code base class
       exec(runprgm)
   @staticmethod
   def _Console():#built-in function,for console.
-    global runprgm,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,ingamemod,modscripts,g,modenb,vtk,erxt,novid,tk,dev,dr,langtype,usemod,modamount,autoloadmod,gcthresholdint,kingignores
-    Kernel.Cout.Preload("Starting console.")
+    global runprgm,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,ingamemod,modscripts,g,modenb,vtk,erxt,novid,tk,dev,dr,langtype,usemod,modamount,autoloadmod,gcthresholdint,kingignores,released
+    Kernel.Cout.Preload("Console started.")
     while True:
       g=str(input("]"))
       if g=="run"or g=="start":
         Kernel.Cout.Console("Running engine.")
         runprgm="Prgm.Main()"
+        del g
         break
       elif g=="begin":
         runprgm=str(input("function name:"))
+        del g
         break
+      elif g=="releasegame":
+        Kernel.Cout.Msg("Are you sure you want to release the game?\nOnce released, the console will no longer launch at startup.All dev-related configuration files will be preserved.Please review and update dev\nconfigs if necessary before proceeding. This\naction can only be undone by\nchanging the 'released' variable after console\nclosed or use 'cancelrelease' command before\nconsole closed.")
+        r=str(input("Confirm. (y/n):"))
+        if r=="y":
+          released=1
+          IO.Save(True,"released",released)
+          Kernel.Cout.Console("Your game have been released,\nthis console will no longer launch at next startup.")
+        else:Kernel.Cout.Console("User cancelled.")
+        del r
+      elif g=="cancelrelease":
+        r=str(input("Confirm. (y/n):"))
+        if r=="y":
+          released=0
+          IO.Save(True,"released",released)
+          Kernel.Cout.Console("Game releasing have been cancelled.")
+        else:Kernel.Cout.Console("User cancelled.")
+        del r
       elif g=="setlang":
         g=str(input("1:English,2:Simplified Chinese,3.Cancel"))
         if g=="1":
@@ -421,11 +448,11 @@ class Kernel:#Code base class
       elif g=="help 1":
         Kernel.Cout.Msg("Gyro engine help page 1:\nrun:start engine.\nhelp <page(1/2/3/4)>:get help.\nquit:stop engine and console.\nsetgeomet:set a new resolution for screen.\nforceexitonerror:forcely stop whole engine when encounting any error and warn.\nversion:get engine version and credits.\nhwinfo:get hardware info.\ncls:clear screen.")
       elif g=="help 2":
-        Kernel.Cout.Msg("Gyro engine help page 2:\nloadgame:load game from saved file.\ndeletesave:delete saved game.\nmodinit:init installed mod.\nrunmod:start mod.\nmodver:get version for mod.\ndisablemod:disable mod.(pop)\nadjustthreshold:change the value for gc.threshold()\ndev: toggle devloper mode.")
+        Kernel.Cout.Msg("Gyro engine help page 2:\nloadgame:load game from saved file.\ndeletesave:delete saved game.\nmodinit:init installed mod.\nrunmod:start mod.\nmodver:get version for mod.\ndisablemod:disable mod.(pop)\nadjustthreshold:change the value for\ngc.threshold()\ndev: toggle devloper mode.")
       elif g=="help 3":
         Kernel.Cout.Msg("Gyro engine help page 3:\nscuptoggle: toggle the output when screen \nupdate.\nexec:use exec() to execute python code.\nnovid:disable launch video.\ninitcfg:execute cfg init process manually.\nsavecfg:save current configs.\ngetcfgs:get current cfg status.\nsetmodamount:tell mod loader how many mods shold be loaded.")
       elif g=="help 4":
-        Kernel.Cout.Msg("Gyro engine help page 4:\nautoloadmod:toggle the auto mod loading process.\nsetlang:set a language for engine.\nbegin:start a dedicated function\ne.g. 'Prgm.Main()' for main function.")
+        Kernel.Cout.Msg("Gyro engine help page 4:\nautoloadmod:toggle the auto mod loading\nprocess.\nsetlang:set a language for engine.\nbegin:start a dedicated function\ne.g. 'Prgm.Main()' for main function.\nreleasegame:release your game.\ncancelrelease:undo when you released game\nwith command 'releasegame'.")
       elif g=="quit"or g=="stop"or g=="exit"or g=="esc":
         del g
         StdUtil.ConsoleLog(3)
@@ -1943,5 +1970,4 @@ if (__name__=="__main__"):#all program starts from here.
       Kernel.quit(-1)
   Kernel.Init(2)
   Kernel.Init(1)
-  Kernel._Console()
   Kernel._GameLauncher()
