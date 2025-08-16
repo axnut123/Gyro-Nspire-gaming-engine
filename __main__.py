@@ -59,8 +59,9 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 32 Build(0127)");
-DEBUGDATE=str("2025/08/12");
+GAMEVER=str("Gyro 32 Build(0128)");
+DEBUGDATE=str("2025/08/17");
+GAMETITLE=str("Gyro engine built-in examples.");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -87,12 +88,12 @@ scrgeometmy=int(0);
 gcthresholdint=int(-1);
 runprgm=str("");
 released=int(0);
-emptysave=int(1);#True or False dosent work.
+emptysave=int(1);#True or False does not work.
 class CfgError(Exception):pass
 class ArgumentNotFound(Exception):pass
 class UnknownError(Exception):pass
 class ModError(Exception):pass
-class IOError(Exception):pass#MicroPy dosent have this.
+class IOError(Exception):pass#MicroPy does not have this.
 class GameError(Exception):pass#Error classes.
 class Kernel:#Code base class
   def __init__(self):pass
@@ -366,15 +367,16 @@ class Kernel:#Code base class
     return 0
   @staticmethod
   def _GameLauncher():#Built-in function, for game loading process.
-    global novid,modenb,g,tk,ingamemod,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,gcthresholdint,runprgm,released
+    global novid,modenb,g,tk,ingamemod,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,gcthresholdint,runprgm,released,GAMETITLE,DEBUGDATE,GAMEVER
     Kernel.Cout.Preload("Starting console.")
     if not released:Kernel._Console()
     else:
-      Kernel.Cout.Console("Console is being closed.")
+      Kernel.Cout.Console("Console is being ignore and closed because game is in release state.")
       runprgm="Prgm.Main()"
       Kernel.Cout.Console("Set default script to main function.")
     Kernel.Cout.Info("Engine is now started.")
     gc.collect()
+    Kernel.Cout.Info("Engine and game info: version:%s, debug date:%s,\ngame title:'%s'."%(GAMEVER,DEBUGDATE,GAMETITLE))
     StdUtil.ConsoleLog(2)
     gc.threshold(int(gcthresholdint))
     Kernel._CreateWindow(scrgeomety,scrgeometx,scrgeometmx,scrgeometmy)
@@ -389,8 +391,8 @@ class Kernel:#Code base class
       exec(runprgm)
   @staticmethod
   def _Console():#built-in function,for console.
-    global runprgm,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,ingamemod,modscripts,g,modenb,vtk,erxt,novid,tk,dev,dr,langtype,usemod,modamount,autoloadmod,gcthresholdint,kingignores,released
-    Kernel.Cout.Preload("Console started.")
+    global runprgm,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,ingamemod,modscripts,g,modenb,vtk,erxt,novid,tk,dev,dr,langtype,usemod,modamount,autoloadmod,gcthresholdint,kingignores,released,GAMEVER,DEBUGDATE,GAMETITLE
+    Kernel.Cout.Preload("Console is created because game is in debug state.")
     while True:
       g=str(input("]"))
       if g=="run"or g=="start":
@@ -450,18 +452,20 @@ class Kernel:#Code base class
       elif g=="help 2":
         Kernel.Cout.Msg("Gyro engine help page 2:\nloadgame:load game from saved file.\ndeletesave:delete saved game.\nmodinit:init installed mod.\nrunmod:start mod.\nmodver:get version for mod.\ndisablemod:disable mod.(pop)\nadjustthreshold:change the value for\ngc.threshold()\ndev: toggle devloper mode.")
       elif g=="help 3":
-        Kernel.Cout.Msg("Gyro engine help page 3:\nscuptoggle: toggle the output when screen \nupdate.\nexec:use exec() to execute python code.\nnovid:disable launch video.\ninitcfg:execute cfg init process manually.\nsavecfg:save current configs.\ngetcfgs:get current cfg status.\nsetmodamount:tell mod loader how many mods shold be loaded.")
+        Kernel.Cout.Msg("Gyro engine help page 3:\nscuptoggle: toggle the output when screen \nupdate.\nexec:use exec() to execute python code.\nnovid:disable launch video.\ninitcfg:execute cfg init process manually.\nsavecfg:save current configs.\ngetcfgs:get current cfg status.\nsetmodamount:tell mod loader how many mods should be loaded.")
       elif g=="help 4":
-        Kernel.Cout.Msg("Gyro engine help page 4:\nautoloadmod:toggle the auto mod loading\nprocess.\nsetlang:set a language for engine.\nbegin:start a dedicated function\ne.g. 'Prgm.Main()' for main function.\nreleasegame:release your game.\ncancelrelease:undo when you released game\nwith command 'releasegame'.")
+        Kernel.Cout.Msg("Gyro engine help page 4:\nautoloadmod:toggle the auto mod loading\nprocess.\nsetlang:set a language for engine.\nbegin:start a dedicated function,\ne.g. 'Prgm.Main()' for main function.\nreleasegame:release your game.\ncancelrelease:undo when you released game\nwith command 'releasegame'.\nchangegametitle:change the title of game.")
       elif g=="quit"or g=="stop"or g=="exit"or g=="esc":
         del g
         StdUtil.ConsoleLog(3)
         Kernel.quit(0)
         break
+      elif g=="changegametitle":
+        GAMETITLE=str(input("New title(string only):"))
+        Kernel.Cout.Console("Game title set to:%s"%(GAMETITLE))
       elif g=="setmodamount":
-        g=input("how many mods shold be load(default 100):")
-        modamount=g
-        Kernel.Cout.Console(str(modamount)+" mods will be trying to load.")
+        modamount=input("how many mods should engine load?(default 100):")
+        Kernel.Cout.Console(str(modamount)+" mods will be trying to load at next time.")
       elif g=="scuptoggle":
         if not dr:
           dr=True;Kernel.Cout.Console("Enabled.")
@@ -495,7 +499,7 @@ class Kernel:#Code base class
           erxt=1
           Kernel.Cout.Console("Exit when error enabled.")
       elif g=="version":
-        Kernel.Cout.Msg("Gyro 2D Gaming engine.\n"+str(GAMEVER)+"\nDebugged in:"+str(DEBUGDATE)+"\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:"+str(sys.version)+"\nEngine built on Python 3.4.0")
+        Kernel.Cout.Msg("Gyro 2D Gaming engine.\n"+str(GAMEVER)+"\nDebugged in:"+str(DEBUGDATE)+"\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:"+str(sys.version)+"\nEngine built on Python 3.4.0.")
       elif g=="novid":
         if not novid:
           novid=True
@@ -579,6 +583,12 @@ class Kernel:#Code base class
 class IO:#Input-Output class.
   def __init__(self):pass
   @staticmethod
+  def _Translator(translatetype,inputs=None):#built-in function, for translating str to int or int to str.
+    if translatetype==1:
+      return {"ignoredisable":0,"ignorehud":1,"ignorevfx":2,"ignoredeath":3,"ignoreall":4}.get(inputs)
+    elif translatetype==2:
+      return {0:"ignoredisable",1:"ignorehud",2:"ignorevfx",3:"ignoredeath",4:"ignoreall"}.get(inputs)
+  @staticmethod
   def Save(custom=False,name="customFile",gamevar=None,logout=True):#built-in function, for saving game.
     global emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,plspd,plr,plg,plb,plh,plw,kingignores
     if not custom:
@@ -605,7 +615,7 @@ class IO:#Input-Output class.
         store_value("plr",plr)
         store_value("plg",plg)
         store_value("plb",plb)
-        store_value("kingignores",kingignores)
+        store_value("kingignores",int(IO._Translator(1,inputs=kingignores)))
         if logout:Kernel.Cout.IO("Game saved.")
         return 0
       except Exception as e:
@@ -629,7 +639,7 @@ class IO:#Input-Output class.
         store_value("playery",95)
         store_value("playerx",95)
         store_value("plspd",5)
-        store_value("kingignores",kingignores)
+        store_value("kingignores",0)
         store_value("v_hev",0)
         store_value("emptysave",1)
         store_value("inclip9",0)
@@ -675,7 +685,8 @@ class IO:#Input-Output class.
         plb=recall_value("plb")
         plw=recall_value("plw")
         plh=recall_value("plh")
-        kingignores=recall_value("kingignores")
+        plspd=recall_value("plspd")
+        kingignoreinputraw=recall_value("kingignores")
         mapslt=recall_value("mapslt")
         emptysave=recall_value("emptysave")
         wpnslt=recall_value("wpnslt")
@@ -692,8 +703,10 @@ class IO:#Input-Output class.
         weapon_crb=recall_value("weapon_crb")
         weapon_physcnn=recall_value("weapon_physcnn")
         item_suit=recall_value("item_suit")
+        kingignores=IO._Translator(2,kingignoreinputraw)
+        del kingignoreinputraw
         if v_live<=0:
-          Kernel.Cout.Warning("Game save is invalid with health:"+str(v_live)+".\n please reset current save. with savereset.py")
+          Kernel.Cout.Warning("Game save is invalid with health:"+str(v_live)+".\n please reset current save. with savereset.py.")
           Kernel.ErrChk(5,"Health is 0 at game save.")
           return -2
         if emptysave==1:
@@ -714,7 +727,7 @@ class IO:#Input-Output class.
         return returnval
       except Exception as e:
         Kernel.Cout.Error("File operation failed on:"+str(name)+".\n"+str(e))
-        Kernel.ErrChk(2,"Cannot load file")
+        Kernel.ErrChk(2,"Cannot load file.")
         return None
 class UniFX:#Universal VFX class.
   def __init__(self):pass
@@ -846,7 +859,7 @@ class Actors:#entity class.
         ActionUI.DispUi(0,0,6)
         ActionUI.DispUi(0,0,8)
     @staticmethod
-    def Move(mvtp,direction=None,step=5,goto=(0,0),ignorefreeze=False):#built-in function,for movements and teleporting.
+    def Move(mvtp,direction=None,step=5,goto=(0,0),ignorefreeze=False):#built-in function,for movements and teleporting. set the step to 0 to freeze player.
       global psx,psy,v_live
       if mvtp==0:
         if not ignorefreeze and v_live<=0:
@@ -871,7 +884,7 @@ class Actors:#entity class.
         return -1
     @staticmethod
     def Init(inittype,ar1=None,ar2=None,ar3=None):#built-in function,for init player vars.
-      global plspd,plr,plg,plb,psy,psx,plw,plh,v_live,v_hev,ammo9,ammo357,inclip9,inclip357,item_suit,weapon_crb,weapon_pst,weapon_357,weapon_physcnn
+      global plspd,plr,plg,plb,psy,psx,plw,plh,v_live,v_hev,ammo9,ammo357,inclip9,inclip357,item_suit,weapon_crb,weapon_pst,weapon_357,weapon_physcnn,kingignores
       if inittype==1:
         plr=ar1
         plg=ar2
@@ -918,8 +931,8 @@ class Actors:#entity class.
         plspd=ar1
         return 13,plspd
       elif inittype==14:
-        kingignore=ar1
-        return 14,kingignore
+        kingignores=ar1
+        return 14,kingignores
       else:
         Kernel.Cout.Error("Unknown init type.")
         Kernel.ErrChk(1,"Unknown init type.")
