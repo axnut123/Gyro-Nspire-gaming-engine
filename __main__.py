@@ -75,8 +75,6 @@ ammo9max=int(180);
 ammo357max=int(12);
 inclip9=int(0);
 inclip357=int(0);
-reload9=int(0);
-reload357=int(0);
 vtk=bool(False);
 modenb=bool(False);
 ingamemod=str("");
@@ -352,8 +350,8 @@ class Kernel:#Code base class
       if dev:Kernel.Cout._CoutBase(8,text,autoret,flush)
   @staticmethod
   def _ResetGame():#built-in function,for soft reset.
-    global plspd,reload357,reload9,ammo9max,ammo357max,mapslt,psx,v_live,v_hev,plh,plw,plr,plg,plb,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
-    plspd=0;mapslt=0;plh=0;plw=0;plg=0;plb=0;plr=0;psx=0;psy=0;v_hev=0;wpnslt=0;item_suit=0;weapon_crb=0;weapon_physcnn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0;v_live=100;ammo9max=180;ammo357max=12;inclip9=0;inclip357=0;reload9=0;reload357=0
+    global plspd,ammo9max,ammo357max,mapslt,psx,v_live,v_hev,plh,plw,plr,plg,plb,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
+    plspd=0;mapslt=0;plh=0;plw=0;plg=0;plb=0;plr=0;psx=0;psy=0;v_hev=0;wpnslt=0;item_suit=0;weapon_crb=0;weapon_physcnn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0;v_live=100;ammo9max=180;ammo357max=12;inclip9=0;inclip357=0
     Kernel.Cout.Info("Game reset completed.")
     return 0
   @staticmethod
@@ -376,7 +374,7 @@ class Kernel:#Code base class
       Kernel.Cout.Console("Set default script to main function.")
     Kernel.Cout.Info("Engine is now started.")
     gc.collect()
-    Kernel.Cout.Info("Engine and game info: version:%s, debug date:%s,\ngame title:'%s'."%(GAMEVER,DEBUGDATE,GAMETITLE))
+    Kernel.Cout.Info("Engine and game info:\nversion:%s, debug date:%s,\ngame title:'%s'."%(GAMEVER,DEBUGDATE,GAMETITLE))
     StdUtil.ConsoleLog(2)
     gc.threshold(int(gcthresholdint))
     Kernel._CreateWindow(scrgeomety,scrgeometx,scrgeometmx,scrgeometmy)
@@ -438,7 +436,7 @@ class Kernel:#Code base class
       elif g=="autoloadmod":
         if autoloadmod:autoloadmod=False
         else:autoloadmod=True
-        Kernel.Cout.Console("Auto mod load process is now:"+str(autoloadmod))
+        Kernel.Cout.Console("Auto mod load process is now:"+str(autoloadmod)+".")
       elif g=="modinit":Kernel._ModHandler(2)
       elif g=="runmod":
         a=Kernel._ModHandler(3)
@@ -550,13 +548,6 @@ class Kernel:#Code base class
           Kernel.quit(0)
       elif g=="":pass
       else:Kernel.Cout.Console("Unknown command:"+str(g)+".type help <page(1/2/3/4)> to get help.")
-  @staticmethod
-  def Info(infotype):#built-in function.For output information about engine.
-    return {
-    1:"(C) Haoriwa 2024-2025. All rights reserved.",
-    2:"Built on MicroPython 3.4.0.",
-    3:"Built for ARM Cortex-M7.",
-    4:"License type is GPL3.0,under the license.txt."}.get(infotype)
   @staticmethod
   def Opening():#the engine opening
     set_color(0,0,0)
@@ -709,7 +700,7 @@ class IO:#Input-Output class.
           Kernel.Cout.Warning("Game save is invalid with health:"+str(v_live)+".\n please reset current save. with savereset.py.")
           Kernel.ErrChk(5,"Health is 0 at game save.")
           return -2
-        if emptysave==1:
+        if emptysave:
           Kernel.Cout.Warning("Trying to load an empty save.")
           Kernel.ErrChk(5,"Cannot load empty save.")
           return -2
@@ -1011,7 +1002,7 @@ class ActionUI:#UI class
     "escquit":"esc:quit game",
     "suit":"SUIT",
     "health":"HEALTH",
-    "youdied":"You died,press enter to continue",
+    "youdied":"You died,press enter to continue.",
     "ammo":"AMMO",
     "crb":"CROWBAR",
     "physcnn":"GRAVITY GUN",
@@ -1359,20 +1350,16 @@ class Wbase:#Weapon system class.
         return 2
   @staticmethod
   def WeaponClip(type):#built-in function,for detect clips in gun.
-    global inclip9,inclip357,ammo357,ammo9,reload357,reload9
+    global inclip9,inclip357,ammo357,ammo9
     if type==1:
       if inclip9==0 and ammo9>=18:
-        reload9=0
         ammo9-=18
         inclip9+=18
-        reload9=1
         return 1
     elif type==2:
       if inclip357==0 and ammo357>=6:
-        reload357=0
         ammo357-=6
         inclip357+=6
-        reload357=1
         return 2
 class Assets:#asset class
   def __init__(self):pass
@@ -1755,10 +1742,10 @@ class Prgm:#program class.
             Kernel.Cout.Debug("gc collect completed.")
             break
           elif k=="d":#maybe create a new function to recall the effects.
-            if wpnslt==3 and reload9==0 and weapon_pst==1 and inclip9!=0:
+            if wpnslt==3 and weapon_pst==1 and inclip9!=0:
               inclip9-=1
               UniFX.BulletFX.BltFlr(1)
-            if wpnslt==4 and reload357==0 and weapon_357==1 and inclip357!=0:
+            if wpnslt==4 and weapon_357==1 and inclip357!=0:
               inclip357-=1
               UniFX.BulletFX.BltFlr(2)
             if wpnslt==1 and weapon_crb==1:
@@ -1769,10 +1756,10 @@ class Prgm:#program class.
             sleep(0.1)
             break
           elif k=="r":
-            if wpnslt==3 and reload9==0 and weapon_pst==1 and inclip9!=0:
+            if wpnslt==3 and weapon_pst==1 and inclip9!=0:
               inclip9-=1
               UniFX.BulletFX.BltFlr(5)
-            if wpnslt==4 and reload357==0 and weapon_357==1 and inclip357!=0:
+            if wpnslt==4 and weapon_357==1 and inclip357!=0:
               inclip357-=1
               UniFX.BulletFX.BltFlr(6)
             if wpnslt==1 and weapon_crb==1:
@@ -1783,10 +1770,10 @@ class Prgm:#program class.
             sleep(0.1)
             break
           elif k=="j":
-            if wpnslt==3 and reload9==0 and weapon_pst==1 and inclip9!=0:
+            if wpnslt==3 and weapon_pst==1 and inclip9!=0:
               inclip9-=1
               UniFX.BulletFX.BltFlr(9)
-            if wpnslt==4 and reload357==0 and weapon_357==1 and inclip357!=0:
+            if wpnslt==4 and weapon_357==1 and inclip357!=0:
               inclip357-=1
               UniFX.BulletFX.BltFlr(10)
             if wpnslt==1 and weapon_crb==1:
@@ -1797,10 +1784,10 @@ class Prgm:#program class.
             sleep(0.1)
             break
           elif k=="l":
-            if wpnslt==3 and reload9==0 and weapon_pst==1 and inclip9!=0:
+            if wpnslt==3 and weapon_pst==1 and inclip9!=0:
               inclip9-=1
               UniFX.BulletFX.BltFlr(13)
-            if wpnslt==4 and reload357==0 and weapon_357==1 and inclip357!=0:
+            if wpnslt==4 and weapon_357==1 and inclip357!=0:
               inclip357-=1
               UniFX.BulletFX.BltFlr(14)
             if wpnslt==1 and weapon_crb==1:
