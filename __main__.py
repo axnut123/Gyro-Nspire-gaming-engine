@@ -59,8 +59,8 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 32 Build(0128)");
-DEBUGDATE=str("2025/08/17");
+GAMEVER=str("Gyro 32 Build(0129)");
+DEBUGDATE=str("2025/08/24");
 GAMETITLE=str("Gyro engine built-in examples.");
 wpnslt=int(0);
 item_suit=int(0);
@@ -97,6 +97,7 @@ class Kernel:#Code base class
   def __init__(self):pass
   @staticmethod
   def quit(code=None):#built-in function, in nspire cx ii python the quit function is not defined.
+    StdUtil.ConsoleLog(3,code)
     gc.collect()
     raise SystemExit(code)
   @staticmethod
@@ -455,7 +456,6 @@ class Kernel:#Code base class
         Kernel.Cout.Msg("Gyro engine help page 4:\nautoloadmod:toggle the auto mod loading\nprocess.\nsetlang:set a language for engine.\nbegin:start a dedicated function,\ne.g. 'Prgm.Main()' for main function.\nreleasegame:release your game.\ncancelrelease:undo when you released game\nwith command 'releasegame'.\nchangegametitle:change the title of game.")
       elif g=="quit"or g=="stop"or g=="exit"or g=="esc":
         del g
-        StdUtil.ConsoleLog(3)
         Kernel.quit(0)
         break
       elif g=="changegametitle":
@@ -543,7 +543,6 @@ class Kernel:#Code base class
           Kernel.Cout.Error("Unable to execute code. "+str(e))
           Kernel.ErrChk(5,"Cannot execute code.")
         except SystemExit:
-          StdUtil.ConsoleLog(3)
           del g
           Kernel.quit(0)
       elif g=="":pass
@@ -1257,11 +1256,11 @@ class ActionUI:#UI class
 class StdUtil:#Builtins class, Standard utilities.
   def __init__(self):pass
   @staticmethod
-  def ConsoleLog(numoflog):#built-in function,for console output.
+  def ConsoleLog(numoflog,c):#built-in function,for console output.
     Kernel.Cout.Msg({
       1:"[INFO]Screen updated.",
       2:"[INFO]Start the Opening.",
-      3:"[INFO]Exit success,code:0.",
+      3:"[INFO]Engine stopped with code:%s."%(c),
       4:"[INFO]All assets are ready to use.",
       5:"[INFO]Game start.",
       6:"[INFO]Map loaded.",
@@ -1686,7 +1685,6 @@ class Prgm:#program class.
                 paint_buffer()
                 break
           elif k=="esc":
-            StdUtil.ConsoleLog(3)
             Kernel.quit(0)
         clear()
         gc.collect()
@@ -1884,7 +1882,6 @@ class Prgm:#program class.
                     clear()
                     break
                   elif k=="q":
-                    StdUtil.ConsoleLog(3)
                     Kernel.quit(0)
                     break
                   elif k=="tab":
