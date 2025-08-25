@@ -1256,7 +1256,7 @@ class ActionUI:#UI class
 class StdUtil:#Builtins class, Standard utilities.
   def __init__(self):pass
   @staticmethod
-  def ConsoleLog(numoflog,c):#built-in function,for console output.
+  def ConsoleLog(numoflog,c=None):#built-in function,for console output.
     Kernel.Cout.Msg({
       1:"[INFO]Screen updated.",
       2:"[INFO]Start the Opening.",
