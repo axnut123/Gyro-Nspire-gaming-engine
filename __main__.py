@@ -59,8 +59,8 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 32 Build(0129)");
-DEBUGDATE=str("2025/08/24");
+GAMEVER=str("Gyro 33 Build(0130)");
+DEBUGDATE=str("2025/08/25");
 GAMETITLE=str("Gyro engine built-in examples.");
 wpnslt=int(0);
 item_suit=int(0);
@@ -1263,11 +1263,11 @@ class StdUtil:#Builtins class, Standard utilities.
       3:"[INFO]Engine stopped with code:%s."%(c),
       4:"[INFO]All assets are ready to use.",
       5:"[INFO]Game start.",
-      6:"[INFO]Map loaded.",
+      6:"[INFO]Map ID:%s loaded."%(c),
       7:"[INFO]Player died."}.get(numoflog))
     return numoflog
   @staticmethod
-  def WaitStart(sec,callback):#built-in function. similar to sleep but will not stop engine.
+  def WaitStart(sec,callback):#built-in function. Async sleep.
     global endtick,active,action
     endtick=ticks_cpu()+sec
     active=True
