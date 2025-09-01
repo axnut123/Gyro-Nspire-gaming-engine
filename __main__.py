@@ -59,8 +59,8 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 33 Build(0130)");
-DEBUGDATE=str("2025/08/25");
+GAMEVER=str("Gyro 33 Build(0131)");
+DEBUGDATE=str("2025/09/01");
 GAMETITLE=str("Gyro engine built-in examples.");
 wpnslt=int(0);
 item_suit=int(0);
@@ -95,6 +95,10 @@ class IOError(Exception):pass#MicroPy does not have this.
 class GameError(Exception):pass#Error classes.
 class Kernel:#Code base class
   def __init__(self):pass
+  @staticmethod
+  def KrTerminateProcess():#built-in function, for forcibly stop this engine.
+    blocks=[]
+    while True:blocks.append(bytearray(1024*1024))
   @staticmethod
   def quit(code=None):#built-in function, in nspire cx ii python the quit function is not defined.
     StdUtil.ConsoleLog(3,code)
@@ -201,7 +205,7 @@ class Kernel:#Code base class
     global erxt
     if erxt==1 or forceraise:
       if not forceraise:Kernel.Cout.Debug("Error or warning encountered,\nstopped engine.")
-      else:Kernel.Cout.Debug("Forcely raised an error!")
+      else:Kernel.Cout.Debug("forcibly raised an error!")
       gc.collect()
       if errtype==1:raise ArgumentNotFound(reason)
       elif errtype==2:raise IOError(reason)
@@ -447,7 +451,7 @@ class Kernel:#Code base class
       elif g=="savecfg":
         Kernel.SaveCfg()
       elif g=="help 1":
-        Kernel.Cout.Msg("Gyro engine help page 1:\nrun:start engine.\nhelp <page(1/2/3/4)>:get help.\nquit:stop engine and console.\nsetgeomet:set a new resolution for screen.\nforceexitonerror:forcely stop whole engine when encounting any error and warn.\nversion:get engine version and credits.\nhwinfo:get hardware info.\ncls:clear screen.")
+        Kernel.Cout.Msg("Gyro engine help page 1:\nrun:start engine.\nhelp <page(1/2/3/4)>:get help.\nquit:stop engine and console.\nsetgeomet:set a new resolution for screen.\nforceexitonerror:forcibly stop whole engine when encounting any error and warn.\nversion:get engine version and credits.\nhwinfo:get hardware info.\ncls:clear screen.")
       elif g=="help 2":
         Kernel.Cout.Msg("Gyro engine help page 2:\nloadgame:load game from saved file.\ndeletesave:delete saved game.\nmodinit:init installed mod.\nrunmod:start mod.\nmodver:get version for mod.\ndisablemod:disable mod.(pop)\nadjustthreshold:change the value for\ngc.threshold()\ndev: toggle devloper mode.")
       elif g=="help 3":
@@ -1587,7 +1591,7 @@ class Assets:#asset class
     set_pen("thin","solid")
     return 0
 class Prgm:#program class.
-  def __init__():pass
+  def __init__(self):pass
   @staticmethod
   def Main():#main function.It's a very standard template for engine.
     inmenu=True
