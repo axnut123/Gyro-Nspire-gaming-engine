@@ -59,8 +59,8 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 33 Build(0131)");
-DEBUGDATE=str("2025/09/01");
+GAMEVER=str("Gyro 33 Build(0132)");
+DEBUGDATE=str("2025/09/02");
 GAMETITLE=str("Gyro engine built-in examples.");
 wpnslt=int(0);
 item_suit=int(0);
@@ -87,6 +87,13 @@ gcthresholdint=int(-1);
 runprgm=str("");
 released=int(0);
 emptysave=int(1);#True or False does not work.
+def version(vertype=0):#built-in function, version output.
+  global GAMEVER,DEBUGDATE,GAMETITLE
+  if vertype==0:return GAMEVER
+  elif vertype==1:return DEBUGDATE
+  elif vertype==2:return GAMETITLE
+  elif vertype==3:return "(C)Haoriwa 2024-2025, all rights reserved."
+  else:raise ValueError("Unknown arguments.")
 class CfgError(Exception):pass
 class ArgumentNotFound(Exception):pass
 class UnknownError(Exception):pass
