@@ -10,6 +10,7 @@
 #NO warranties are provided.Use at your own
 #risk. For full license text, visit-
 #https://www.gnu.org/licenses/gpl-3.0.html
+#========End of license texts===========
 #Please use PascalCase to name func, class.
 #In main function, everything is clean and
 #visible, if more features are needed, add
@@ -59,8 +60,8 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 33 Build(0132)");
-DEBUGDATE=str("2025/09/02");
+GAMEVER=str("Gyro 33 Build(0133)");
+DEBUGDATE=str("2025/09/05");
 GAMETITLE=str("Gyro engine built-in examples.");
 wpnslt=int(0);
 item_suit=int(0);
@@ -103,7 +104,8 @@ class GameError(Exception):pass#Error classes.
 class Kernel:#Code base class
   def __init__(self):pass
   @staticmethod
-  def KrTerminateProcess():#built-in function, for forcibly stop this engine.
+  def KrTerminateProcess(code=None):#built-in function, for forcibly stop this engine.
+    Kernel.Cout.Info("Game has stopped forcibly by code:%s"%(code))
     blocks=[]
     while True:blocks.append(bytearray(1024*1024))
   @staticmethod
@@ -212,7 +214,7 @@ class Kernel:#Code base class
     global erxt
     if erxt==1 or forceraise:
       if not forceraise:Kernel.Cout.Debug("Error or warning encountered,\nstopped engine.")
-      else:Kernel.Cout.Debug("forcibly raised an error!")
+      else:Kernel.Cout.Debug("Forcibly raised an error!")
       gc.collect()
       if errtype==1:raise ArgumentNotFound(reason)
       elif errtype==2:raise IOError(reason)
@@ -313,7 +315,7 @@ class Kernel:#Code base class
       7:"[PRE-LOAD]",
       8:"[IO]"}.get(ctp)
       if c is None:Kernel.ErrChk(1,"Output type is not defined.",True)
-      sys.stdout.write(c+str(text)+e)
+      sys.stdout.write(c+text+e)
       if flush:sys.stdout.flush()
     @staticmethod
     def Msg(text,autoret=True,flush=True):Kernel.Cout._CoutBase(0,text,autoret,flush)
@@ -382,7 +384,7 @@ class Kernel:#Code base class
     if not released:Kernel._Console()
     else:
       Kernel.Cout.Console("Console is being ignore and closed because game is in release state.")
-      runprgm="Prgm.Main()"
+      runprgm="Prgm.Main()"#You can change your main entry by editing this string.
       Kernel.Cout.Console("Set default script to main function.")
     Kernel.Cout.Info("Engine is now started.")
     gc.collect()
@@ -397,7 +399,7 @@ class Kernel:#Code base class
       Kernel.Cout.Info("Trying to load mod script.")
       tk.mod_main()
     else:
-      Kernel.Cout.Info("Mod loader was not enabled,\nloading dedicated script.")
+      Kernel.Cout.Info("Mod loader was not enabled,\nrunning:%s."%(runprgm))
       exec(runprgm)
   @staticmethod
   def _Console():#built-in function,for console.
@@ -407,7 +409,7 @@ class Kernel:#Code base class
       g=str(input("]"))
       if g=="run"or g=="start":
         Kernel.Cout.Console("Running engine.")
-        runprgm="Prgm.Main()"
+        runprgm="Prgm.Main()"#You can change your main entry by editing this string.
         del g
         break
       elif g=="begin":
@@ -428,7 +430,7 @@ class Kernel:#Code base class
         if r=="y":
           released=0
           IO.Save(True,"released",released)
-          Kernel.Cout.Console("Game releasing have been cancelled.")
+          Kernel.Cout.Console("Game releasing have been\ncancelled.")
         else:Kernel.Cout.Console("User cancelled.")
         del r
       elif g=="setlang":
@@ -517,14 +519,14 @@ class Kernel:#Code base class
           novid=False
           Kernel.Cout.Console("Enabled launch video.")
       elif g=="hwinfo":
-        Kernel.Cout.Msg("Version"+str(GAMEVER))
-        Kernel.Cout.Msg("Platform"+str(get_platform()))
-        Kernel.Cout.Msg("mem free"+str(gc.mem_free()))
-        Kernel.Cout.Msg("mem alloc"+str(gc.mem_alloc()))
-        Kernel.Cout.Msg("stack use"+str(mp.stack_use()))
-        Kernel.Cout.Msg("pystack use"+str(mp.pystack_use()))
-        Kernel.Cout.Msg("cpu tick"+str(ticks_cpu()))
-        Kernel.Cout.Msg("local time"+str(localtime()))
+        Kernel.Cout.Msg("Version:"+str(GAMEVER))
+        Kernel.Cout.Msg("Platform:"+str(get_platform()))
+        Kernel.Cout.Msg("mem free:"+str(gc.mem_free()))
+        Kernel.Cout.Msg("mem alloc:"+str(gc.mem_alloc()))
+        Kernel.Cout.Msg("stack use:"+str(mp.stack_use()))
+        Kernel.Cout.Msg("pystack use:"+str(mp.pystack_use()))
+        Kernel.Cout.Msg("cpu tick:"+str(ticks_cpu()))
+        Kernel.Cout.Msg("local time:"+str(localtime()))
         Kernel.Cout.Msg("gc threshold:"+str(gcthresholdint))
       elif g=="deletesave":
         IO.Delete()
