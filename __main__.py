@@ -60,8 +60,8 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("Gyro 33 Build(0133)");
-DEBUGDATE=str("2025/09/05");
+GAMEVER=str("Gyro 34 Build(0136)");
+DEBUGDATE=str("2025/09/12");
 GAMETITLE=str("Gyro engine built-in examples.");
 wpnslt=int(0);
 item_suit=int(0);
@@ -104,6 +104,11 @@ class GameError(Exception):pass#Error classes.
 class Kernel:#Code base class
   def __init__(self):pass
   @staticmethod
+  def ConVar(varName,value):#built-in function, for change a variable.
+    globals()[varName]=value
+    Kernel.Cout.Info("Changed %s to %s."%(varName,value))
+    return varName,value
+  @staticmethod
   def KrTerminateProcess(code=None):#built-in function, for forcibly stop this engine.
     Kernel.Cout.Info("Game has stopped forcibly by code:%s"%(code))
     blocks=[]
@@ -113,6 +118,9 @@ class Kernel:#Code base class
     StdUtil.ConsoleLog(3,code)
     gc.collect()
     raise SystemExit(code)
+  @staticmethod
+  def TotalMem():#built-in function. for getting total memory for current runtime.
+    return gc.mem_alloc()+gc.mem_free()
   @staticmethod
   def SaveCfg():#built-in function, saving cfg variable to nspire document.
     global scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,gcthresholdint,autoloadmod,langtype,dev,dr,usemod,novid,modamount,erxt
@@ -272,6 +280,8 @@ class Kernel:#Code base class
       else:
         Kernel.Cout.Error("Mod is not found.")
         Kernel.ErrChk(4,"Mod not found.")
+    elif hdtp==5:
+      if ingamemod=="ingamemod" and tk.mod_type()=="ingamemod"and usemod and tk is not None:tk.mod_main()
     else:
       Kernel.Cout.Error("Unknown argument.")
       Kernel.ErrChk(1,"Unknown argument.")
@@ -385,7 +395,7 @@ class Kernel:#Code base class
     else:
       Kernel.Cout.Console("Console is being ignore and closed because game is in release state.")
       runprgm="Prgm.Main()"#You can change your main entry by editing this string.
-      Kernel.Cout.Console("Set default script to main function.")
+      Kernel.Cout.Console("Set default script to function: %s."%(runprgm))
     Kernel.Cout.Info("Engine is now started.")
     gc.collect()
     Kernel.Cout.Info("Engine and game info:\nversion:%s, debug date:%s,\ngame title:'%s'."%(GAMEVER,DEBUGDATE,GAMETITLE))
@@ -426,7 +436,7 @@ class Kernel:#Code base class
         else:Kernel.Cout.Console("User cancelled.")
         del r
       elif g=="cancelrelease":
-        r=str(input("Confirm. (y/n):"))
+        r=str(input("Confirm for cancelling your releasegame\ncommand. (y/n):"))
         if r=="y":
           released=0
           IO.Save(True,"released",released)
@@ -467,6 +477,16 @@ class Kernel:#Code base class
         Kernel.Cout.Msg("Gyro engine help page 3:\nscuptoggle: toggle the output when screen \nupdate.\nexec:use exec() to execute python code.\nnovid:disable launch video.\ninitcfg:execute cfg init process manually.\nsavecfg:save current configs.\ngetcfgs:get current cfg status.\nsetmodamount:tell mod loader how many mods should be loaded.")
       elif g=="help 4":
         Kernel.Cout.Msg("Gyro engine help page 4:\nautoloadmod:toggle the auto mod loading\nprocess.\nsetlang:set a language for engine.\nbegin:start a dedicated function,\ne.g. 'Prgm.Main()' for main function.\nreleasegame:release your game.\ncancelrelease:undo when you released game\nwith command 'releasegame'.\nchangegametitle:change the title of game.")
+      elif g=="help 5":
+        Kernel.Cout.Msg("Gyro engine help page 5:\nconvar:change a global var.")
+      elif g=="convar":
+        v=str(input("variable:"))
+        f=str(input("value:"))
+        try:
+          Kernel.ConVar(v,f)
+        except Exception as e:
+          Kernel.Cout.Error("Variable operation failed. %s"%(e))
+        del v,f
       elif g=="quit"or g=="stop"or g=="exit"or g=="esc":
         del g
         Kernel.quit(0)
@@ -509,7 +529,7 @@ class Kernel:#Code base class
         else:
           erxt=1
           Kernel.Cout.Console("Exit when error enabled.")
-      elif g=="version":
+      elif g=="version"or g=="ver":
         Kernel.Cout.Msg("Gyro 2D Gaming engine.\n"+str(GAMEVER)+"\nDebugged in:"+str(DEBUGDATE)+"\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:"+str(sys.version)+"\nEngine built on Python 3.4.0.")
       elif g=="novid":
         if not novid:
@@ -523,6 +543,7 @@ class Kernel:#Code base class
         Kernel.Cout.Msg("Platform:"+str(get_platform()))
         Kernel.Cout.Msg("mem free:"+str(gc.mem_free()))
         Kernel.Cout.Msg("mem alloc:"+str(gc.mem_alloc()))
+        Kernel.Cout.Msg("total mem:"+str(Kernel.TotalMem()))
         Kernel.Cout.Msg("stack use:"+str(mp.stack_use()))
         Kernel.Cout.Msg("pystack use:"+str(mp.pystack_use()))
         Kernel.Cout.Msg("cpu tick:"+str(ticks_cpu()))
@@ -533,10 +554,10 @@ class Kernel:#Code base class
       elif g=="loadgame":
         IO.Load()
       elif g=="help":
-        Kernel.Cout.Msg("Usage: help <1/2/3/4>. example: help 1 for page 1.")
-      elif g=="cls":
+        Kernel.Cout.Msg("Usage: help <1/2/3/4/5>. example: help 1 for page 1.")
+      elif g=="cls"or g=="clr" or g=="clear":
         clear_history()
-      elif g=="dev":
+      elif g=="dev"or g=="developer":
         if not dev:
           dev=True
           Kernel.Cout.Console("Dev mode enabled.")
@@ -547,7 +568,7 @@ class Kernel:#Code base class
           Kernel.Cout.Console("New value given.")
         except Exception as e:
           Kernel.Cout.Error("Failed. "+str(e))
-      elif g=="exec":
+      elif g=="exec"or g=="execute":
         g=str(input("execute:"))
         try:
           exec(g)
@@ -559,7 +580,7 @@ class Kernel:#Code base class
           del g
           Kernel.quit(0)
       elif g=="":pass
-      else:Kernel.Cout.Console("Unknown command:"+str(g)+".type help <page(1/2/3/4)> to get help.")
+      else:Kernel.Cout.Console("Unknown command:"+str(g)+".type help <page(1/2/3/4/5)> to get help.")
   @staticmethod
   def Opening():#the engine opening
     set_color(0,0,0)
@@ -1028,8 +1049,16 @@ class ActionUI:#UI class
     "reso":"Resolution:",
     "set":"tab:settings",
     "titset":"Settings(press to toggle)",
-    "erxt":"force exit on error:"}
+    "erxt":"force exit on error:",
+    "gcisenb":"Is gc enabled:",
+    "totalmem":"Total Mem:",
+    "gcthreshold":"gc threshold:",
+    "gametitle":"game title:",
+    "usemod":"Is mod enabled:",
+    "noactulmodcnt":"(Not actual loaded count.)"}
     langdict2={
+    "usemod":"是否启用模组:",
+    "gametitle":"游戏名:",
     "liberr":"引擎启动失败。",
     "reqmis":"必要依赖项缺失。",
     "libchk":"请检查安装的库,按下esc以退出。",
@@ -1092,7 +1121,11 @@ class ActionUI:#UI class
     "357":".357 马格南",
     "load":"载入中...",
     "reso":"分辩率:",
-    "titset":"设置(按下切换)"}
+    "titset":"设置(按下切换)",
+    "gcisenb":"是否启用垃圾清理:",
+    "totalmem":"总运行内存:",
+    "noactulmodcnt":"(非模组加载数)",
+    "gcthreshold":"清理阈值:"}
     if langtype==1:out=str(langdict1.get(langstr))
     elif langtype==2:out=str(langdict2.get(langstr))
     else:out=str(langdict1.get(langstr))
@@ -1104,7 +1137,7 @@ class ActionUI:#UI class
       return langstr
   @staticmethod
   def DispUi(x,y,wintp):#built-in function,for display window, gui elements.
-    global emptysave,erxt,dev,mapslt,debugs,v_live,v_hev,wpnslt,ammo9,ammo357,inclip9,inclip357,weapon_pst,weapon_crb,weapon_physcnn,weapon_357,dr,langtype,usemod,modamount
+    global emptysave,erxt,dev,mapslt,debugs,v_live,v_hev,wpnslt,ammo9,ammo357,inclip9,inclip357,weapon_pst,weapon_crb,weapon_physcnn,weapon_357,dr,langtype,usemod,modamount,GAMETITLE
     if wintp==1:
       set_color(135,135,135)
       fill_rect(x,y,120,40)
@@ -1115,19 +1148,19 @@ class ActionUI:#UI class
     elif wintp==2:
       if debugs and dev:
         set_color(0,0,0)
-        draw_text(10,20,str(ActionUI.DispLanguage("memfree"))+str(gc.mem_free()))
-        draw_text(10,35,str(ActionUI.DispLanguage("memalloc"))+str(gc.mem_alloc()))
-        draw_text(10,55,str(ActionUI.DispLanguage("stackuse"))+str(mp.stack_use()))
-        draw_text(10,70,str(ActionUI.DispLanguage("pystackuse"))+str(mp.pystack_use()))
-        draw_text(10,85,str(ActionUI.DispLanguage("cputick"))+str(ticks_cpu()))
+        draw_text(10,20,str(ActionUI.DispLanguage("memfree"))+str(gc.mem_free())+"|"+str(ActionUI.DispLanguage("totalmem"))+str(Kernel.TotalMem()))
+        draw_text(10,35,str(ActionUI.DispLanguage("memalloc"))+str(gc.mem_alloc())+"|"+str(ActionUI.DispLanguage("gcisenb"))+str(gc.isenabled()))
+        draw_text(10,55,str(ActionUI.DispLanguage("stackuse"))+str(mp.stack_use())+"|"+str(ActionUI.DispLanguage("pystackuse"))+str(mp.pystack_use()))
+        draw_text(10,70,str(ActionUI.DispLanguage("gcthreshold"))+str(gc.threshold())+"|"+str(ActionUI.DispLanguage("cputick"))+str(ticks_cpu()))
+        draw_text(10,85,str(ActionUI.DispLanguage("gametitle"))+GAMETITLE)
         draw_text(10,100,str(ActionUI.DispLanguage("localtime"))+str(localtime()))
-        draw_text(10,115,str(ActionUI.DispLanguage("ppos"))+str(psx)+","+str(psy))
-        draw_text(10,130,str(ActionUI.DispLanguage("mapid"))+str(mapslt))
+        draw_text(10,115,str(ActionUI.DispLanguage("ppos"))+str(psx)+","+str(psy)+"|"+str(ActionUI.DispLanguage("mapid"))+str(mapslt))
+        draw_text(10,130,str(ActionUI.DispLanguage("usemod"))+str(modenb))
         draw_text(10,145,str(ActionUI.DispLanguage("ver"))+str(GAMEVER))
         draw_text(10,160,str(ActionUI.DispLanguage("dbdate")+str(DEBUGDATE)))
         draw_text(10,175,str(ActionUI.DispLanguage("platform"))+str(get_platform()))
         draw_text(10,190,str(ActionUI.DispLanguage("reso"))+str(scrgeometx)+","+str(scrgeomety)+","+str(scrgeometmx)+","+str(scrgeometmy))
-        draw_text(10,205,str(ActionUI.DispLanguage("modamount"))+str(modamount))
+        draw_text(10,205,str(ActionUI.DispLanguage("modamount"))+str(modamount)+str(ActionUI.DispLanguage("noactulmodcnt")))
         paint_buffer()
         return 2
     elif wintp==3:
@@ -1708,8 +1741,8 @@ class Prgm:#program class.
           k=get_key()
           Kernel.WaitUpdate()
           StdUtil.MapStat()
-          if ingamemod=="ingamemod" and tk.mod_type()=="ingamemod"and usemod and tk is not None:tk.mod_main()
           ActionUI.DispUi(0,0,2)
+          Kernel._ModHandler(5)
           Actors.King.Draw()
           Actors.King.Status(kingignores)
           if k=="u" and dev:
