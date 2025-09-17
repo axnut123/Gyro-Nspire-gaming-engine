@@ -1,4 +1,4 @@
-#IlChelcciCore 2D engine-Core module and source code.
+#Gyro 2D engine-Core module and source code.
 #COPYRIGHT (C) Haoriwa 2024 - 2025
 #All rights reserved.
 #Licensed under the GNU General Public
@@ -50,7 +50,6 @@ plspd=int(5);
 kingignores=str("");
 autoloadmod=bool(False);
 dev=bool(False);
-openingtype=int(1);
 usemod=bool(True);
 dr=bool(False);
 debugs=bool(False);
@@ -61,9 +60,9 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("IlChelcciCore 34 Build(0138)");
-DEBUGDATE=str("2025/09/17");
-GAMETITLE=str("IlChelcciCore engine built-in examples.");
+GAMEVER=str("Gyro 34 Build(0136)");
+DEBUGDATE=str("2025/09/12");
+GAMETITLE=str("Gyro engine built-in examples.");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -89,10 +88,7 @@ gcthresholdint=int(-1);
 runprgm=str("");
 released=int(0);
 emptysave=int(1);#True or False does not work.
-def Help(hptp=0):#built-in function, help infos. fill your own help in here.
-  if hptp==0:
-    return "Welcome to IlChelcciCore for TI-Nspire.for further information, please go to page 1.1."
-def Version(vertype=0):#built-in function, version output. fill your version here.
+def version(vertype=0):#built-in function, version output.
   global GAMEVER,DEBUGDATE,GAMETITLE
   if vertype==0:return GAMEVER
   elif vertype==1:return DEBUGDATE
@@ -114,10 +110,9 @@ class Kernel:#Code base class
     return varName,value
   @staticmethod
   def KrTerminateProcess(code=None):#built-in function, for forcibly stop this engine.
-    Kernel.Cout.Info("Trying to stop forcibly by code:%s.\nIf terminate fail, hold esc key for 5 secs to stop."%(code))
+    Kernel.Cout.Info("Game has stopped forcibly by code:%s"%(code))
     blocks=[]
     while True:blocks.append(bytearray(1024*1024))
-    raise BaseException("Trying to terminate engine by second way...")
   @staticmethod
   def quit(code=None):#built-in function, in nspire cx ii python the quit function is not defined.
     StdUtil.ConsoleLog(3,code)
@@ -128,9 +123,8 @@ class Kernel:#Code base class
     return gc.mem_alloc()+gc.mem_free()
   @staticmethod
   def SaveCfg():#built-in function, saving cfg variable to nspire document.
-    global scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,gcthresholdint,autoloadmod,langtype,dev,dr,usemod,novid,modamount,erxt,openingtype
+    global scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,gcthresholdint,autoloadmod,langtype,dev,dr,usemod,novid,modamount,erxt
     try:
-      IO.Save(True,"optp",openingtype)
       IO.Save(True,"scgx",scrgeometx)
       IO.Save(True,"scgy",scrgeomety)
       IO.Save(True,"scgmx",scrgeometmx)
@@ -164,15 +158,14 @@ class Kernel:#Code base class
       return -1
   @staticmethod
   def Init(inittp):#built-in function.for init cfgs or other files engine needed.
-    global scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,autoloadmod,gcthresholdint,dev,dr,novid,langtype,usemod,modamount,erxt,tk,released,openingtype
+    global scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,autoloadmod,gcthresholdint,dev,dr,novid,langtype,usemod,modamount,erxt,tk,released
     if inittp==1:
       try:
         cfg1=IO.Load(True,"novid")
         cfg2=IO.Load(True,"dev")
         cfg3=IO.Load(True,"dr")
-        cfg4=IO.Load(True,"usemod")
-        cfg5=IO.Load(True,"autoloadmod")
-        openingtype=IO.Load(True,"optp")
+        cfg4=IO.Load(True,"usemod",)
+        cfg5=IO.Load(True,"autoloadmod",)
         erxt=IO.Load(True,"erxt")
         langtype=IO.Load(True,"langtype")
         released=IO.Load(True,"released")
@@ -225,15 +218,7 @@ class Kernel:#Code base class
         Kernel.Cout.Preload("Platform check done.")
         return 2
   @staticmethod
-  def KrErrChk(errtype,reason="Unknown reason.",forceraise=False):#built-in function, for raise any error.
-    global erxt
-    if erxt==1 or forceraise:
-      if not forceraise:Kernel.Cout.Debug("Error or warning encountered,\nstopped engine.")
-      else:Kernel.Cout.Debug("Forcibly raised an error!")
-      gc.collect()
-      exec("raise %s('%s')"%(errtype,reason))
-  @staticmethod
-  def ErrChk(errtype=None,reason="Unknown reason.",forceraise=False):#built-in function, error check. also used in command "forceexitonerror".
+  def ErrChk(errtype=None,reason="Unknown Reason.",forceraise=False):#built-in function, error check. also used in command "forceexitonerror".
     global erxt
     if erxt==1 or forceraise:
       if not forceraise:Kernel.Cout.Debug("Error or warning encountered,\nstopped engine.")
@@ -264,7 +249,7 @@ class Kernel:#Code base class
         Kernel.Cout.Info("Mod is loading... if mod loading amount is more than 100, it will take a long time to load,\nplease wait.")
         for i in range(int(modamount)):
           try:
-            tk=__import__("ilcc_addon_main"+str(i))
+            tk=__import__("gyro_addon_main"+str(i))
             modscripts.append(tk)
           except ImportError:
             continue
@@ -329,7 +314,18 @@ class Kernel:#Code base class
     def _CoutBase(ctp,text,autoret,flush):#built-in function. Base function for console output methods.
       if autoret:e="\n"
       else:e=""
-      sys.stdout.write({0:"",1:"[WARN]",2:"[ERROR]",3:"[FATAL]",4:"[DEBUG]",5:"[INFO]",6:"[CONSOLE]",7:"[PRE-LOAD]",8:"[IO]"}.get(ctp)+text+e)
+      c={
+      0:"",
+      1:"[WARN]",
+      2:"[ERROR]",
+      3:"[FATAL]",
+      4:"[DEBUG]",
+      5:"[INFO]",
+      6:"[CONSOLE]",
+      7:"[PRE-LOAD]",
+      8:"[IO]"}.get(ctp)
+      if c is None:Kernel.ErrChk(1,"Output type is not defined.",True)
+      sys.stdout.write(c+text+e)
       if flush:sys.stdout.flush()
     @staticmethod
     def Msg(text,autoret=True,flush=True):Kernel.Cout._CoutBase(0,text,autoret,flush)
@@ -389,12 +385,11 @@ class Kernel:#Code base class
     fill_rect(0,0,500,300)
     ActionUI.DispUi(0,0,9)
     use_buffer()#Start buffer system
-    paint_buffer()
     Kernel.Cout.Info("Window created with size:\nX:%s,MAXX:%s,Y:%s,MAXY:%s."%(geometx,geometmx,geomety,geometmy))
     return 0
   @staticmethod
   def _GameLauncher():#Built-in function, for game loading process.
-    global novid,modenb,g,tk,ingamemod,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,gcthresholdint,runprgm,released,GAMETITLE,DEBUGDATE,GAMEVER,openingtype
+    global novid,modenb,g,tk,ingamemod,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,gcthresholdint,runprgm,released,GAMETITLE,DEBUGDATE,GAMEVER
     Kernel.Cout.Preload("Starting console.")
     if not released:Kernel._Console()
     else:
@@ -407,7 +402,7 @@ class Kernel:#Code base class
     StdUtil.ConsoleLog(2)
     gc.threshold(int(gcthresholdint))
     Kernel._CreateWindow(scrgeomety,scrgeometx,scrgeometmx,scrgeometmy)
-    if not novid:Kernel.Opening(openingtype)
+    if not novid:Kernel.Opening()
     if ingamemod=="ingamemod":modenb=False
     StdUtil.ConsoleLog(5)
     if modenb and ingamemod!="ingamemod":
@@ -416,10 +411,9 @@ class Kernel:#Code base class
     else:
       Kernel.Cout.Info("Mod loader was not enabled,\nrunning:%s."%(runprgm))
       exec(runprgm)
-    return 0
   @staticmethod
   def _Console():#built-in function,for console.
-    global runprgm,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,ingamemod,modscripts,g,modenb,vtk,erxt,novid,tk,dev,dr,langtype,usemod,modamount,autoloadmod,gcthresholdint,kingignores,released,GAMEVER,DEBUGDATE,GAMETITLE,openingtype
+    global runprgm,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,ingamemod,modscripts,g,modenb,vtk,erxt,novid,tk,dev,dr,langtype,usemod,modamount,autoloadmod,gcthresholdint,kingignores,released,GAMEVER,DEBUGDATE,GAMETITLE
     Kernel.Cout.Preload("Console is created because game is in debug state.")
     while True:
       g=str(input("]"))
@@ -476,15 +470,15 @@ class Kernel:#Code base class
       elif g=="savecfg":
         Kernel.SaveCfg()
       elif g=="help 1":
-        Kernel.Cout.Msg("IlChelcciCore engine help page 1:\nrun:start engine.\nhelp <page(1/2/3/4)>:get help.\nquit:stop engine and console.\nsetgeomet:set a new resolution for screen.\nforceexitonerror:forcibly stop whole engine when encounting any error and warn.\nversion:get engine version and credits.\nhwinfo:get hardware info.\ncls:clear screen.")
+        Kernel.Cout.Msg("Gyro engine help page 1:\nrun:start engine.\nhelp <page(1/2/3/4)>:get help.\nquit:stop engine and console.\nsetgeomet:set a new resolution for screen.\nforceexitonerror:forcibly stop whole engine when encounting any error and warn.\nversion:get engine version and credits.\nhwinfo:get hardware info.\ncls:clear screen.")
       elif g=="help 2":
-        Kernel.Cout.Msg("IlChelcciCore engine help page 2:\nloadgame:load game from saved file.\ndeletesave:delete saved game.\nmodinit:init installed mod.\nrunmod:start mod.\nmodver:get version for mod.\ndisablemod:disable mod.(pop)\nadjustthreshold:change the value for\ngc.threshold()\ndev: toggle devloper mode.")
+        Kernel.Cout.Msg("Gyro engine help page 2:\nloadgame:load game from saved file.\ndeletesave:delete saved game.\nmodinit:init installed mod.\nrunmod:start mod.\nmodver:get version for mod.\ndisablemod:disable mod.(pop)\nadjustthreshold:change the value for\ngc.threshold()\ndev: toggle devloper mode.")
       elif g=="help 3":
-        Kernel.Cout.Msg("IlChelcciCore engine help page 3:\nscuptoggle: toggle the output when screen \nupdate.\nexec:use exec() to execute python code.\nnovid:disable launch video.\ninitcfg:execute cfg init process manually.\nsavecfg:save current configs.\ngetcfgs:get current cfg status.\nsetmodamount:tell mod loader how many mods should be loaded.")
+        Kernel.Cout.Msg("Gyro engine help page 3:\nscuptoggle: toggle the output when screen \nupdate.\nexec:use exec() to execute python code.\nnovid:disable launch video.\ninitcfg:execute cfg init process manually.\nsavecfg:save current configs.\ngetcfgs:get current cfg status.\nsetmodamount:tell mod loader how many mods should be loaded.")
       elif g=="help 4":
-        Kernel.Cout.Msg("IlChelcciCore engine help page 4:\nautoloadmod:toggle the auto mod loading\nprocess.\nsetlang:set a language for engine.\nbegin:start a dedicated function,\ne.g. 'Prgm.Main()' for main function.\nreleasegame:release your game.\ncancelrelease:undo when you released game\nwith command 'releasegame'.\nchangegametitle:change the title of game.")
+        Kernel.Cout.Msg("Gyro engine help page 4:\nautoloadmod:toggle the auto mod loading\nprocess.\nsetlang:set a language for engine.\nbegin:start a dedicated function,\ne.g. 'Prgm.Main()' for main function.\nreleasegame:release your game.\ncancelrelease:undo when you released game\nwith command 'releasegame'.\nchangegametitle:change the title of game.")
       elif g=="help 5":
-        Kernel.Cout.Msg("IlChelcciCore engine help page 5:\nconvar:change a global var.\nsetopening:allocate a new opening type.")
+        Kernel.Cout.Msg("Gyro engine help page 5:\nconvar:change a global var.")
       elif g=="convar":
         v=str(input("variable:"))
         f=str(input("value:"))
@@ -535,11 +529,8 @@ class Kernel:#Code base class
         else:
           erxt=1
           Kernel.Cout.Console("Exit when error enabled.")
-      elif g=="setopening":
-        openingtype=int(input("new opening type:"))
-        Kernel.Cout.Console("Opening type is now:%s"%(openingtype))
       elif g=="version"or g=="ver":
-        Kernel.Cout.Msg("IlChelcciCore 2D Gaming engine.\n"+str(GAMEVER)+"\nDebugged in:"+str(DEBUGDATE)+"\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:"+str(sys.version)+"\nEngine built on Python 3.4.0.")
+        Kernel.Cout.Msg("Gyro 2D Gaming engine.\n"+str(GAMEVER)+"\nDebugged in:"+str(DEBUGDATE)+"\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:"+str(sys.version)+"\nEngine built on Python 3.4.0.")
       elif g=="novid":
         if not novid:
           novid=True
@@ -591,59 +582,28 @@ class Kernel:#Code base class
       elif g=="":pass
       else:Kernel.Cout.Console("Unknown command:"+str(g)+".type help <page(1/2/3/4/5)> to get help.")
   @staticmethod
-  def Opening(optp=1):#the engine opening
-    if optp==1:
-      set_color(0,0,0)
-      fill_rect(0,0,500,300)
-      set_color(10,210,140)
-      draw_text(80,120,ActionUI.DispLanguage("cp0"))
-      paint_buffer()
-      sleep(2)
-      set_color(0,0,0)
-      fill_rect(0,0,500,300)
-      set_color(255,100,120)
-      draw_text(80,80,"POWERED BY:")
-      set_color(10,10,255)
-      draw_text(185,80,"IlChelcciCore")
-      set_color(255,255,255)
-      draw_text(10,100,ActionUI.DispLanguage("cp1"))
-      draw_text(10,115,ActionUI.DispLanguage("cp2"))
-      draw_text(10,130,ActionUI.DispLanguage("cp3"))
-      draw_text(10,145,ActionUI.DispLanguage("cp4"))
-      draw_text(10,160,GAMEVER)
-      paint_buffer()
-    elif optp==2:
-      set_color(0,0,0)
-      fill_rect(0,0,500,300)
-      paint_buffer()
-      sleep(0.7)
-      posy=10;posx=0
-      set_color(20,20,255)
-      fill_rect(0,0,350,300)
-      set_color(255,255,255)
-      draw_text(5,12,"#starting sequence.( secondary.S .Season.3 normal react.(**")
-      sleep(1)
-      paint_buffer()
-      draw_text(5,posy+10,"Ma = Checking programming system 314014113")
-      draw_text(5,posy+20,"Mx = nu 82224")
-      draw_text(5,posy+30,"ar = arts78779")
-      posy = posy+10
-      sleep(0.5)
-      paint_buffer()
-      draw_text(5,posy+30,"m2 = 250785536")
-      draw_text(5,posy+40,"--| 6 423GGG Dll6267")
-      draw_text(5,posy+50,"O | = ◆")
-      draw_text(5,posy+60,"m | = ▪ ¤   4 Camuu")
-      draw_text(5,posy+70,"m6| = 4b822b Hb m2g 40b20 tba")
-      draw_text(5,posy+80,".8 | = ◆ b2a      ◆   4 eclai")
-      draw_text(5,posy+90,"k8| = Obj4722269 bectebgwarbnt")
-      draw_text(5,posy+100,"     .baccDefine   8276* 8779")
-      draw_text(5,posy+110,"∌∠i.quur cfbi  9721741*")
-      draw_text(5,posy+120,"     .suff: Stuff 8  7313  34227")
-      draw_text(5,posy+130,"     .baccDefine   8276* 8779")
-      paint_buffer()
+  def Opening():#the engine opening
+    set_color(0,0,0)
+    fill_rect(0,0,500,300)
+    set_color(10,210,140)
+    draw_text(80,120,ActionUI.DispLanguage("cp0"))
+    paint_buffer()
+    sleep(2)
+    set_color(0,0,0)
+    fill_rect(0,0,500,300)
+    set_color(255,100,120)
+    draw_text(80,80,"POWERED BY:")
+    set_color(10,10,255)
+    draw_text(185,80,"Gyro")
+    set_color(255,255,255)
+    draw_text(10,100,ActionUI.DispLanguage("cp1"))
+    draw_text(10,115,ActionUI.DispLanguage("cp2"))
+    draw_text(10,130,ActionUI.DispLanguage("cp3"))
+    draw_text(10,145,ActionUI.DispLanguage("cp4"))
+    draw_text(10,160,GAMEVER)
+    paint_buffer()
     sleep(1.7)
-    return optp
+    return 0
 class IO:#Input-Output class.
   def __init__(self):pass
   @staticmethod
@@ -904,13 +864,11 @@ class Actors:#entity class.
 #Do not let "ignoredisable" mixed with other argument,
 #same as "ignoreall".
       if "ignoredisable"in ignoretp:
-        return ignoretp
+        pass
       if "ignoreall"in ignoretp:
         ignoretp=("ignorehud","ignoredeath","ignorevfx")
-        return ignoretp
       if "ignorevfx"not in ignoretp and v_live<=20 and v_live>=0:#low health VFX.
         UniFX.LowHealth()
-        return ignoretp
       if "ignoredeath"not in ignoretp and v_live<=0:#death detecting.
         ActionUI.DispUi(0,0,7)
         Actors.King.Draw()
@@ -921,11 +879,9 @@ class Actors:#entity class.
            if k=="enter":
              IO.Load()
              break
-        return ignoretp
       if "ignorehud"not in ignoretp and item_suit==1:#hud.
         ActionUI.DispUi(0,0,6)
         ActionUI.DispUi(0,0,8)
-        return ignoretp
     @staticmethod
     def Move(mvtp,direction=None,step=5,goto=(0,0),ignorefreeze=False):#built-in function,for movements and teleporting. set the step to 0 to freeze player.
       global psx,psy,v_live
@@ -1405,8 +1361,8 @@ class StdUtil:#Builtins class, Standard utilities.
     set_color(120,120,120)
     fill_rect(0,0,500,300)
     set_color(255,255,255)
-    draw_text(130,17,GAMEVER)
-    draw_text(130,30,str(ActionUI.DispLanguage("dbdate"))+DEBUGDATE)
+    draw_text(150,17,GAMEVER)
+    draw_text(150,30,str(ActionUI.DispLanguage("dbdate"))+DEBUGDATE)
     ActionUI.DispUi(0,0,3)
     return 0
   @staticmethod
@@ -1672,8 +1628,8 @@ class Assets:#asset class
     fill_circle(randint(20,210),randint(2,180),2)
     set_color(255,255,255)
     draw_text(10,80,"HALF-LIFE²")
-    draw_text(130,17,GAMEVER)
-    draw_text(130,30,str(ActionUI.DispLanguage("dbdate"))+DEBUGDATE)
+    draw_text(150,17,GAMEVER)
+    draw_text(150,30,str(ActionUI.DispLanguage("dbdate"))+DEBUGDATE)
     set_pen("thin","solid")
     return 0
 class Prgm:#program class.
