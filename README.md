@@ -1,4 +1,4 @@
-# Gyro
+# IlChelcciCore(Gyro/ILCC)
 This is a gaming engine based on Ti calculator,writed on pure python.
 
 Engine Showcase:
