@@ -51,7 +51,7 @@ kingignores=str("");
 autoloadmod=bool(False);
 dev=bool(False);
 openingtype=int(1);
-usemod=bool(True);
+usemod=bool(False);
 dr=bool(False);
 debugs=bool(False);
 erxt=int(0);
@@ -61,9 +61,11 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("IlChelcciCore 34 Build(0138)");
-DEBUGDATE=str("2025/09/17");
+GAMEVER=str("IlChelcciCore 35 Build(0140)");
+DEBUGDATE=str("2025/09/25");
 GAMETITLE=str("IlChelcciCore engine built-in examples.");
+COMPANY=str("Made by axnut123");
+COPYRIGHT=str("(C)Haoriwa 2024-2025, all rights reserved.");
 wpnslt=int(0);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -78,7 +80,6 @@ ammo357max=int(12);
 inclip9=int(0);
 inclip357=int(0);
 vtk=bool(False);
-modenb=bool(False);
 ingamemod=str("");
 modscripts=list([]);
 scrgeometx=int(0);
@@ -88,16 +89,19 @@ scrgeometmy=int(0);
 gcthresholdint=int(-1);
 runprgm=str("");
 released=int(0);
+totalmem=int(gc.mem_free()+gc.mem_alloc());
+gcenb=bool(gc.isenabled())
 emptysave=int(1);#True or False does not work.
 def Help(hptp=0):#built-in function, help infos. fill your own help in here.
   if hptp==0:
     return "Welcome to IlChelcciCore for TI-Nspire.for further information, please go to page 1.1."
 def Version(vertype=0):#built-in function, version output. fill your version here.
-  global GAMEVER,DEBUGDATE,GAMETITLE
+  global GAMEVER,DEBUGDATE,GAMETITLE,COMPANY,COPYRIGHT
   if vertype==0:return GAMEVER
   elif vertype==1:return DEBUGDATE
   elif vertype==2:return GAMETITLE
-  elif vertype==3:return "(C)Haoriwa 2024-2025, all rights reserved."
+  elif vertype==3:return COPYRIGHT
+  elif vertype==4:return COMPANY
   else:raise ValueError("Unknown arguments.")
 class CfgError(Exception):pass
 class ArgumentNotFound(Exception):pass
@@ -115,17 +119,14 @@ class Kernel:#Code base class
   @staticmethod
   def KrTerminateProcess(code=None):#built-in function, for forcibly stop this engine.
     Kernel.Cout.Info("Trying to stop forcibly by code:%s.\nIf terminate fail, hold esc key for 5 secs to stop."%(code))
+    gc.collect()
     blocks=[]
     while True:blocks.append(bytearray(1024*1024))
-    raise BaseException("Trying to terminate engine by second way...")
   @staticmethod
   def quit(code=None):#built-in function, in nspire cx ii python the quit function is not defined.
     StdUtil.ConsoleLog(3,code)
     gc.collect()
     raise SystemExit(code)
-  @staticmethod
-  def TotalMem():#built-in function. for getting total memory for current runtime.
-    return gc.mem_alloc()+gc.mem_free()
   @staticmethod
   def SaveCfg():#built-in function, saving cfg variable to nspire document.
     global scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,gcthresholdint,autoloadmod,langtype,dev,dr,usemod,novid,modamount,erxt,openingtype
@@ -247,7 +248,7 @@ class Kernel:#Code base class
       else:raise UnknownError(reason)
   @staticmethod
   def _ModHandler(hdtp):#built-in function,for managing mods.
-    global vtk,tk,modenb,ingamemod
+    global vtk,tk,usemod,ingamemod
     if hdtp==1:
       try:
         del tk
@@ -257,7 +258,7 @@ class Kernel:#Code base class
         Kernel.Cout.Error("Mod cannot be uninstalled, "+str(e))
         Kernel.ErrChk(4,"Cannot uninstall mod.")
       vtk=False
-      modenb=False
+      usemod=False
       Kernel.Cout.Info("Mod disabled.")
     elif hdtp==2:
       if vtk!=True:
@@ -280,7 +281,7 @@ class Kernel:#Code base class
         Kernel.ErrChk(4,"Repeating init.")
     elif hdtp==3:
       if vtk and ingamemod!="ingamemod":
-        modenb=True
+        usemod=True
         Kernel.Cout.Info("Mod is running.")
         return 0
       else:
@@ -394,7 +395,7 @@ class Kernel:#Code base class
     return 0
   @staticmethod
   def _GameLauncher():#Built-in function, for game loading process.
-    global novid,modenb,g,tk,ingamemod,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,gcthresholdint,runprgm,released,GAMETITLE,DEBUGDATE,GAMEVER,openingtype
+    global novid,modenb,usemod,g,tk,ingamemod,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,gcthresholdint,runprgm,released,GAMETITLE,DEBUGDATE,GAMEVER,openingtype,COMPANY,COPYRIGHT
     Kernel.Cout.Preload("Starting console.")
     if not released:Kernel._Console()
     else:
@@ -403,23 +404,24 @@ class Kernel:#Code base class
       Kernel.Cout.Console("Set default script to function: %s."%(runprgm))
     Kernel.Cout.Info("Engine is now started.")
     gc.collect()
-    Kernel.Cout.Info("Engine and game info:\nversion:%s, debug date:%s,\ngame title:'%s'."%(GAMEVER,DEBUGDATE,GAMETITLE))
+    Kernel.Cout.Info("Engine and game info:\nversion:%s, debug date:%s,\ncompany name:%s,\ncopyright info:%s,\ngame title:'%s'."%(GAMEVER,DEBUGDATE,COMPANY,COPYRIGHT,GAMETITLE))
     StdUtil.ConsoleLog(2)
     gc.threshold(int(gcthresholdint))
     Kernel._CreateWindow(scrgeomety,scrgeometx,scrgeometmx,scrgeometmy)
     if not novid:Kernel.Opening(openingtype)
-    if ingamemod=="ingamemod":modenb=False
+    if ingamemod=="ingamemod":usemod=False
     StdUtil.ConsoleLog(5)
-    if modenb and ingamemod!="ingamemod":
+    if usemod and ingamemod!="ingamemod":
       Kernel.Cout.Info("Trying to load mod script.")
       tk.mod_main()
     else:
       Kernel.Cout.Info("Mod loader was not enabled,\nrunning:%s."%(runprgm))
+      usemod=True
       exec(runprgm)
     return 0
   @staticmethod
   def _Console():#built-in function,for console.
-    global runprgm,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,ingamemod,modscripts,g,modenb,vtk,erxt,novid,tk,dev,dr,langtype,usemod,modamount,autoloadmod,gcthresholdint,kingignores,released,GAMEVER,DEBUGDATE,GAMETITLE,openingtype
+    global runprgm,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,ingamemod,modscripts,g,usemod,vtk,erxt,novid,tk,dev,dr,langtype,usemod,modamount,autoloadmod,gcthresholdint,kingignores,released,GAMEVER,DEBUGDATE,GAMETITLE,openingtype,COMPANY,COPYRIGHT
     Kernel.Cout.Preload("Console is created because game is in debug state.")
     while True:
       g=str(input("]"))
@@ -539,7 +541,7 @@ class Kernel:#Code base class
         openingtype=int(input("new opening type:"))
         Kernel.Cout.Console("Opening type is now:%s"%(openingtype))
       elif g=="version"or g=="ver":
-        Kernel.Cout.Msg("IlChelcciCore 2D Gaming engine.\n"+str(GAMEVER)+"\nDebugged in:"+str(DEBUGDATE)+"\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:"+str(sys.version)+"\nEngine built on Python 3.4.0.")
+        Kernel.Cout.Msg("IlChelcciCore 2D Gaming engine.\n"+str(GAMEVER)+"\nDebugged in:"+str(DEBUGDATE)+"\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:"+str(sys.version)+"\nEngine built on Python 3.4.0.\nCopyright and company info:"+COPYRIGHT+","+COMPANY+".")
       elif g=="novid":
         if not novid:
           novid=True
@@ -552,7 +554,7 @@ class Kernel:#Code base class
         Kernel.Cout.Msg("Platform:"+str(get_platform()))
         Kernel.Cout.Msg("mem free:"+str(gc.mem_free()))
         Kernel.Cout.Msg("mem alloc:"+str(gc.mem_alloc()))
-        Kernel.Cout.Msg("total mem:"+str(Kernel.TotalMem()))
+        Kernel.Cout.Msg("total mem:"+str(totalmem))
         Kernel.Cout.Msg("stack use:"+str(mp.stack_use()))
         Kernel.Cout.Msg("pystack use:"+str(mp.pystack_use()))
         Kernel.Cout.Msg("cpu tick:"+str(ticks_cpu()))
@@ -563,7 +565,7 @@ class Kernel:#Code base class
       elif g=="loadgame":
         IO.Load()
       elif g=="help":
-        Kernel.Cout.Msg("Usage: help <1/2/3/4/5>. example: help 1 for page 1.")
+        Kernel.Cout.Msg("Usage: help <1/2/3/4/5>.\nexample: help 1 for page 1.")
       elif g=="cls"or g=="clr" or g=="clear":
         clear_history()
       elif g=="dev"or g=="developer":
@@ -1181,7 +1183,7 @@ class ActionUI:#UI class
       return langstr
   @staticmethod
   def DispUi(x,y,wintp):#built-in function,for display window, gui elements.
-    global emptysave,erxt,dev,mapslt,debugs,v_live,v_hev,wpnslt,ammo9,ammo357,inclip9,inclip357,weapon_pst,weapon_crb,weapon_physcnn,weapon_357,dr,langtype,usemod,modamount,GAMETITLE
+    global emptysave,erxt,dev,mapslt,debugs,v_live,v_hev,wpnslt,usemod,ammo9,ammo357,inclip9,inclip357,weapon_pst,weapon_crb,weapon_physcnn,weapon_357,dr,langtype,usemod,modamount,GAMETITLE
     if wintp==1:
       set_color(135,135,135)
       fill_rect(x,y,120,40)
@@ -1192,14 +1194,14 @@ class ActionUI:#UI class
     elif wintp==2:
       if debugs and dev:
         set_color(0,0,0)
-        draw_text(10,20,str(ActionUI.DispLanguage("memfree"))+str(gc.mem_free())+"|"+str(ActionUI.DispLanguage("totalmem"))+str(Kernel.TotalMem()))
-        draw_text(10,35,str(ActionUI.DispLanguage("memalloc"))+str(gc.mem_alloc())+"|"+str(ActionUI.DispLanguage("gcisenb"))+str(gc.isenabled()))
+        draw_text(10,20,str(ActionUI.DispLanguage("memfree"))+str(gc.mem_free())+"|"+str(ActionUI.DispLanguage("totalmem"))+str(totalmem))
+        draw_text(10,35,str(ActionUI.DispLanguage("memalloc"))+str(gc.mem_alloc())+"|"+str(ActionUI.DispLanguage("gcisenb"))+str(gcenb))
         draw_text(10,55,str(ActionUI.DispLanguage("stackuse"))+str(mp.stack_use())+"|"+str(ActionUI.DispLanguage("pystackuse"))+str(mp.pystack_use()))
         draw_text(10,70,str(ActionUI.DispLanguage("gcthreshold"))+str(gc.threshold())+"|"+str(ActionUI.DispLanguage("cputick"))+str(ticks_cpu()))
         draw_text(10,85,str(ActionUI.DispLanguage("gametitle"))+GAMETITLE)
         draw_text(10,100,str(ActionUI.DispLanguage("localtime"))+str(localtime()))
         draw_text(10,115,str(ActionUI.DispLanguage("ppos"))+str(psx)+","+str(psy)+"|"+str(ActionUI.DispLanguage("mapid"))+str(mapslt))
-        draw_text(10,130,str(ActionUI.DispLanguage("usemod"))+str(modenb))
+        draw_text(10,130,str(ActionUI.DispLanguage("usemod"))+str(usemod))
         draw_text(10,145,str(ActionUI.DispLanguage("ver"))+str(GAMEVER))
         draw_text(10,160,str(ActionUI.DispLanguage("dbdate")+str(DEBUGDATE)))
         draw_text(10,175,str(ActionUI.DispLanguage("platform"))+str(get_platform()))
