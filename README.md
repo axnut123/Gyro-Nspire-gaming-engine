@@ -1,5 +1,5 @@
 # IlChelcciCore(Gyro/ILCC)
-This is a gaming engine based on Ti calculator,writed on pure python.
+This is a gaming engine based on TI calculator,writed on pure python.
 
 Gyro and gml are legacy, download IlChelcciCore and cml instead.
 Engine Showcase:
