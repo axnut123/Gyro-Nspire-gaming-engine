@@ -61,9 +61,9 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("IlChelcciCore 35 Build(0140)");
-DEBUGDATE=str("2025/09/25");
-GAMETITLE=str("IlChelcciCore engine built-in examples.");
+GAMEVER=str("IlChelcciCore 35 Build(0141)");
+DEBUGDATE=str("2025/09/30");
+GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2025, all rights reserved.");
 wpnslt=int(0);
@@ -90,12 +90,12 @@ gcthresholdint=int(-1);
 runprgm=str("");
 released=int(0);
 totalmem=int(gc.mem_free()+gc.mem_alloc());
-gcenb=bool(gc.isenabled())
+gcenb=None;
 emptysave=int(1);#True or False does not work.
 def Help(hptp=0):#built-in function, help infos. fill your own help in here.
   if hptp==0:
-    return "Welcome to IlChelcciCore for TI-Nspire.for further information, please go to page 1.1."
-def Version(vertype=0):#built-in function, version output. fill your version here.
+    return "Welcome to IlChelcciCore for TI-Nspire. For further information, please go to page 1.1."
+def version(vertype=0):#built-in function, version output. fill your version here.
   global GAMEVER,DEBUGDATE,GAMETITLE,COMPANY,COPYRIGHT
   if vertype==0:return GAMEVER
   elif vertype==1:return DEBUGDATE
@@ -112,9 +112,9 @@ class GameError(Exception):pass#Error classes.
 class Kernel:#Code base class
   def __init__(self):pass
   @staticmethod
-  def ConVar(varName,value):#built-in function, for change a variable.
+  def ConVar(varName,value,logout=False):#built-in function, for change a variable.
     globals()[varName]=value
-    Kernel.Cout.Info("Changed %s to %s."%(varName,value))
+    if logout:Kernel.Cout.Info("Changed %s to %s."%(varName,value))
     return varName,value
   @staticmethod
   def KrTerminateProcess(code=None):#built-in function, for forcibly stop this engine.
@@ -128,8 +128,34 @@ class Kernel:#Code base class
     gc.collect()
     raise SystemExit(code)
   @staticmethod
+  def GetGcState():#built-in function, get gc is enabled state.
+    Kernel.ConVar("gcenb",gc.isenabled())
+    Kernel.Cout.DevInfo("Gc is enabled is now %s"%(gcenb))
+    return gcenb
+  @staticmethod
+  def SetGcState(state):#built-in function, for set gc enabled.
+    if state:
+      gc.enable()
+      Kernel.Cout.Info("Gc enabled.")
+      return True
+    else:
+      gc.disable()
+      Kernel.Cout.Info("Gc disabled.")
+      return False
+  @staticmethod
+  def ToggleGcState():#built-in function, for toggle gc enabled.
+    global gcenb
+    if gcenb:
+      gc.disable()
+      Kernel.Cout.DevInfo("Gc disabled.")
+      return False
+    else:
+      gc.enable()
+      Kernel.Cout.DevInfo("Gc enabled.")
+      return True
+  @staticmethod
   def SaveCfg():#built-in function, saving cfg variable to nspire document.
-    global scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,gcthresholdint,autoloadmod,langtype,dev,dr,usemod,novid,modamount,erxt,openingtype
+    global scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,gcthresholdint,autoloadmod,langtype,dev,dr,usemod,novid,modamount,erxt,openingtype,gcenb
     try:
       IO.Save(True,"optp",openingtype)
       IO.Save(True,"scgx",scrgeometx)
@@ -149,6 +175,8 @@ class Kernel:#Code base class
       IO.Save(True,"gcthint",int(gcthresholdint))
       if novid:IO.Save(True,"novid",1)#True or false dosent work here. use 1 or 0.
       else:IO.Save(True,"novid",0)
+      if gcenb:IO.Savd(True,"gcenb",1)
+      else:IO.Savd(True,"gcenb",0)
       if autoloadmod:IO.Save(True,"autoloadmod",1)
       else:IO.Save(True,"autoloadmod",0)
       if dev:IO.Save(True,"dev",1)
@@ -165,9 +193,10 @@ class Kernel:#Code base class
       return -1
   @staticmethod
   def Init(inittp):#built-in function.for init cfgs or other files engine needed.
-    global scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,autoloadmod,gcthresholdint,dev,dr,novid,langtype,usemod,modamount,erxt,tk,released,openingtype
+    global gcenb,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,autoloadmod,gcthresholdint,dev,dr,novid,langtype,usemod,modamount,erxt,tk,released,openingtype
     if inittp==1:
       try:
+        cfg0=IO.Load(True,"gcenb")
         cfg1=IO.Load(True,"novid")
         cfg2=IO.Load(True,"dev")
         cfg3=IO.Load(True,"dr")
@@ -183,6 +212,8 @@ class Kernel:#Code base class
         scrgeometmy=IO.Load(True,"scgmy")
         modamount=IO.Load(True,"modamount")
         gcthresholdint=IO.Load(True,"gcthint")
+        if cfg0==1:gcenb=True
+        else:gcenb=False
         if cfg1==1:novid=True
         else:novid=False
         if cfg2==1:dev=True
@@ -197,8 +228,9 @@ class Kernel:#Code base class
         else:usemod=False
         if cfg5==1:autoloadmod=True
         else:autoloadmod=False
-        del cfg1,cfg2,cfg3,cfg4,cfg5
+        del cfg0,cfg1,cfg2,cfg3,cfg4,cfg5
         if autoloadmod:Kernel._ModHandler(2)
+        gc.threshold(gcthresholdint)
         gc.collect()
         Kernel.Cout.Info("Config loading process completed.")
         return 1
@@ -395,7 +427,7 @@ class Kernel:#Code base class
     return 0
   @staticmethod
   def _GameLauncher():#Built-in function, for game loading process.
-    global novid,modenb,usemod,g,tk,ingamemod,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,gcthresholdint,runprgm,released,GAMETITLE,DEBUGDATE,GAMEVER,openingtype,COMPANY,COPYRIGHT
+    global novid,modenb,usemod,g,tk,ingamemod,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,gcthresholdint,runprgm,released,GAMETITLE,DEBUGDATE,GAMEVER,openingtype,COMPANY,COPYRIGHT,gcenb
     Kernel.Cout.Preload("Starting console.")
     if not released:Kernel._Console()
     else:
@@ -406,7 +438,9 @@ class Kernel:#Code base class
     gc.collect()
     Kernel.Cout.Info("Engine and game info:\nversion:%s, debug date:%s,\ncompany name:%s,\ncopyright info:%s,\ngame title:'%s'."%(GAMEVER,DEBUGDATE,COMPANY,COPYRIGHT,GAMETITLE))
     StdUtil.ConsoleLog(2)
+    Kernel.SetGcState(gcenb)
     gc.threshold(int(gcthresholdint))
+    Kernel.GetGcState()
     Kernel._CreateWindow(scrgeomety,scrgeometx,scrgeometmx,scrgeometmy)
     if not novid:Kernel.Opening(openingtype)
     if ingamemod=="ingamemod":usemod=False
@@ -451,6 +485,10 @@ class Kernel:#Code base class
           Kernel.Cout.Console("Game releasing have been\ncancelled.")
         else:Kernel.Cout.Console("User cancelled.")
         del r
+      elif g=="setgcenb":
+        s=bool(input("Set gc to(True/False):"))
+        Kernel.SetGcState(s)
+        del s
       elif g=="setlang":
         g=str(input("1:English,2:Simplified Chinese,3.Cancel"))
         if g=="1":
@@ -486,7 +524,7 @@ class Kernel:#Code base class
       elif g=="help 4":
         Kernel.Cout.Msg("IlChelcciCore engine help page 4:\nautoloadmod:toggle the auto mod loading\nprocess.\nsetlang:set a language for engine.\nbegin:start a dedicated function,\ne.g. 'Prgm.Main()' for main function.\nreleasegame:release your game.\ncancelrelease:undo when you released game\nwith command 'releasegame'.\nchangegametitle:change the title of game.")
       elif g=="help 5":
-        Kernel.Cout.Msg("IlChelcciCore engine help page 5:\nconvar:change a global var.\nsetopening:allocate a new opening type.")
+        Kernel.Cout.Msg("IlChelcciCore engine help page 5:\nconvar:change a global var.\nsetopening:allocate a new opening type.\nsetgcenb:set gc state to True or False.\ngccollect:trigger gc.collect.")
       elif g=="convar":
         v=str(input("variable:"))
         f=str(input("value:"))
@@ -495,6 +533,9 @@ class Kernel:#Code base class
         except Exception as e:
           Kernel.Cout.Error("Variable operation failed. %s"%(e))
         del v,f
+      elif g=="gccollect":
+        gc.collect()
+        Kernel.Cout.Console("Gc collect completed.")
       elif g=="quit"or g=="stop"or g=="exit"or g=="esc":
         del g
         Kernel.quit(0)
@@ -560,6 +601,7 @@ class Kernel:#Code base class
         Kernel.Cout.Msg("cpu tick:"+str(ticks_cpu()))
         Kernel.Cout.Msg("local time:"+str(localtime()))
         Kernel.Cout.Msg("gc threshold:"+str(gcthresholdint))
+        Kernel.Cout.Msg("gc is enabled:%s"%(gc.isenabled()))
       elif g=="deletesave":
         IO.Delete()
       elif g=="loadgame":
@@ -576,6 +618,7 @@ class Kernel:#Code base class
       elif g=="adjustthreshold":
         try:
           gcthresholdint=int(input("gc.threshold:"))
+          gc.threshold(gcthresholdint)
           Kernel.Cout.Console("New value given.")
         except Exception as e:
           Kernel.Cout.Error("Failed. "+str(e))
@@ -1087,6 +1130,7 @@ class ActionUI:#UI class
     "physcnn":"GRAVITY GUN",
     "pst":"PISTOL",
     "357":".357 MAGNUM",
+    "dangerset":"This option is dangerous!",
     "load":"Loading...",
     "dr":"log output when screen update",
     "dev":"developer mode",
@@ -1152,6 +1196,7 @@ class ActionUI:#UI class
     "loadgm":"l:加载",
     "delgm":"d:删除存档",
     "quitgm":"q:退出",
+    "dangerset":"此设置非常危险!",
     "start1":"enter:新游戏",
     "start2":"a:快速开始",
     "loadgm1":"b:加载",
@@ -1321,12 +1366,13 @@ class ActionUI:#UI class
       return 13
     elif wintp==14:
       set_color(250,250,250)
-      draw_text(10,60,str(ActionUI.DispLanguage("titset")))
-      draw_text(10,80,"a:"+str(ActionUI.DispLanguage("dr"))+":"+str(dr))
-      draw_text(10,100,"b:"+str(ActionUI.DispLanguage("dev"))+":"+str(dev))
-      draw_text(10,120,"c:"+str(ActionUI.DispLanguage("langset"))+":"+str(ActionUI.DispLanguage("lang")))
-      draw_text(10,140,"d:"+str(ActionUI.DispLanguage("usemod")+str(usemod)))
-      draw_text(10,160,"e:"+str(ActionUI.DispLanguage("erxt"))+str(erxt))
+      draw_text(10,40,str(ActionUI.DispLanguage("titset")))
+      draw_text(10,60,"a:"+str(ActionUI.DispLanguage("dr"))+":"+str(dr))
+      draw_text(10,80,"b:"+str(ActionUI.DispLanguage("dev"))+":"+str(dev))
+      draw_text(10,100,"c:"+str(ActionUI.DispLanguage("langset"))+":"+str(ActionUI.DispLanguage("lang")))
+      draw_text(10,120,"d:"+str(ActionUI.DispLanguage("usemod")+str(usemod)))
+      draw_text(10,140,"e:"+str(ActionUI.DispLanguage("erxt"))+str(erxt))
+      draw_text(10,160,"f:%s%s (%s)"%(ActionUI.DispLanguage("gcisenb"),gc.isenabled(),ActionUI.DispLanguage("dangerset")))
       draw_text(10,180,str(ActionUI.DispLanguage("savecfg")))
       draw_text(10,200,str(ActionUI.DispLanguage("escres")))
       return 14
@@ -1768,6 +1814,7 @@ class Prgm:#program class.
               elif k=="e":
                 if erxt==1:erxt=0
                 else:erxt=1
+              elif k=="f":Kernel.ToggleGcState()
               elif k=="s":
                 Kernel.SaveCfg()
               elif k=="esc":
@@ -1786,6 +1833,7 @@ class Prgm:#program class.
         while k!=key:
           k=get_key()
           Kernel.WaitUpdate()
+          StdUtil.WaitStart(100,lambda:Kernel.GetGcState())
           StdUtil.MapStat()
           ActionUI.DispUi(0,0,2)
           Kernel._ModHandler(5)
@@ -1999,6 +2047,7 @@ class Prgm:#program class.
                       elif k=="e":
                         if erxt==1:erxt=0
                         else:erxt=1
+                      elif k=="f":Kernel.ToggleGcState()
                       elif k=="s":
                         Kernel.SaveCfg()
                       elif k=="esc":
