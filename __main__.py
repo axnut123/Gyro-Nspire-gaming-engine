@@ -35,148 +35,6 @@ import sys
 import gc
 from random import randint
 from time import *
-langdict1={
-"plterr":"This engine cannot run on your system.",
-"liberr":"The engine failed to start.",
-"reqmis":"Required dependencies are missing.",
-"supsys":"Supported platform:hh,ios,dt. your platform:",
-"prsesc":"Press esc to quit.",
-"libchk":"please check the libraries. Press esc to quit.",
-"cp0":"Made by:Alex_Nute",
-"cp1":"Copyright © Haoriwa 2024 - 2025, the Half-Life 2 is",
-"cp2":"copyright for Valve.The ti_draw,ti_system",
-"cp3":"is copyright for Texas Instruments.Using this",
-"cp4":"software represents you agreed our terms.",
-"usemod":"Enable mod:",
-"lang":"English",
-"gofuckyourself":"Go fuck your self!",
-"riseandshine":"Rise and shine mister Freeman,rise and shine.",
-"sleepingonthejob":"No one is deserving to sleeping on the job,",
-"effortoftheworld":"But the effort of the world will have gone to waste untill...",
-"em":"emm...",
-"yourhourhascome":"Well,let's just say your hour has come again.",
-"rightman":"The right man in the wrong place",
-"maketheworld":"Will make the whole world difference.",
-"wakeup":"So,wake up,Mr.Freeman.",
-"smell":"Wake up and smell the ashes...",
-"memfree":"mem free:",
-"memalloc":"mem alloc:",
-"stackuse":"stack use:",
-"pystackuse":"pystack use:",
-"cputick":"cpu tick:",
-"localtime":"local time:",
-"ppos":"player pos:",
-"mapid":"map id:",
-"ver":"Version:",
-"dbdate":"Debugged in:",
-"platform":"current platform:",
-"escres":"esc:resume",
-"menu":"menu:main menu",
-"savegm":"s:save game",
-"loadgm":"l:load game",
-"modamount":"loaded mods:",
-"delgm":"d:delete save",
-"quitgm":"q:quit game",
-"start1":"enter:start a new game",
-"start2":"a:quick start",
-"loadgm1":"b:load game",
-"delgm1":"c:delete save",
-"escquit":"esc:quit game",
-"suit":"SUIT",
-"health":"HEALTH",
-"youdied":"You died,press enter to continue.",
-"ammo":"AMMO",
-"crb":"CROWBAR",
-"physcnn":"GRAVITY GUN",
-"pst":"PISTOL",
-"357":".357 MAGNUM",
-"dangerset":"This option is dangerous!",
-"load":"Loading...",
-"dr":"log output when screen update",
-"dev":"developer mode",
-"savecfg":"s:save cfg",
-"langset":"language setting",
-"reso":"Resolution:",
-"set":"tab:settings",
-"titset":"Settings(press to toggle)",
-"erxt":"force exit on error:",
-"gcisenb":"Is gc enabled:",
-"totalmem":"Total Mem:",
-"gcthreshold":"gc threshold:",
-"gametitle":"game title:",
-"usemod":"Is mod enabled:",
-"noactulmodcnt":"(Not actual loaded count.)"}
-langdict2={
-"usemod":"是否启用模组:",
-"gametitle":"游戏名:",
-"liberr":"引擎启动失败。",
-"reqmis":"必要依赖项缺失。",
-"libchk":"请检查安装的库,按下esc以退出。",
-"plterr":"此引擎无法在你的系统运行。",
-"supsys":"可运行的平台:hh,ios,dt。当前平台:",
-"prsesc":"按下esc以退出。",
-"cp0":"由Alex_Nute制作",
-"cp1":"版权所有 © Haoriwa 2024 - 2025, 半条命2",
-"cp2":"(半衰期2)由Valve所有。ti_draw,ti_system库",
-"cp3":"由德州仪器所有(TI)。使用此",
-"cp4":"软件将代表你同意使用规则。",
-"modamount":"模组加载数:",
-"usemod":"启用模组:",
-"lang":"简体中文",
-"erxt":"发生错误时退出:",
-"set":"tab:设置",
-"savecfg":"s:保存设置",
-"dbdate":"测试日期:",
-"dr":"当屏幕更新时输出",
-"dev":"开发者模式",
-"langset":"语言设置",
-"gofuckyourself":"滚你妈的！",
-"riseandshine":"该醒了,弗里曼先生,该醒了。",
-"sleepingonthejob":"还有谁比你更有资格享受空闲呢,",
-"effortoftheworld":"但是整个世界的努力都将因此而徒劳",
-"em":"恩...",
-"yourhourhascome":"我只是想说是你该再次出手的时候了。",
-"rightman":"正义之子在有悖常理的世界",
-"maketheworld":"会让世界天翻地腹。",
-"wakeup":"醒来吧,弗里曼先生",
-"smell":"振作起来,战斗吧",
-"memfree":"可用内存:",
-"memalloc":"分配的内存:",
-"stackuse":"已用栈:",
-"pystackuse":"已用py栈:",
-"cputick":"处理器刻:",
-"localtime":"本地时间:",
-"ppos":"玩家坐标:",
-"mapid":"地图编号:",
-"ver":"版本号:",
-"platform":"当前平台:",
-"escres":"esc:回到游戏",
-"menu":"menu:主菜单",
-"savegm":"s:保存",
-"loadgm":"l:加载",
-"delgm":"d:删除存档",
-"quitgm":"q:退出",
-"dangerset":"此设置非常危险!",
-"start1":"enter:新游戏",
-"start2":"a:快速开始",
-"loadgm1":"b:加载",
-"delgm1":"c:删除存档",
-"escquit":"esc:退出",
-"suit":"防护衣",
-"health":"生命值",
-"youdied":"你死了,按下enter继续",
-"ammo":"弹药",
-"crb":"翘棍",
-"physcnn":"重力枪",
-"pst":"手枪",
-"357":".357 马格南",
-"load":"载入中...",
-"reso":"分辩率:",
-"titset":"设置(按下切换)",
-"gcisenb":"是否启用垃圾清理:",
-"totalmem":"总运行内存:",
-"noactulmodcnt":"(非模组加载数)",
-"gcthreshold":"清理阈值:"}
 novid=bool(False);
 modamount=int(100);
 endtick=None;
@@ -203,9 +61,8 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-CHAR={0:"",1:"[WARN]",2:"[ERROR]",3:"[FATAL]",4:"[DEBUG]",5:"[INFO]",6:"[CONSOLE]",7:"[PRE-LOAD]",8:"[IO]"}
-GAMEVER=str("IlChelcciCore 35 Build(0142)");
-DEBUGDATE=str("2025/10/01");
+GAMEVER=str("IlChelcciCore 35 Build(0143)");
+DEBUGDATE=str("2025/10/03");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2025, all rights reserved.");
@@ -252,7 +109,7 @@ class UnknownError(Exception):pass
 class ModError(Exception):pass
 class IOError(Exception):pass#MicroPy does not have this.
 class GameError(Exception):pass#Error classes.
-class Kernel:#Code base class
+class Kernel:#Code base class.
   def __init__(self):pass
   @staticmethod
   def ConVar(varName,value,logout=False):#built-in function, for change a variable.
@@ -280,20 +137,22 @@ class Kernel:#Code base class
     if state:
       gc.enable()
       Kernel.Cout.Info("Gc enabled.")
+      Kernel.ConVar("gcenb",True)
       return True
     else:
       gc.disable()
       Kernel.Cout.Info("Gc disabled.")
+      Kernel.ConVar("gcenb",False)
       return False
   @staticmethod
   def ToggleGcState():#built-in function, for toggle gc enabled.
     global gcenb
     if gcenb:
-      gc.disable()
+      Kernel.SetGcState(False)
       Kernel.Cout.DevInfo("Gc disabled.")
       return False
     else:
-      gc.enable()
+      Kernel.SetGcState(True)
       Kernel.Cout.DevInfo("Gc enabled.")
       return True
   @staticmethod
@@ -503,12 +362,13 @@ class Kernel:#Code base class
 #which means the text on console might not showing instantly.
     @staticmethod
     def _CoutBase(ctp,text,autoret,flush):#built-in function. Base function for console output methods.
-      global CHAR
+      CHAR={0:"",1:"[WARN]",2:"[ERROR]",3:"[FATAL]",4:"[DEBUG]",5:"[INFO]",6:"[CONSOLE]",7:"[PRE-LOAD]",8:"[IO]"}
       if autoret:e="\n"
       else:e=""
       c=CHAR.get(ctp)
       sys.stdout.write(c+text+e)
       if flush:sys.stdout.flush()
+      return 0
     @staticmethod
     def Msg(text,autoret=True,flush=True):Kernel.Cout._CoutBase(0,text,autoret,flush)
     @staticmethod
@@ -725,7 +585,7 @@ class Kernel:#Code base class
           Kernel.Cout.Console("Exit when error enabled.")
       elif g=="setopening":
         openingtype=int(input("new opening type:"))
-        Kernel.Cout.Console("Opening type is now:%s"%(openingtype))
+        Kernel.Cout.Console("Opening type is now:%s."%(openingtype))
       elif g=="version"or g=="ver":
         Kernel.Cout.Msg("IlChelcciCore 2D Gaming engine.\n"+str(GAMEVER)+"\nDebugged in:"+str(DEBUGDATE)+"\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:"+str(sys.version)+"\nEngine built on Python 3.4.0.\nCopyright and company info:"+COPYRIGHT+","+COMPANY+".")
       elif g=="novid":
@@ -775,14 +635,14 @@ class Kernel:#Code base class
         except Exception as e:
           Kernel.Cout.Error("Unable to execute code. "+str(e))
           Kernel.ErrChk(5,"Cannot execute code.")
-        except SystemExit:
+        except BaseException:
           del g
           Kernel.quit(0)
       elif g=="":pass
       else:Kernel.Cout.Console("Unknown command:"+str(g)+".type help <page(1/2/3/4/5)> to get help.")
     return 0
   @staticmethod
-  def Opening(optp=1):#the engine opening
+  def Opening(optp=1):#the engine opening.
     if optp==1:
       set_color(0,0,0)
       fill_rect(0,0,500,300)
@@ -1114,7 +974,7 @@ class Actors:#entity class.
            if k=="enter":
              IO.Load()
              break
-      if "ignorehud"not in ignoretp:#hud.
+      if "ignorehud"not in ignoretp and item_suit:#hud.
         ActionUI.DispUi(0,0,6)
         ActionUI.DispUi(0,0,8)
       return ignoretp
@@ -1217,11 +1077,153 @@ class Actors:#entity class.
         Kernel.Cout.Error("Pawn shape type unknown.")
         Kernel.ErrChk(1,"Pawn shape type undef.")
         return -1
-class ActionUI:#UI class
+class ActionUI:#UI class.
   def __init__(self):pass
   @staticmethod
   def DispLanguage(langstr):#built-in function,for replacing given key to specific value.
-    global langtype,langdict1,langdict2
+    global langtype,langdict1
+    langdict1={
+    "plterr":"This engine cannot run on your system.",
+    "liberr":"The engine failed to start.",
+    "reqmis":"Required dependencies are missing.",
+    "supsys":"Supported platform:hh,ios,dt. your platform:",
+    "prsesc":"Press esc to quit.",
+    "libchk":"please check the libraries. Press esc to quit.",
+    "cp0":"Made by:Alex_Nute",
+    "cp1":"Copyright © Haoriwa 2024 - 2025, the Half-Life 2 is",
+    "cp2":"copyright for Valve.The ti_draw,ti_system",
+    "cp3":"is copyright for Texas Instruments.Using this",
+    "cp4":"software represents you agreed our terms.",
+    "usemod":"Enable mod:",
+    "lang":"English",
+    "gofuckyourself":"Go fuck your self!",
+    "riseandshine":"Rise and shine mister Freeman,rise and shine.",
+    "sleepingonthejob":"No one is deserving to sleeping on the job,",
+    "effortoftheworld":"But the effort of the world will have gone to waste untill...",
+    "em":"emm...",
+    "yourhourhascome":"Well,let's just say your hour has come again.",
+    "rightman":"The right man in the wrong place",
+    "maketheworld":"Will make the whole world difference.",
+    "wakeup":"So,wake up,Mr.Freeman.",
+    "smell":"Wake up and smell the ashes...",
+    "memfree":"mem free:",
+    "memalloc":"mem alloc:",
+    "stackuse":"stack use:",
+    "pystackuse":"pystack use:",
+    "cputick":"cpu tick:",
+    "localtime":"local time:",
+    "ppos":"player pos:",
+    "mapid":"map id:",
+    "ver":"Version:",
+    "dbdate":"Debugged in:",
+    "platform":"current platform:",
+    "escres":"esc:resume",
+    "menu":"menu:main menu",
+    "savegm":"s:save game",
+    "loadgm":"l:load game",
+    "modamount":"loaded mods:",
+    "delgm":"d:delete save",
+    "quitgm":"q:quit game",
+    "start1":"enter:start a new game",
+    "start2":"a:quick start",
+    "loadgm1":"b:load game",
+    "delgm1":"c:delete save",
+    "escquit":"esc:quit game",
+    "suit":"SUIT",
+    "health":"HEALTH",
+    "youdied":"You died,press enter to continue.",
+    "ammo":"AMMO",
+    "crb":"CROWBAR",
+    "physcnn":"GRAVITY GUN",
+    "pst":"PISTOL",
+    "357":".357 MAGNUM",
+    "dangerset":"This option is dangerous!",
+    "load":"Loading...",
+    "dr":"log output when screen update",
+    "dev":"developer mode",
+    "savecfg":"s:save cfg",
+    "langset":"language setting",
+    "reso":"Resolution:",
+    "set":"tab:settings",
+    "titset":"Settings(press to toggle)",
+    "erxt":"force exit on error:",
+    "gcisenb":"Is gc enabled:",
+    "totalmem":"Total Mem:",
+    "gcthreshold":"gc threshold:",
+    "gametitle":"game title:",
+    "usemod":"Is mod enabled:",
+    "noactulmodcnt":"(Not actual loaded count.)"};
+    langdict2={
+    "usemod":"是否启用模组:",
+    "gametitle":"游戏名:",
+    "liberr":"引擎启动失败。",
+    "reqmis":"必要依赖项缺失。",
+    "libchk":"请检查安装的库,按下esc以退出。",
+    "plterr":"此引擎无法在你的系统运行。",
+    "supsys":"可运行的平台:hh,ios,dt。当前平台:",
+    "prsesc":"按下esc以退出。",
+    "cp0":"由Alex_Nute制作",
+    "cp1":"版权所有 © Haoriwa 2024 - 2025, 半条命2",
+    "cp2":"(半衰期2)由Valve所有。ti_draw,ti_system库",
+    "cp3":"由德州仪器所有(TI)。使用此",
+    "cp4":"软件将代表你同意使用规则。",
+    "modamount":"模组加载数:",
+    "usemod":"启用模组:",
+    "lang":"简体中文",
+    "erxt":"发生错误时退出:",
+    "set":"tab:设置",
+    "savecfg":"s:保存设置",
+    "dbdate":"测试日期:",
+    "dr":"当屏幕更新时输出",
+    "dev":"开发者模式",
+    "langset":"语言设置",
+    "gofuckyourself":"滚你妈的！",
+    "riseandshine":"该醒了,弗里曼先生,该醒了。",
+    "sleepingonthejob":"还有谁比你更有资格享受空闲呢,",
+    "effortoftheworld":"但是整个世界的努力都将因此而徒劳",
+    "em":"恩...",
+    "yourhourhascome":"我只是想说是你该再次出手的时候了。",
+    "rightman":"正义之子在有悖常理的世界",
+    "maketheworld":"会让世界天翻地腹。",
+    "wakeup":"醒来吧,弗里曼先生",
+    "smell":"振作起来,战斗吧",
+    "memfree":"可用内存:",
+    "memalloc":"分配的内存:",
+    "stackuse":"已用栈:",
+    "pystackuse":"已用py栈:",
+    "cputick":"处理器刻:",
+    "localtime":"本地时间:",
+    "ppos":"玩家坐标:",
+    "mapid":"地图编号:",
+    "ver":"版本号:",
+    "platform":"当前平台:",
+    "escres":"esc:回到游戏",
+    "menu":"menu:主菜单",
+    "savegm":"s:保存",
+    "loadgm":"l:加载",
+    "delgm":"d:删除存档",
+    "quitgm":"q:退出",
+    "dangerset":"此设置非常危险!",
+    "start1":"enter:新游戏",
+    "start2":"a:快速开始",
+    "loadgm1":"b:加载",
+    "delgm1":"c:删除存档",
+    "escquit":"esc:退出",
+    "suit":"防护衣",
+    "health":"生命值",
+    "youdied":"你死了,按下enter继续",
+    "ammo":"弹药",
+    "crb":"翘棍",
+    "physcnn":"重力枪",
+    "pst":"手枪",
+    "357":".357 马格南",
+    "load":"载入中...",
+    "reso":"分辩率:",
+    "titset":"设置(按下切换)",
+    "gcisenb":"是否启用垃圾清理:",
+    "totalmem":"总运行内存:",
+    "noactulmodcnt":"(非模组加载数)",
+    "gcthreshold":"清理阈值:"};
     if langtype==1:out=str(langdict1.get(langstr))
     elif langtype==2:out=str(langdict2.get(langstr))
     else:out=str(langdict1.get(langstr))
@@ -1317,7 +1319,7 @@ class ActionUI:#UI class
       set_color(255,255,255)
       draw_text(20,80,str(ActionUI.DispLanguage("youdied")))
       return 7
-    elif wintp==8 and item_suit:
+    elif wintp==8:
       if wpnslt==1 or wpnslt==2:#ammunation management.
         pass
       elif wpnslt==3 and weapon_pst==1:
@@ -1506,7 +1508,7 @@ class Wbase:#Weapon system class.
         ammo357-=6
         inclip357+=6
         return 2
-class Assets:#asset class
+class Assets:#asset class.
   def __init__(self):pass
   @staticmethod
   def c0a0():#map define,a debug map.
@@ -1516,7 +1518,7 @@ class Assets:#asset class
     fill_rect(60,35,60,35)
     return 0
   @staticmethod
-  def c1a0():#map define
+  def c1a0():#map define.
     set_color(200,200,90)
     fill_rect(0,0,500,300)
     set_color(170,170,255)
@@ -1739,14 +1741,14 @@ class Prgm:#program class.
     inmenu=True
     global ingamemod,erxt,modscripts,langtype,mapslt,dev,dr,emptysave,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,usemod,plspd,plw,plh,plr,plg,plb,kingignores
     StdUtil.ConsoleLog(4)
-    while True:#game logic loop
-      if inmenu:#menu guard
+    while True:#game logic loop.
+      if inmenu:#menu guard.
         Kernel._ResetGame()
         Assets.MainMenu()
         ActionUI.DispUi(0,0,4)
         gc.collect()
         paint_buffer()
-        while True:#main menu
+        while True:#main menu.
           k=get_key()
           emptysave=IO.Load(True,"emptysave",False)
           if k=="enter":
@@ -1886,7 +1888,7 @@ class Prgm:#program class.
             gc.collect()
             Kernel.Cout.Debug("gc collect completed.")
             break
-          elif k=="d":#maybe create a new function to recall the effects.
+          elif k=="d":
             if wpnslt==3 and weapon_pst==1 and inclip9!=0:
               inclip9-=1
               UniFX.BulletFX.BltFlr(1)
@@ -2013,7 +2015,7 @@ class Prgm:#program class.
               paint_buffer()
             break
           elif k=="esc":
-            while True:#pause menu
+            while True:#pause menu.
               StdUtil.PauseMenu()
               ky="0"
               paint_buffer()
