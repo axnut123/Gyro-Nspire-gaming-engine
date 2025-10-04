@@ -492,7 +492,6 @@ class Kernel:#Code base class.
         del r
       elif g=="togglegcstate":
         Kernel.ToggleGcState()
-        del s
       elif g=="setlang":
         g=str(input("1:English,2:Simplified Chinese,3.Cancel"))
         if g=="1":
