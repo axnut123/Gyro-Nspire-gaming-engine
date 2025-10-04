@@ -61,8 +61,8 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("IlChelcciCore 35 Build(0143)");
-DEBUGDATE=str("2025/10/03");
+GAMEVER=str("IlChelcciCore 35 Build(0144)");
+DEBUGDATE=str("2025/10/04");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2025, all rights reserved.");
@@ -490,9 +490,8 @@ class Kernel:#Code base class.
           Kernel.Cout.Console("Game releasing have been\ncancelled.")
         else:Kernel.Cout.Console("User cancelled.")
         del r
-      elif g=="setgcenb":
-        s=bool(input("Set gc to(True/False):"))
-        Kernel.SetGcState(s)
+      elif g=="togglegcstate":
+        Kernel.ToggleGcState()
         del s
       elif g=="setlang":
         g=str(input("1:English,2:Simplified Chinese,3.Cancel"))
@@ -529,7 +528,7 @@ class Kernel:#Code base class.
       elif g=="help 4":
         Kernel.Cout.Msg("IlChelcciCore engine help page 4:\nautoloadmod:toggle the auto mod loading\nprocess.\nsetlang:set a language for engine.\nbegin:start a dedicated function,\ne.g. 'Prgm.Main()' for main function.\nreleasegame:release your game.\ncancelrelease:undo when you released game\nwith command 'releasegame'.\nchangegametitle:change the title of game.")
       elif g=="help 5":
-        Kernel.Cout.Msg("IlChelcciCore engine help page 5:\nconvar:change a global var.\nsetopening:allocate a new opening type.\nsetgcenb:set gc state to True or False.\ngccollect:trigger gc.collect.")
+        Kernel.Cout.Msg("IlChelcciCore engine help page 5:\nconvar:change a global var.\nsetopening:allocate a new opening type.\ntogglegcstate:toggle gc state to True or False.\ngccollect:trigger gc.collect.")
       elif g=="convar":
         v=str(input("variable:"))
         f=str(input("value:"))
