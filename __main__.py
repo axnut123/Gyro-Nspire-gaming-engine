@@ -61,8 +61,8 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("IlChelcciCore 35 Build(0144)");
-DEBUGDATE=str("2025/10/04");
+GAMEVER=str("IlChelcciCore 36 Build(0146)");
+DEBUGDATE=str("2025/10/17");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2025, all rights reserved.");
@@ -177,8 +177,8 @@ class Kernel:#Code base class.
       IO.Save(True,"gcthint",int(gcthresholdint))
       if novid:IO.Save(True,"novid",1)#True or false dosent work here. use 1 or 0.
       else:IO.Save(True,"novid",0)
-      if gcenb:IO.Savd(True,"gcenb",1)
-      else:IO.Savd(True,"gcenb",0)
+      if gcenb:IO.Save(True,"gcenb",1)
+      else:IO.Save(True,"gcenb",0)
       if autoloadmod:IO.Save(True,"autoloadmod",1)
       else:IO.Save(True,"autoloadmod",0)
       if dev:IO.Save(True,"dev",1)
@@ -525,7 +525,7 @@ class Kernel:#Code base class.
       elif g=="help 3":
         Kernel.Cout.Msg("IlChelcciCore engine help page 3:\nscuptoggle: toggle the output when screen \nupdate.\nexec:use exec() to execute python code.\nnovid:disable launch video.\ninitcfg:execute cfg init process manually.\nsavecfg:save current configs.\ngetcfgs:get current cfg status.\nsetmodamount:tell mod loader how many mods should be loaded.")
       elif g=="help 4":
-        Kernel.Cout.Msg("IlChelcciCore engine help page 4:\nautoloadmod:toggle the auto mod loading\nprocess.\nsetlang:set a language for engine.\nbegin:start a dedicated function,\ne.g. 'Prgm.Main()' for main function.\nreleasegame:release your game.\ncancelrelease:undo when you released game\nwith command 'releasegame'.\nchangegametitle:change the title of game.")
+        Kernel.Cout.Msg("IlChelcciCore engine help page 4:\nautoloadmod:toggle the auto mod loading\nprocess.\nsetlang:set a language for engine.\nbegin:start a dedicated function,\ne.g. 'Prgm.Main()' for main function.\nreleasegame:release your game.\ncancelrelease:undo when you released game\nwith command 'releasegame'.\nchangegameinfo:change the infos of game temporarily.")
       elif g=="help 5":
         Kernel.Cout.Msg("IlChelcciCore engine help page 5:\nconvar:change a global var.\nsetopening:allocate a new opening type.\ntogglegcstate:toggle gc state to True or False.\ngccollect:trigger gc.collect.")
       elif g=="convar":
@@ -543,9 +543,33 @@ class Kernel:#Code base class.
         del g
         Kernel.quit(0)
         break
-      elif g=="changegametitle":
-        GAMETITLE=str(input("New title(string only):"))
-        Kernel.Cout.Console("Game title set to:%s"%(GAMETITLE))
+      elif g=="changegameinfo":
+        Kernel.Cout.Console("Change info(1.version/2.debug date/3.company/4.copyright/5.game title/0.cancel.):")
+        while True:
+          g=get_key()
+          if g=="1":
+            GAMEVER=str(input("New value:"))
+            Kernel.Cout.Console("Game version set to:%s."%(GAMEVER))
+            break
+          elif g=="2":
+            DEBUGDATE=str(input("New value:"))
+            Kernel.Cout.Console("Debug date set to:%s."%(DEBUGDATE))
+            break
+          elif g=="3":
+            COMPANY=str(input("New value:"))
+            Kernel.Cout.Console("Company set to:%s."%(COMPANY))
+            break
+          elif g=="4":
+            COPYRIGHT=str(input("New value:"))
+            Kernel.Cout.Console("Copyright set to:%s."%(COPYRIGHT))
+            break
+          elif g=="5":
+            GAMETITLE=str(input("New value:"))
+            Kernel.Cout.Console("Game title set to:%s."%(GAMETITLE))
+            break
+          elif g=="0":
+            Kernel.Cout.Console("Cancelled.")
+            break
       elif g=="setmodamount":
         modamount=input("how many mods should engine load?(default 100):")
         Kernel.Cout.Console(str(modamount)+" mods will be trying to load at next time.")
@@ -637,7 +661,7 @@ class Kernel:#Code base class.
           del g
           Kernel.quit(0)
       elif g=="":pass
-      else:Kernel.Cout.Console("Unknown command:"+str(g)+".type help <page(1/2/3/4/5)> to get help.")
+      else:Kernel.Cout.Console("Unknown command:"+str(g)+".\nType help <page(1/2/3/4/5)> to get help.")
     return 0
   @staticmethod
   def Opening(optp=1):#the engine opening.
