@@ -61,8 +61,8 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("IlChelcciCore 36 Build(0146)");
-DEBUGDATE=str("2025/10/17");
+GAMEVER=str("IlChelcciCore 36 Build(0147)");
+DEBUGDATE=str("2025/10/28");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2025, all rights reserved.");
@@ -112,9 +112,14 @@ class GameError(Exception):pass#Error classes.
 class Kernel:#Code base class.
   def __init__(self):pass
   @staticmethod
+  def GetVar(varName,logout=False):#built-in function, get a global variable.
+    v=globals().get(varName)
+    if logout:Kernel.Cout.Info("Variable '%s' is %s."%(varName,v))
+    return v
+  @staticmethod
   def ConVar(varName,value,logout=False):#built-in function, for change a variable.
     globals()[varName]=value
-    if logout:Kernel.Cout.Info("Changed %s to %s."%(varName,value))
+    if logout:Kernel.Cout.Info("Changed variable '%s' to %s."%(varName,value))
     return varName,value
   @staticmethod
   def KrTerminateProcess(code=None):#built-in function, for forcibly stop this engine.
@@ -127,6 +132,11 @@ class Kernel:#Code base class.
     StdUtil.ConsoleLog(3,code)
     gc.collect()
     raise SystemExit(code)
+  @staticmethod
+  def GetTotalMem():#built-in function, for getting total memory.
+    Kernel.ConVar("totalmem",gc.mem_alloc()+gc.mem_free())
+    Kernel.Cout.DevInfo("Total mem is %s."%(globals().get("totalmem")))
+    return Kernel.GetVar("totalmem")
   @staticmethod
   def GetGcState():#built-in function, get gc is enabled state.
     Kernel.ConVar("gcenb",gc.isenabled())
@@ -1443,6 +1453,21 @@ class StdUtil:#Builtins class, Standard utilities.
     active=True
     action=callback
   @staticmethod
+  def TriggerOnce(minx,miny,maxx,maxy,trgtp):#built-in function. trigger that only run once.
+    global v_live,psy,psx
+    if psx>=minx and psx<=maxx and psy>=miny and psy<=maxy:
+      if trgtp==1:
+        if not Kernel.GetVar("gtemp1"):
+          v_live-=10
+          Kernel.ConVar("gtemp1",True)
+          Kernel.Cout.Info("Trigger executed.")
+          return 1
+        else:return 0
+      else:
+        Kernel.Cout.Info("Trigger is not defined.")
+        Kernel.ErrChk(1,"Unknown trigger.")
+        return -1
+  @staticmethod
   def Trigger(minx,miny,maxx,maxy,trgtp):#built-in function,for trigger a specific event.
     global v_live,mapslt,psx,psy#map selection needs global var
     if psx>=minx and psx<=maxx and psy>=miny and psy<=maxy:
@@ -1495,6 +1520,7 @@ class StdUtil:#Builtins class, Standard utilities.
     if mapslt==0:
       Assets.c1a0()
       StdUtil.Trigger(0,0,20,50,2)
+      StdUtil.TriggerOnce(150,50,150,100,1)
       return 0
     if mapslt==1:
       Assets.c0a0()
