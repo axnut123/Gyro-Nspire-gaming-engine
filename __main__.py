@@ -61,8 +61,8 @@ mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("IlChelcciCore 36 Build(0147)");
-DEBUGDATE=str("2025/10/28");
+GAMEVER=str("IlChelcciCore 36 Build(0148)");
+DEBUGDATE=str("2025/10/29");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2025, all rights reserved.");
@@ -89,7 +89,7 @@ scrgeometmy=int(0);
 gcthresholdint=int(-1);
 runprgm=str("");
 released=int(0);
-totalmem=int(gc.mem_free()+gc.mem_alloc());
+totalmem=int(0);
 gcenb=None;
 emptysave=int(1);#True or False does not work.
 def Help(hptp=0):#built-in function, help infos. fill your own help in here.
@@ -111,6 +111,12 @@ class IOError(Exception):pass#MicroPy does not have this.
 class GameError(Exception):pass#Error classes.
 class Kernel:#Code base class.
   def __init__(self):pass
+  @staticmethod
+  def DelObj(objName,logout=False):#built-in function, deletd an object located in globals() dict.
+    globals().pop(objName)
+    if logout:Kernel.Cout.Info("Deleted '%s'."%(objName))
+    gc.collect()
+    return 0
   @staticmethod
   def GetVar(varName,logout=False):#built-in function, get a global variable.
     v=globals().get(varName)
@@ -243,6 +249,7 @@ class Kernel:#Code base class.
         del cfg0,cfg1,cfg2,cfg3,cfg4,cfg5
         if autoloadmod:Kernel._ModHandler(2)
         gc.threshold(gcthresholdint)
+        Kernel.GetTotalMem()
         gc.collect()
         Kernel.Cout.Info("Config loading process completed.")
         return 1
