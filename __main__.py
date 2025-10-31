@@ -55,14 +55,14 @@ usemod=bool(False);
 dr=bool(False);
 debugs=bool(False);
 erxt=int(0);
-g=str("");
 key=str("");
 mapslt=int(0);
 psx=int(0);
 psy=int(0);
 v_hev=int(0);
-GAMEVER=str("IlChelcciCore 36 Build(0148)");
-DEBUGDATE=str("2025/10/29");
+PI=float(3.14159265358980);
+GAMEVER=str("IlChelcciCore 37 Build(0150)");
+DEBUGDATE=str("2025/10/31");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2025, all rights reserved.");
@@ -120,7 +120,7 @@ class Kernel:#Code base class.
   @staticmethod
   def GetVar(varName,logout=False):#built-in function, get a global variable.
     v=globals().get(varName)
-    if logout:Kernel.Cout.Info("Variable '%s' is %s."%(varName,v))
+    if logout:Kernel.Cout.Info("Variable '%s' is: %s."%(varName,v))
     return v
   @staticmethod
   def ConVar(varName,value,logout=False):#built-in function, for change a variable.
@@ -146,7 +146,7 @@ class Kernel:#Code base class.
   @staticmethod
   def GetGcState():#built-in function, get gc is enabled state.
     Kernel.ConVar("gcenb",gc.isenabled())
-    Kernel.Cout.DevInfo("Gc is enabled is now %s."%(gcenb))
+    Kernel.Cout.DevInfo("Gc enabled is now %s."%(gcenb))
     return gcenb
   @staticmethod
   def SetGcState(state):#built-in function, for set gc enabled.
@@ -449,7 +449,7 @@ class Kernel:#Code base class.
     return 0
   @staticmethod
   def _GameLauncher():#Built-in function, for game loading process.
-    global novid,modenb,usemod,g,tk,ingamemod,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,gcthresholdint,runprgm,released,GAMETITLE,DEBUGDATE,GAMEVER,openingtype,COMPANY,COPYRIGHT,gcenb
+    global novid,usemod,tk,ingamemod,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,gcthresholdint,runprgm,released,GAMETITLE,DEBUGDATE,GAMEVER,openingtype,COMPANY,COPYRIGHT,gcenb
     Kernel.Cout.Preload("Starting console.")
     if not released:Kernel._Console()
     else:
@@ -463,6 +463,7 @@ class Kernel:#Code base class.
     Kernel.SetGcState(gcenb)
     gc.threshold(int(gcthresholdint))
     Kernel.GetGcState()
+    Kernel.ConVar("menuslt",randint(1,2),True)
     Kernel._CreateWindow(scrgeomety,scrgeometx,scrgeometmx,scrgeometmy)
     if not novid:Kernel.Opening(openingtype)
     if ingamemod=="ingamemod":usemod=False
@@ -477,7 +478,7 @@ class Kernel:#Code base class.
     return 0
   @staticmethod
   def _Console():#built-in function,for console.
-    global runprgm,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,ingamemod,modscripts,g,usemod,vtk,erxt,novid,tk,dev,dr,langtype,usemod,modamount,autoloadmod,gcthresholdint,kingignores,released,GAMEVER,DEBUGDATE,GAMETITLE,openingtype,COMPANY,COPYRIGHT
+    global runprgm,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,ingamemod,modscripts,usemod,vtk,erxt,novid,tk,dev,dr,langtype,usemod,modamount,autoloadmod,gcthresholdint,kingignores,released,GAMEVER,DEBUGDATE,GAMETITLE,openingtype,COMPANY,COPYRIGHT
     Kernel.Cout.Preload("Console is created because game is in debug state.")
     while True:
       g=str(input("]"))
@@ -701,6 +702,7 @@ class Kernel:#Code base class.
       draw_text(10,130,ActionUI.DispLanguage("cp3"))
       draw_text(10,145,ActionUI.DispLanguage("cp4"))
       draw_text(10,160,GAMEVER)
+      ActionUI.DispUi(0,0,9)
       paint_buffer()
     elif optp==2:
       set_color(0,0,0)
@@ -1345,12 +1347,10 @@ class ActionUI:#UI class.
         draw_text(80,200,str(ActionUI.DispLanguage("suit")))
       if v_live>=21:
         set_color(200,150,50)
-        draw_text(15,190,v_live)
-        draw_text(15,200,str(ActionUI.DispLanguage("health")))
       else:
         set_color(250,100,10)
-        draw_text(15,190,v_live)
-        draw_text(15,200,str(ActionUI.DispLanguage("health")))
+      draw_text(15,190,v_live)
+      draw_text(15,200,str(ActionUI.DispLanguage("health")))
       return 6
     elif wintp==7:
       set_color(210,10,10)
@@ -1484,6 +1484,9 @@ class StdUtil:#Builtins class, Standard utilities.
         return 1
       elif trgtp==2:
         mapslt=1
+        Kernel.ConVar("gtemp1",None)
+#this code is mean to reset the trigger once in
+#map0, you can choose to not reset the trigger.
         Kernel.Cout.Info("Trigger executed.")
         return 2
       elif trgtp==3:
@@ -1495,15 +1498,15 @@ class StdUtil:#Builtins class, Standard utilities.
         Kernel.ErrChk(1,"Unknown trigger.")
         return -1
   @staticmethod
-  def MouseBox(minx,miny,maxx,maxy):#built-in function.for checking mouse position.
+  def MouseBox(minx,miny,maxx,maxy,enabled):#built-in function.for checking mouse position.
 #Warn:better use keyboard to operate menu, using
-#this function will have a huge impact to perfomance.
+#this function will have huge impact to perfomance.
 #and it's hard to box the area you need.
 #I have developed a tool for this kind of funcs,
 #goto shell and run boxtest.py.
 #but you still can use this API for game.sorry for no example.
     x, y=get_mouse()
-    if x>=minx and x<=maxx and y>=miny and y<=maxy:return True
+    if x>=minx and x<=maxx and y>=miny and y<=maxy and enabled:return True
     else:return False
   @staticmethod
   def SettingMenu():#settings menu,built-in function.
@@ -1738,7 +1741,88 @@ class Assets:#asset class.
     clear()
     return 0
   @staticmethod
-  def MainMenu():#main menu function, I don't even know how am I built this.
+  def MainMenu1():#built-in function, main menu varient 1.
+    posy=20;rgbr=10;rgbb=100;posx=0;w=0;h=0;g=0;b=0;r=0
+    set_pen("medium","solid")
+    a=0
+    def fillwindow(bx,by):
+      set_color(210,210,0)
+      by+=2
+      bx+=6
+      fill_rect(bx,by,2,2);bx+=6;fill_rect(bx,by,2,2)
+      by+=4
+      bx-=6
+      fill_rect(bx,by,2,2);bx+=6;fill_rect(bx,by,2,2)
+    set_color(0,0,100)
+    fill_rect(0,0,500,300)
+    for i in range(1,200):
+      fill_rect(0,posy,500,300)
+      set_color(rgbr,0,rgbb)
+      rgbr+=10;posy+=10
+      if rgbr >= 240:
+        break
+      else:
+        pass
+    set_color(220,220,220)
+    for i in range(100):
+      fill_circle(randint(0,500),randint(0,100),1)
+    fill_circle(100,50,10);l=0;m=0;set_pen("thin","solid")
+    for i in range(2):
+      draw_line(l,m,m,l)
+      l=randint(60,80);m=randint(20,60)
+    set_pen("thick","solid")
+    set_color(0,0,100)
+    fill_circle(105,50,7)
+    set_color(250,250,0);posx=-30
+    for i in range(6):
+      g=randint(0,255);b=randint(0,255);r=randint(0,255)
+      set_color(r,g,b)
+      draw_line(randint(0,500),300,randint(0,500),randint(0,20))
+    if a==1:
+      for i in range(6):
+        g=randint(200,255)
+        set_color(g,g,0)
+        draw_line(randint(0,500),300,randint(0,500),randint(0,20))
+      else:
+        pass
+    set_color(10,10,10)
+    for i in range(1,25):#stage1
+      set_color(10,10,10)
+      fill_rect(posx,posy,20,h)
+      set_color(255,0,0)
+      ax=posx;ay=posy
+      ax+=4;ay-=4
+      fill_rect(ax,ay,2,2)
+      fillwindow(posx,posy)
+      h=randint(40,60);posx+=20;posy=randint(120,160)
+    set_color(10,10,10);fill_rect(-20,160,520,520);posy=160;posx=-20
+    set_color(110,110,110)
+    for i in range(1,25):#stage2
+      set_color(110,110,110)
+      fill_rect(posx,posy,20,h)
+      fillwindow(posx,posy)
+      h=randint(20,40);posx+=20;posy=randint(160,180)
+    set_color(110,110,110)
+    fill_rect(-20,180,520,520)
+    set_color(150,150,150);posy=180;posx=-20
+    for i in range(1,25):#stage3
+      set_color(150,150,150)
+      fill_rect(posx,posy,20,h)
+      fillwindow(posx,posy)
+      h=randint(20,40);posx+=20;posy=randint(180,200)
+    set_color(150,150,150)
+    fill_rect(-20,200,520,520)
+    set_color(220,220,0);posy=140;posx=0
+    set_color(255,0,0)
+    fill_circle(randint(20,300),randint(2,120),2)
+    set_color(255,255,255)
+    draw_text(10,80,"HALF-LIFE²")
+    draw_text(130,17,GAMEVER)
+    draw_text(130,30,str(ActionUI.DispLanguage("dbdate"))+DEBUGDATE)
+    set_pen("thin","solid")
+    return 0
+  @staticmethod
+  def MainMenu2():#main menu function, I don't even know how am I built this.
     posy=20;rgbr=10;rgbb=100;posx=0;w=0;h=0;g=0;b=0;r=0
     set_pen("medium","solid")
     a=0
@@ -1794,12 +1878,14 @@ class Prgm:#program class.
   @staticmethod
   def Main():#main function.It's a very standard template for engine.
     inmenu=True
+    l_menuslt=Kernel.GetVar("menuslt",False)
     global ingamemod,erxt,modscripts,langtype,mapslt,dev,dr,emptysave,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,usemod,plspd,plw,plh,plr,plg,plb,kingignores
     StdUtil.ConsoleLog(4)
     while True:#game logic loop.
       if inmenu:#menu guard.
         Kernel._ResetGame()
-        Assets.MainMenu()
+        if l_menuslt==1:Assets.MainMenu1()
+        else:Assets.MainMenu2()
         ActionUI.DispUi(0,0,4)
         gc.collect()
         paint_buffer()
@@ -1835,7 +1921,8 @@ class Prgm:#program class.
             IO.Delete()
           elif k=="menu":
             ActionUI.DispUi(0,0,9)
-            Assets.MainMenu()
+            if l_menuslt==1:Assets.MainMenu1()
+            else:Assets.MainMenu2()
             ActionUI.DispUi(0,0,4)
             paint_buffer()
           elif k=="a":
@@ -1884,7 +1971,8 @@ class Prgm:#program class.
                 Kernel.SaveCfg()
               elif k=="esc":
                 ActionUI.DispUi(0,0,9)
-                Assets.MainMenu()
+                if l_menuslt==1:Assets.MainMenu1()
+                else:Assets.MainMenu2()
                 ActionUI.DispUi(0,0,4)
                 paint_buffer()
                 break
