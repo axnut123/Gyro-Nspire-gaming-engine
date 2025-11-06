@@ -32,7 +32,6 @@
 #if you're trying to import engine on other file,do
 #not use functions with a leading underscore.
 import sys
-import gc
 from random import randint
 from time import *
 novid=bool(False);
@@ -61,8 +60,8 @@ psx=int(0);
 psy=int(0);
 v_hev=int(0);
 PI=float(3.14159265358980);
-GAMEVER=str("IlChelcciCore 37 Build(0150)");
-DEBUGDATE=str("2025/10/31");
+GAMEVER=str("IlChelcciCore 37 Build(0152)");
+DEBUGDATE=str("2025/11/06");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2025, all rights reserved.");
@@ -87,6 +86,7 @@ scrgeomety=int(0);
 scrgeometmx=int(0);
 scrgeometmy=int(0);
 gcthresholdint=int(-1);
+runmod=bool(False);
 runprgm=str("");
 released=int(0);
 totalmem=int(0);
@@ -211,7 +211,7 @@ class Kernel:#Code base class.
       return -1
   @staticmethod
   def Init(inittp):#built-in function.for init cfgs or other files engine needed.
-    global gcenb,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,autoloadmod,gcthresholdint,dev,dr,novid,langtype,usemod,modamount,erxt,tk,released,openingtype
+    global gcenb,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,autoloadmod,gcthresholdint,dev,dr,novid,langtype,usemod,modamount,erxt,mod,released,openingtype
     if inittp==1:
       try:
         cfg0=IO.Load(True,"gcenb")
@@ -299,10 +299,10 @@ class Kernel:#Code base class.
       else:raise UnknownError(reason)
   @staticmethod
   def _ModHandler(hdtp):#built-in function,for managing mods.
-    global vtk,tk,usemod,ingamemod
+    global vtk,mod,usemod,ingamemod
     if hdtp==1:
       try:
-        del tk
+        del mod
         Kernel.Cout.Info("Mod is uninstalled, but reboot is\nrecommended.")
         gc.collect()
       except Exception as e:
@@ -316,14 +316,14 @@ class Kernel:#Code base class.
         Kernel.Cout.Info("Mod is loading... if mod loading amount is more than 100, it will take a long time to load,\nplease wait.")
         for i in range(int(modamount)):
           try:
-            tk=__import__("ilcc_addon_main"+str(i))
-            modscripts.append(tk)
+            mod=__import__("ilcc_addon_main"+str(i))
+            modscripts.append(mod)
           except ImportError:
             continue
         vtk=True
         Kernel.Cout.Info("Mod init process done.")
         try:
-          ingamemod=tk.mod_type()
+          ingamemod=mod.mod_type()
         except:
           ingamemod=str("")
           Kernel.Cout.Info("No mod file detected.")
@@ -342,13 +342,13 @@ class Kernel:#Code base class.
     elif hdtp==4:
       Kernel.Cout.Msg("Warning: do not let 2 types of mods installed together.")
       if vtk:
-        Kernel.Cout.Msg(tk.mod_type())
-        Kernel.Cout.Msg(tk.mod_info(draw=False))
+        Kernel.Cout.Msg(mod.mod_type())
+        Kernel.Cout.Msg(mod.mod_info(draw=False))
       else:
         Kernel.Cout.Error("Mod is not found.")
         Kernel.ErrChk(4,"Mod not found.")
     elif hdtp==5:
-      if ingamemod=="ingamemod" and tk.mod_type()=="ingamemod"and usemod and tk is not None:tk.mod_main()
+      if ingamemod=="ingamemod" and mod.mod_type()=="ingamemod"and usemod and mod is not None:mod.mod_main()
     else:
       Kernel.Cout.Error("Unknown argument.")
       Kernel.ErrChk(1,"Unknown argument.")
@@ -449,7 +449,7 @@ class Kernel:#Code base class.
     return 0
   @staticmethod
   def _GameLauncher():#Built-in function, for game loading process.
-    global novid,usemod,tk,ingamemod,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,gcthresholdint,runprgm,released,GAMETITLE,DEBUGDATE,GAMEVER,openingtype,COMPANY,COPYRIGHT,gcenb
+    global runmod,novid,usemod,mod,ingamemod,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,gcthresholdint,runprgm,released,GAMETITLE,DEBUGDATE,GAMEVER,openingtype,COMPANY,COPYRIGHT,gcenb
     Kernel.Cout.Preload("Starting console.")
     if not released:Kernel._Console()
     else:
@@ -468,9 +468,9 @@ class Kernel:#Code base class.
     if not novid:Kernel.Opening(openingtype)
     if ingamemod=="ingamemod":usemod=False
     StdUtil.ConsoleLog(5)
-    if usemod and ingamemod!="ingamemod":
+    if runmod and usemod and ingamemod!="ingamemod" and not ingamemod:
       Kernel.Cout.Info("Trying to load mod script.")
-      tk.mod_main()
+      mod.mod_main()
     else:
       Kernel.Cout.Info("Mod loader was not enabled,\nrunning:%s."%(runprgm))
       usemod=True
@@ -478,16 +478,18 @@ class Kernel:#Code base class.
     return 0
   @staticmethod
   def _Console():#built-in function,for console.
-    global runprgm,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,ingamemod,modscripts,usemod,vtk,erxt,novid,tk,dev,dr,langtype,usemod,modamount,autoloadmod,gcthresholdint,kingignores,released,GAMEVER,DEBUGDATE,GAMETITLE,openingtype,COMPANY,COPYRIGHT
+    global runprgm,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,ingamemod,modscripts,usemod,vtk,erxt,novid,mod,dev,dr,langtype,usemod,modamount,autoloadmod,gcthresholdint,kingignores,released,GAMEVER,DEBUGDATE,GAMETITLE,openingtype,COMPANY,COPYRIGHT
     Kernel.Cout.Preload("Console is created because game is in debug state.")
     while True:
       g=str(input("]"))
       if g=="run"or g=="start":
+        Kernel.ConVar("runmod",False,True)
         Kernel.Cout.Console("Running engine.")
         runprgm="Prgm.Main()"#You can change your main entry by editing this string.
         del g
         break
       elif g=="begin":
+        Kernel.ConVar("runmod",False,True)
         runprgm=str(input("function name:"))
         del g
         break
@@ -508,6 +510,13 @@ class Kernel:#Code base class.
           Kernel.Cout.Console("Game releasing have been\ncancelled.")
         else:Kernel.Cout.Console("User cancelled.")
         del r
+      elif g=="getvar":
+        getv=str(input("variable name:"))
+        Kernel.GetVar(getv,True)
+        del getv
+      elif g=="delvar":
+        delv=str(input("variable name:"))
+        Kernel.DelObj(delv,True)
       elif g=="togglegcstate":
         Kernel.ToggleGcState()
       elif g=="setlang":
@@ -530,6 +539,7 @@ class Kernel:#Code base class.
         Kernel.Cout.Console("Auto mod load process is now:"+str(autoloadmod)+".")
       elif g=="modinit":Kernel._ModHandler(2)
       elif g=="runmod":
+        Kernel.ConVar("runmod",True,True)
         a=Kernel._ModHandler(3)
         if a==0:del a;break
       elif g=="initcfg":Kernel.Init(1)
@@ -539,13 +549,13 @@ class Kernel:#Code base class.
       elif g=="help 1":
         Kernel.Cout.Msg("IlChelcciCore engine help page 1:\nrun:start engine.\nhelp <page(1/2/3/4/5)>:get help.\nquit:stop engine and console.\nsetgeomet:set a new resolution for screen.\nforceexitonerror:forcibly stop whole engine when encounting any error and warn.\nversion:get engine version and credits.\nhwinfo:get hardware info.\ncls:clear screen.")
       elif g=="help 2":
-        Kernel.Cout.Msg("IlChelcciCore engine help page 2:\nloadgame:load game from saved file.\ndeletesave:delete saved game.\nmodinit:init installed mod.\nrunmod:start mod.\nmodver:get version for mod.\ndisablemod:disable mod.(pop)\nadjustthreshold:change the value for\ngc.threshold()\ndev: toggle devloper mode.")
+        Kernel.Cout.Msg("IlChelcciCore engine help page 2:\nloadgame:load game from saved file.\ndeletesave:delete saved game.\nmodinit:init installed mod.\nrunmod:start mod.\nmodver:get version for mod.\ndisablemod:disable mod.(pop)\nadjustthreshold:change the value for\ngc.threshold()\ndev: toggle developer mode.")
       elif g=="help 3":
         Kernel.Cout.Msg("IlChelcciCore engine help page 3:\nscuptoggle: toggle the output when screen \nupdate.\nexec:use exec() to execute python code.\nnovid:disable launch video.\ninitcfg:execute cfg init process manually.\nsavecfg:save current configs.\ngetcfgs:get current cfg status.\nsetmodamount:tell mod loader how many mods should be loaded.")
       elif g=="help 4":
         Kernel.Cout.Msg("IlChelcciCore engine help page 4:\nautoloadmod:toggle the auto mod loading\nprocess.\nsetlang:set a language for engine.\nbegin:start a dedicated function,\ne.g. 'Prgm.Main()' for main function.\nreleasegame:release your game.\ncancelrelease:undo when you released game\nwith command 'releasegame'.\nchangegameinfo:change the infos of game temporarily.")
       elif g=="help 5":
-        Kernel.Cout.Msg("IlChelcciCore engine help page 5:\nconvar:change a global var.\nsetopening:allocate a new opening type.\ntogglegcstate:toggle gc state to True or False.\ngccollect:trigger gc.collect.")
+        Kernel.Cout.Msg("IlChelcciCore engine help page 5:\nconvar:change a global var.\ngetvar:get a value from a var.\ndelvar:delete a provided var.\nsetopening:allocate a new opening type.\ntogglegcstate:toggle gc state to True or False.\ngccollect:trigger gc.collect.")
       elif g=="convar":
         v=str(input("variable:"))
         f=str(input("value:"))
@@ -995,6 +1005,13 @@ class Actors:#entity class.
       fill_rect(psx,psy,plw,plh)
       return 0
     @staticmethod
+    def Kill(clearsuit=False,devonly=False,logout=True):#built-in function, kill player.
+      if devonly:return -1
+      Kernel.ConVar("v_live",-99999)
+      if clearsuit:Kernel.ConVar("v_hev",0)
+      if logout:Kernel.Cout.Info("Killed player by function.")
+      return 0
+    @staticmethod
     def Status(*ignoretp):#built-in function, checking player status.
       global v_live,item_suit
 #Do not let "ignoredisable" mixed with other argument,
@@ -1414,12 +1431,18 @@ class ActionUI:#UI class.
     elif wintp==14:
       set_color(250,250,250)
       draw_text(10,40,str(ActionUI.DispLanguage("titset")))
-      draw_text(10,60,"a:"+str(ActionUI.DispLanguage("dr"))+":"+str(dr))
-      draw_text(10,80,"b:"+str(ActionUI.DispLanguage("dev"))+":"+str(dev))
+      if not dev:set_color(190,190,190)
+      else:set_color(250,250,250)
+      draw_text(10,60,"a:"+str(ActionUI.DispLanguage("dr"))+":"+str(dr));set_color(250,250,250)
+      if released:set_color(190,190,190)
+      else:set_color(250,250,250)
+      draw_text(10,80,"b:"+str(ActionUI.DispLanguage("dev"))+":"+str(dev));set_color(250,250,250)
       draw_text(10,100,"c:"+str(ActionUI.DispLanguage("langset"))+":"+str(ActionUI.DispLanguage("lang")))
       draw_text(10,120,"d:"+str(ActionUI.DispLanguage("usemod")+str(usemod)))
+      if not dev:set_color(190,190,190)
+      else:set_color(250,250,250)
       draw_text(10,140,"e:"+str(ActionUI.DispLanguage("erxt"))+str(erxt))
-      draw_text(10,160,"f:%s%s (%s)"%(ActionUI.DispLanguage("gcisenb"),gc.isenabled(),ActionUI.DispLanguage("dangerset")))
+      draw_text(10,160,"f:%s%s (%s)"%(ActionUI.DispLanguage("gcisenb"),gc.isenabled(),ActionUI.DispLanguage("dangerset")));set_color(250,250,250)
       draw_text(10,180,str(ActionUI.DispLanguage("savecfg")))
       draw_text(10,200,str(ActionUI.DispLanguage("escres")))
       return 14
@@ -1879,7 +1902,7 @@ class Prgm:#program class.
   def Main():#main function.It's a very standard template for engine.
     inmenu=True
     l_menuslt=Kernel.GetVar("menuslt",False)
-    global ingamemod,erxt,modscripts,langtype,mapslt,dev,dr,emptysave,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,usemod,plspd,plw,plh,plr,plg,plb,kingignores
+    global ingamemod,released,erxt,modscripts,langtype,mapslt,dev,dr,emptysave,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,usemod,plspd,plw,plh,plr,plg,plb,kingignores
     StdUtil.ConsoleLog(4)
     while True:#game logic loop.
       if inmenu:#menu guard.
@@ -1949,10 +1972,10 @@ class Prgm:#program class.
               clear()
               StdUtil.SettingMenu()
               paint_buffer()
-              if k=="a":
+              if k=="a" and dev:
                 if dr:dr=False
                 else:dr=True
-              elif k=="b":
+              elif k=="b" and not released:
                 if dev:dev=False
                 else:dev=True
               elif k=="c":#add more conditions if you have more language.
@@ -1963,10 +1986,10 @@ class Prgm:#program class.
               elif k=="d":
                 if usemod:usemod=False
                 else:usemod=True
-              elif k=="e":
+              elif k=="e" and dev:
                 if erxt==1:erxt=0
                 else:erxt=1
-              elif k=="f":Kernel.ToggleGcState()
+              elif k=="f" and dev:Kernel.ToggleGcState()
               elif k=="s":
                 Kernel.SaveCfg()
               elif k=="esc":
@@ -2093,6 +2116,8 @@ class Prgm:#program class.
             elif wpnslt==4:
               StdUtil.WaitStart(300,lambda:Wbase.WeaponClip(2))
             break
+          elif k=="w"and dev:
+            Actors.King.Kill()
           elif k=="menu"and dev:
             Actors.King.Init(8,1)
             Actors.King.Init(9,1)
@@ -2182,10 +2207,10 @@ class Prgm:#program class.
                       clear()
                       StdUtil.SettingMenu()
                       paint_buffer()
-                      if k=="a":
+                      if k=="a" and dev:
                         if dr:dr=False
                         else:dr=True
-                      elif k=="b":
+                      elif k=="b" and not released:
                         if dev:dev=False
                         else:dev=True
                       elif k=="c":#add more conditions if you have more language.
@@ -2196,10 +2221,10 @@ class Prgm:#program class.
                       elif k=="d":
                         if not usemod:usemod=True
                         else:usemod=False
-                      elif k=="e":
+                      elif k=="e" and dev:
                         if erxt==1:erxt=0
                         else:erxt=1
-                      elif k=="f":Kernel.ToggleGcState()
+                      elif k=="f" and dev:Kernel.ToggleGcState()
                       elif k=="s":
                         Kernel.SaveCfg()
                       elif k=="esc":
@@ -2220,6 +2245,7 @@ class Prgm:#program class.
                     break
                   elif k=="menu":
                     Kernel.Cout.Info("Return to main menu.")
+                    Kernel.ConVar("menuslt",randint(1,2),True)
                     ActionUI.DispUi(0,0,9)
                     inmenu=True
                     break
@@ -2240,6 +2266,10 @@ if (__name__=="__main__"):#all program starts from here.
   try:#import check.
     from ti_system import *#normally,gui tools are also included in ti_system.
     import micropython as mp
+    if get_platform()=="pc":
+      import gcc as gc
+      import tkinter as tk
+    else:import gc
     Kernel.Cout.Preload("Libraries are successfully loaded.")
   except ImportError:
     try:
