@@ -35,6 +35,7 @@ import sys
 from random import randint
 from time import *
 novid=bool(False);
+autorunoutgmmod=bool(False);
 modamount=int(100);
 endtick=None;
 langtype=int(1);
@@ -60,8 +61,8 @@ psx=int(0);
 psy=int(0);
 v_hev=int(0);
 PI=float(3.14159265358980);
-GAMEVER=str("IlChelcciCore 37 Build(0152)");
-DEBUGDATE=str("2025/11/06");
+GAMEVER=str("IlChelcciCore 37 Build(0153)");
+DEBUGDATE=str("2025/11/11");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2025, all rights reserved.");
@@ -173,7 +174,7 @@ class Kernel:#Code base class.
       return True
   @staticmethod
   def SaveCfg():#built-in function, saving cfg variable to nspire document.
-    global scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,gcthresholdint,autoloadmod,langtype,dev,dr,usemod,novid,modamount,erxt,openingtype,gcenb
+    global autorunoutgmmod,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,gcthresholdint,autoloadmod,langtype,dev,dr,usemod,novid,modamount,erxt,openingtype,gcenb
     try:
       IO.Save(True,"optp",openingtype)
       IO.Save(True,"scgx",scrgeometx)
@@ -203,6 +204,8 @@ class Kernel:#Code base class.
       else:IO.Save(True,"dr",0)
       if usemod:IO.Save(True,"usemod",1)
       else:IO.Save(True,"usemod",0)
+      if autorunoutgmmod:IO.Save(True,"autorunoutgmmod",1)
+      else:IO.Save(True,"autorunoutgmmod",0)
       Kernel.Cout.Info("Cfg saving success.")
       return 0
     except Exception as e:
@@ -211,7 +214,7 @@ class Kernel:#Code base class.
       return -1
   @staticmethod
   def Init(inittp):#built-in function.for init cfgs or other files engine needed.
-    global gcenb,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,autoloadmod,gcthresholdint,dev,dr,novid,langtype,usemod,modamount,erxt,mod,released,openingtype
+    global autorunoutgmmod,gcenb,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,autoloadmod,gcthresholdint,dev,dr,novid,langtype,usemod,modamount,erxt,mod,released,openingtype
     if inittp==1:
       try:
         cfg0=IO.Load(True,"gcenb")
@@ -220,6 +223,7 @@ class Kernel:#Code base class.
         cfg3=IO.Load(True,"dr")
         cfg4=IO.Load(True,"usemod")
         cfg5=IO.Load(True,"autoloadmod")
+        cfg6=IO.Load(True,"autorunoutgmmod")
         openingtype=IO.Load(True,"optp")
         erxt=IO.Load(True,"erxt")
         langtype=IO.Load(True,"langtype")
@@ -246,8 +250,10 @@ class Kernel:#Code base class.
         else:usemod=False
         if cfg5==1:autoloadmod=True
         else:autoloadmod=False
-        del cfg0,cfg1,cfg2,cfg3,cfg4,cfg5
-        if autoloadmod:Kernel._ModHandler(2)
+        if cfg6==1:autorunoutgmmod=True
+        else:autorunoutgmmod=False
+        del cfg0,cfg1,cfg2,cfg3,cfg4,cfg5,cfg6
+        if autoloadmod or autorunoutgmmod:Kernel._ModHandler(2)
         gc.threshold(gcthresholdint)
         Kernel.GetTotalMem()
         gc.collect()
@@ -326,6 +332,7 @@ class Kernel:#Code base class.
           ingamemod=mod.mod_type()
         except:
           ingamemod=str("")
+          vtk=False
           Kernel.Cout.Info("No mod file detected.")
       else:
         Kernel.Cout.Info("Mod already init.")
@@ -348,7 +355,7 @@ class Kernel:#Code base class.
         Kernel.Cout.Error("Mod is not found.")
         Kernel.ErrChk(4,"Mod not found.")
     elif hdtp==5:
-      if ingamemod=="ingamemod" and mod.mod_type()=="ingamemod"and usemod and mod is not None:mod.mod_main()
+      if ingamemod=="ingamemod" and mod.mod_type()=="ingamemod"and usemod and mod is not None and vtk:mod.mod_main()
     else:
       Kernel.Cout.Error("Unknown argument.")
       Kernel.ErrChk(1,"Unknown argument.")
@@ -467,8 +474,13 @@ class Kernel:#Code base class.
     Kernel._CreateWindow(scrgeomety,scrgeometx,scrgeometmx,scrgeometmy)
     if not novid:Kernel.Opening(openingtype)
     if ingamemod=="ingamemod":usemod=False
+    if autorunoutgmmod and released:
+      runmod=True
+      usemod=True
+      Kernel.Cout.Info("Auto run out game mod enabled.")
     StdUtil.ConsoleLog(5)
-    if runmod and usemod and ingamemod!="ingamemod" and not ingamemod:
+    if runmod and usemod and ingamemod=="outgamemod" and ingamemod is not None:
+      clear()
       Kernel.Cout.Info("Trying to load mod script.")
       mod.mod_main()
     else:
@@ -478,7 +490,7 @@ class Kernel:#Code base class.
     return 0
   @staticmethod
   def _Console():#built-in function,for console.
-    global runprgm,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,ingamemod,modscripts,usemod,vtk,erxt,novid,mod,dev,dr,langtype,usemod,modamount,autoloadmod,gcthresholdint,kingignores,released,GAMEVER,DEBUGDATE,GAMETITLE,openingtype,COMPANY,COPYRIGHT
+    global autorunoutgmmod,runprgm,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,ingamemod,modscripts,usemod,vtk,erxt,novid,mod,dev,dr,langtype,usemod,modamount,autoloadmod,gcthresholdint,kingignores,released,GAMEVER,DEBUGDATE,GAMETITLE,openingtype,COMPANY,COPYRIGHT
     Kernel.Cout.Preload("Console is created because game is in debug state.")
     while True:
       g=str(input("]"))
@@ -538,6 +550,10 @@ class Kernel:#Code base class.
         else:autoloadmod=True
         Kernel.Cout.Console("Auto mod load process is now:"+str(autoloadmod)+".")
       elif g=="modinit":Kernel._ModHandler(2)
+      elif g=="autorunoutgamemod":
+        if autorunoutgmmod:autorunoutgmmod=False
+        else:autorunoutgmmod=True
+        Kernel.Cout.Info("autorunoutgmmod is now: %s"%(autorunoutgmmod))
       elif g=="runmod":
         Kernel.ConVar("runmod",True,True)
         a=Kernel._ModHandler(3)
@@ -555,7 +571,7 @@ class Kernel:#Code base class.
       elif g=="help 4":
         Kernel.Cout.Msg("IlChelcciCore engine help page 4:\nautoloadmod:toggle the auto mod loading\nprocess.\nsetlang:set a language for engine.\nbegin:start a dedicated function,\ne.g. 'Prgm.Main()' for main function.\nreleasegame:release your game.\ncancelrelease:undo when you released game\nwith command 'releasegame'.\nchangegameinfo:change the infos of game temporarily.")
       elif g=="help 5":
-        Kernel.Cout.Msg("IlChelcciCore engine help page 5:\nconvar:change a global var.\ngetvar:get a value from a var.\ndelvar:delete a provided var.\nsetopening:allocate a new opening type.\ntogglegcstate:toggle gc state to True or False.\ngccollect:trigger gc.collect.")
+        Kernel.Cout.Msg("IlChelcciCore engine help page 5:\nconvar:change a global var.\ngetvar:get a value from a var.\ndelvar:delete a provided var.\nsetopening:allocate a new opening type.\ntogglegcstate:toggle gc state to True or False.\ngccollect:trigger gc.collect.\nautorunoutgamemod:toggles when game is\nreleased automatically run out game mod.")
       elif g=="convar":
         v=str(input("variable:"))
         f=str(input("value:"))
@@ -1210,7 +1226,7 @@ class ActionUI:#UI class.
     "gcthreshold":"gc threshold:",
     "gametitle":"game title:",
     "usemod":"Is mod enabled:",
-    "noactulmodcnt":"(Not actual loaded count.)"};
+    "noactulmodcnt":"(Configurated counts.)"};
     langdict2={
     "usemod":"是否启用模组:",
     "gametitle":"游戏名:",
@@ -1280,7 +1296,7 @@ class ActionUI:#UI class.
     "titset":"设置(按下切换)",
     "gcisenb":"是否启用垃圾清理:",
     "totalmem":"总运行内存:",
-    "noactulmodcnt":"(非模组加载数)",
+    "noactulmodcnt":"(被配置数量)",
     "gcthreshold":"清理阈值:"};
     if langtype==1:out=str(langdict1.get(langstr))
     elif langtype==2:out=str(langdict2.get(langstr))
