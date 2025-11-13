@@ -61,12 +61,13 @@ psx=int(0);
 psy=int(0);
 v_hev=int(0);
 PI=float(3.14159265358980);
-GAMEVER=str("IlChelcciCore 37 Build(0153)");
-DEBUGDATE=str("2025/11/11");
+GAMEVER=str("IlChelcciCore 38 Build(0155)");
+DEBUGDATE=str("2025/11/13");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2025, all rights reserved.");
 wpnslt=int(0);
+permissionlvl=int(1);
 item_suit=int(0);
 weapon_crb=int(0);
 weapon_physcnn=int(0);
@@ -189,6 +190,7 @@ class Kernel:#Code base class.
         IO.Save(True,"langtype",1)
         Kernel.Cout.Warning("Language type not found, saving as default language.")
         Kernel.ErrChk(1,"Language type not found.")
+      IO.Save(True,"permlvl",permissionlvl)
       IO.Save(True,"erxt",int(erxt))
       IO.Save(True,"modamount",modamount)
       IO.Save(True,"gcthint",int(gcthresholdint))
@@ -214,7 +216,7 @@ class Kernel:#Code base class.
       return -1
   @staticmethod
   def Init(inittp):#built-in function.for init cfgs or other files engine needed.
-    global autorunoutgmmod,gcenb,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,autoloadmod,gcthresholdint,dev,dr,novid,langtype,usemod,modamount,erxt,mod,released,openingtype
+    global permissionlvl,autorunoutgmmod,gcenb,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,autoloadmod,gcthresholdint,dev,dr,novid,langtype,usemod,modamount,erxt,mod,released,openingtype
     if inittp==1:
       try:
         cfg0=IO.Load(True,"gcenb")
@@ -225,6 +227,7 @@ class Kernel:#Code base class.
         cfg5=IO.Load(True,"autoloadmod")
         cfg6=IO.Load(True,"autorunoutgmmod")
         openingtype=IO.Load(True,"optp")
+        permissionlvl=int(IO.Load(True,"permlvl"))
         erxt=IO.Load(True,"erxt")
         langtype=IO.Load(True,"langtype")
         released=IO.Load(True,"released")
@@ -467,9 +470,9 @@ class Kernel:#Code base class.
     gc.collect()
     Kernel.Cout.Info("Engine and game info:\nversion:%s, debug date:%s,\ncompany name:%s,\ncopyright info:%s,\ngame title:'%s'."%(GAMEVER,DEBUGDATE,COMPANY,COPYRIGHT,GAMETITLE))
     StdUtil.ConsoleLog(2)
+    Kernel.GetGcState()
     Kernel.SetGcState(gcenb)
     gc.threshold(int(gcthresholdint))
-    Kernel.GetGcState()
     Kernel.ConVar("menuslt",randint(1,2),True)
     Kernel._CreateWindow(scrgeomety,scrgeometx,scrgeometmx,scrgeometmy)
     if not novid:Kernel.Opening(openingtype)
@@ -490,22 +493,23 @@ class Kernel:#Code base class.
     return 0
   @staticmethod
   def _Console():#built-in function,for console.
-    global autorunoutgmmod,runprgm,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,ingamemod,modscripts,usemod,vtk,erxt,novid,mod,dev,dr,langtype,usemod,modamount,autoloadmod,gcthresholdint,kingignores,released,GAMEVER,DEBUGDATE,GAMETITLE,openingtype,COMPANY,COPYRIGHT
+    global autorunoutgmmod,runprgm,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,ingamemod,modscripts,usemod,vtk,erxt,novid,mod,dev,dr,langtype,usemod,modamount,autoloadmod,gcthresholdint,kingignores,released,GAMEVER,DEBUGDATE,GAMETITLE,openingtype,COMPANY,COPYRIGHT,permissionlvl
     Kernel.Cout.Preload("Console is created because game is in debug state.")
     while True:
       g=str(input("]"))
-      if g=="run"or g=="start":
+      permissionlvl=int(permissionlvl)
+      if permissionlvl>=1 and g=="run"or permissionlvl>=1 and g=="start":
         Kernel.ConVar("runmod",False,True)
         Kernel.Cout.Console("Running engine.")
         runprgm="Prgm.Main()"#You can change your main entry by editing this string.
         del g
         break
-      elif g=="begin":
+      elif g=="begin"and permissionlvl>=3:
         Kernel.ConVar("runmod",False,True)
         runprgm=str(input("function name:"))
         del g
         break
-      elif g=="releasegame":
+      elif g=="releasegame"and permissionlvl>=4:
         Kernel.Cout.Msg("Are you sure you want to release the game?\nOnce released, the console will no longer launch at startup.All dev-related configuration files will be preserved.Please review and update dev\nconfigs if necessary before proceeding. This\naction can only be undone by\nchanging the 'released' variable after console\nclosed or use 'cancelrelease' command before\nconsole closed.")
         r=str(input("Confirm. (y/n):"))
         if r=="y":
@@ -514,7 +518,7 @@ class Kernel:#Code base class.
           Kernel.Cout.Console("Your game have been released,\nthis console will no longer launch at next startup.")
         else:Kernel.Cout.Console("User cancelled.")
         del r
-      elif g=="cancelrelease":
+      elif g=="cancelrelease"and permissionlvl>=4:
         r=str(input("Confirm for cancelling your releasegame\ncommand. (y/n):"))
         if r=="y":
           released=0
@@ -522,16 +526,20 @@ class Kernel:#Code base class.
           Kernel.Cout.Console("Game releasing have been\ncancelled.")
         else:Kernel.Cout.Console("User cancelled.")
         del r
-      elif g=="getvar":
+      elif g=="getvar"and permissionlvl>=4:
         getv=str(input("variable name:"))
-        Kernel.GetVar(getv,True)
+        try:Kernel.GetVar(getv,True)
+        except Exception as e:
+          Kernel.Cout.Error("Unable to get var."+str(e))
         del getv
-      elif g=="delvar":
+      elif g=="delvar"and permissionlvl>=4:
         delv=str(input("variable name:"))
-        Kernel.DelObj(delv,True)
-      elif g=="togglegcstate":
+        try:Kernel.DelObj(delv,True)
+        except Exception as e:
+          Kernel.Cout.Error("Unable to delete."+str(e))
+      elif g=="togglegcstate"and permissionlvl>=4:
         Kernel.ToggleGcState()
-      elif g=="setlang":
+      elif g=="setlang"and permissionlvl>=1:
         g=str(input("1:English,2:Simplified Chinese,3.Cancel"))
         if g=="1":
           langtype=1
@@ -544,35 +552,37 @@ class Kernel:#Code base class.
           Kernel.Cout.Error("Language type unknown, using default language.")
           langtype=1
           Kernel.ErrChk(3,"Language type unknown.")
-      elif g=="disablemod":Kernel._ModHandler(1)
-      elif g=="autoloadmod":
+      elif g=="disablemod"and permissionlvl>=1:Kernel._ModHandler(1)
+      elif g=="autoloadmod"and permissionlvl>=1:
         if autoloadmod:autoloadmod=False
         else:autoloadmod=True
         Kernel.Cout.Console("Auto mod load process is now:"+str(autoloadmod)+".")
-      elif g=="modinit":Kernel._ModHandler(2)
-      elif g=="autorunoutgamemod":
+      elif g=="modinit"and permissionlvl>=1:Kernel._ModHandler(2)
+      elif g=="autorunoutgamemod"and permissionlvl>=1:
         if autorunoutgmmod:autorunoutgmmod=False
         else:autorunoutgmmod=True
         Kernel.Cout.Info("autorunoutgmmod is now: %s"%(autorunoutgmmod))
-      elif g=="runmod":
+      elif g=="runmod"and permissionlvl>=1:
         Kernel.ConVar("runmod",True,True)
         a=Kernel._ModHandler(3)
         if a==0:del a;break
-      elif g=="initcfg":Kernel.Init(1)
-      elif g=="modver":Kernel._ModHandler(4)
-      elif g=="savecfg":
+      elif g=="initcfg"and permissionlvl>=1:Kernel.Init(1)
+      elif g=="modver"and permissionlvl>=1:Kernel._ModHandler(4)
+      elif g=="savecfg"and permissionlvl>=1:
         Kernel.SaveCfg()
-      elif g=="help 1":
+      elif g=="help 1"and permissionlvl>=1:
         Kernel.Cout.Msg("IlChelcciCore engine help page 1:\nrun:start engine.\nhelp <page(1/2/3/4/5)>:get help.\nquit:stop engine and console.\nsetgeomet:set a new resolution for screen.\nforceexitonerror:forcibly stop whole engine when encounting any error and warn.\nversion:get engine version and credits.\nhwinfo:get hardware info.\ncls:clear screen.")
-      elif g=="help 2":
+      elif g=="help 2"and permissionlvl>=1:
         Kernel.Cout.Msg("IlChelcciCore engine help page 2:\nloadgame:load game from saved file.\ndeletesave:delete saved game.\nmodinit:init installed mod.\nrunmod:start mod.\nmodver:get version for mod.\ndisablemod:disable mod.(pop)\nadjustthreshold:change the value for\ngc.threshold()\ndev: toggle developer mode.")
-      elif g=="help 3":
+      elif g=="help 3"and permissionlvl>=1:
         Kernel.Cout.Msg("IlChelcciCore engine help page 3:\nscuptoggle: toggle the output when screen \nupdate.\nexec:use exec() to execute python code.\nnovid:disable launch video.\ninitcfg:execute cfg init process manually.\nsavecfg:save current configs.\ngetcfgs:get current cfg status.\nsetmodamount:tell mod loader how many mods should be loaded.")
-      elif g=="help 4":
+      elif g=="help 4"and permissionlvl>=1:
         Kernel.Cout.Msg("IlChelcciCore engine help page 4:\nautoloadmod:toggle the auto mod loading\nprocess.\nsetlang:set a language for engine.\nbegin:start a dedicated function,\ne.g. 'Prgm.Main()' for main function.\nreleasegame:release your game.\ncancelrelease:undo when you released game\nwith command 'releasegame'.\nchangegameinfo:change the infos of game temporarily.")
-      elif g=="help 5":
-        Kernel.Cout.Msg("IlChelcciCore engine help page 5:\nconvar:change a global var.\ngetvar:get a value from a var.\ndelvar:delete a provided var.\nsetopening:allocate a new opening type.\ntogglegcstate:toggle gc state to True or False.\ngccollect:trigger gc.collect.\nautorunoutgamemod:toggles when game is\nreleased automatically run out game mod.")
-      elif g=="convar":
+      elif g=="help 5"and permissionlvl>=1:
+        Kernel.Cout.Msg("IlChelcciCore engine help page 5:\nconvar:change a global var.\ngetvar:get a value from a var.\ndelvar:delete a provided var.\nsetopening:allocate a new opening type.\ntogglegcstate:toggle gc state to True or False.\ngccollect:trigger gc.collect.\nautorunoutgamemod:toggles when game is\nreleased automatically run out game mod.\nmypermlvl:get your current permission level.")
+      elif g=="mypermlvl"and permissionlvl>=1:
+        Kernel.Cout.Msg("Your current permission level is: %s."%(permissionlvl))
+      elif g=="convar"and permissionlvl>=4:
         v=str(input("variable:"))
         f=str(input("value:"))
         try:
@@ -580,14 +590,14 @@ class Kernel:#Code base class.
         except Exception as e:
           Kernel.Cout.Error("Variable operation failed. %s"%(e))
         del v,f
-      elif g=="gccollect":
+      elif g=="gccollect"and permissionlvl>=4:
         gc.collect()
         Kernel.Cout.Console("Gc collect completed.")
-      elif g=="quit"or g=="stop"or g=="exit"or g=="esc":
+      elif permissionlvl>=1 and g=="quit"or permissionlvl>=1 and g=="stop"or permissionlvl>=1 and g=="exit"or g=="esc"and permissionlvl>=1:
         del g
         Kernel.quit(0)
         break
-      elif g=="changegameinfo":
+      elif g=="changegameinfo"and permissionlvl>=4:
         Kernel.Cout.Console("Change info(1.version/2.debug date/3.company/4.copyright/5.game title/0.cancel.):")
         while True:
           g=get_key()
@@ -614,14 +624,14 @@ class Kernel:#Code base class.
           elif g=="0":
             Kernel.Cout.Console("Cancelled.")
             break
-      elif g=="setmodamount":
+      elif g=="setmodamount"and permissionlvl>=1:
         modamount=input("how many mods should engine load?(default 100):")
         Kernel.Cout.Console(str(modamount)+" mods will be trying to load at next time.")
-      elif g=="scuptoggle":
+      elif g=="scuptoggle"and permissionlvl>=2:
         if not dr:
           dr=True;Kernel.Cout.Console("Enabled.")
         else:dr=False;Kernel.Cout.Console("Disabled.")
-      elif g=="setgeomet":
+      elif g=="setgeomet"and permissionlvl>=2:
         try:
           scrgeometx=int(input("xmin:"))
           scrgeomety=int(input("ymin:"))
@@ -631,7 +641,7 @@ class Kernel:#Code base class.
         except Exception as e:
           Kernel.Cout.Error("Setting was failed. "+str(e))
           Kernel.ErrChk(3,"Bad arguments.")
-      elif g=="getcfgs":
+      elif g=="getcfgs"and permissionlvl>=1:
         Kernel.Cout.Msg("exit on error:"+str(erxt))
         Kernel.Cout.Msg("gc threshold:"+str(gcthresholdint))
         Kernel.Cout.Msg("novid:"+str(novid))
@@ -642,26 +652,27 @@ class Kernel:#Code base class.
         Kernel.Cout.Msg("mod amounts:"+str(modamount))
         Kernel.Cout.Msg("auto load mod:"+str(autoloadmod))
         Kernel.Cout.Msg("Resolution:"+str(scrgeometx)+","+str(scrgeomety)+","+str(scrgeometmx)+","+str(scrgeometmy))
-      elif g=="forceexitonerror":
+        Kernel.Cout.Msg("Permission level:%s"%(permissionlvl))
+      elif g=="forceexitonerror"and permissionlvl>=3:
         if erxt==1:
           erxt=0
           Kernel.Cout.Console("Exit when error disabled.")
         else:
           erxt=1
           Kernel.Cout.Console("Exit when error enabled.")
-      elif g=="setopening":
+      elif g=="setopening"and permissionlvl>=1:
         openingtype=int(input("new opening type:"))
         Kernel.Cout.Console("Opening type is now:%s."%(openingtype))
-      elif g=="version"or g=="ver":
+      elif permissionlvl>=1 and g=="version"or g=="ver"and permissionlvl>=1:
         Kernel.Cout.Msg("IlChelcciCore 2D Gaming engine.\n"+str(GAMEVER)+"\nDebugged in:"+str(DEBUGDATE)+"\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:"+str(sys.version)+"\nEngine built on Python 3.4.0.\nCopyright and company info:"+COPYRIGHT+","+COMPANY+".")
-      elif g=="novid":
+      elif g=="novid"and permissionlvl>=2:
         if not novid:
           novid=True
           Kernel.Cout.Console("Disabled launch video.")
         else:
           novid=False
           Kernel.Cout.Console("Enabled launch video.")
-      elif g=="hwinfo":
+      elif g=="hwinfo"and permissionlvl>=2:
         Kernel.Cout.Msg("Version:"+str(GAMEVER))
         Kernel.Cout.Msg("Platform:"+str(get_platform()))
         Kernel.Cout.Msg("mem free:"+str(gc.mem_free()))
@@ -673,27 +684,27 @@ class Kernel:#Code base class.
         Kernel.Cout.Msg("local time:"+str(localtime()))
         Kernel.Cout.Msg("gc threshold:"+str(gcthresholdint))
         Kernel.Cout.Msg("gc is enabled:%s"%(gc.isenabled()))
-      elif g=="deletesave":
+      elif g=="deletesave"and permissionlvl>=1:
         IO.Delete()
-      elif g=="loadgame":
+      elif g=="loadgame"and permissionlvl>=1:
         IO.Load()
-      elif g=="help":
+      elif g=="help"and permissionlvl>=1:
         Kernel.Cout.Msg("Usage: help <1/2/3/4/5>.\nexample: help 1 for page 1.")
-      elif g=="cls"or g=="clr" or g=="clear":
+      elif permissionlvl>=1 and g=="cls"or permissionlvl>=1 and g=="clr" or g=="clear"and permissionlvl>=1:
         clear_history()
-      elif g=="dev"or g=="developer":
+      elif permissionlvl>=1 and g=="dev"or g=="developer"and permissionlvl>=4:
         if not dev:
           dev=True
           Kernel.Cout.Console("Dev mode enabled.")
         else:dev=False;Kernel.Cout.Console("Dev mode disabled.")
-      elif g=="adjustthreshold":
+      elif g=="adjustthreshold"and permissionlvl>=4:
         try:
           gcthresholdint=int(input("gc.threshold:"))
           gc.threshold(gcthresholdint)
           Kernel.Cout.Console("New value given.")
         except Exception as e:
           Kernel.Cout.Error("Failed. "+str(e))
-      elif g=="exec"or g=="execute":
+      elif permissionlvl>=4 and g=="exec"or g=="execute"and permissionlvl>=4:
         g=str(input("execute:"))
         try:
           exec(g)
@@ -705,7 +716,7 @@ class Kernel:#Code base class.
           del g
           Kernel.quit(0)
       elif g=="":pass
-      else:Kernel.Cout.Console("Unknown command:"+str(g)+".\nType help <page(1/2/3/4/5)> to get help.")
+      else:Kernel.Cout.Console("Unknown command or lacking\npermission on command:"+str(g)+".\nType help <page(1/2/3/4/5)> to get help.")
     return 0
   @staticmethod
   def Opening(optp=1):#the engine opening.
@@ -2261,7 +2272,7 @@ class Prgm:#program class.
                     break
                   elif k=="menu":
                     Kernel.Cout.Info("Return to main menu.")
-                    Kernel.ConVar("menuslt",randint(1,2),True)
+                    l_menuslt=randint(1,2)
                     ActionUI.DispUi(0,0,9)
                     inmenu=True
                     break
