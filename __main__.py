@@ -61,8 +61,8 @@ psx=int(0);
 psy=int(0);
 v_hev=int(0);
 PI=float(3.14159265358980);
-GAMEVER=str("IlChelcciCore 38 Build(0155)");
-DEBUGDATE=str("2025/11/13");
+GAMEVER=str("IlChelcciCore 38 Build(0156)");
+DEBUGDATE=str("2025/11/17");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2025, all rights reserved.");
@@ -692,7 +692,7 @@ class Kernel:#Code base class.
         Kernel.Cout.Msg("Usage: help <1/2/3/4/5>.\nexample: help 1 for page 1.")
       elif permissionlvl>=1 and g=="cls"or permissionlvl>=1 and g=="clr" or g=="clear"and permissionlvl>=1:
         clear_history()
-      elif permissionlvl>=1 and g=="dev"or g=="developer"and permissionlvl>=4:
+      elif permissionlvl>=4 and g=="dev"or g=="developer"and permissionlvl>=4:
         if not dev:
           dev=True
           Kernel.Cout.Console("Dev mode enabled.")
@@ -1231,12 +1231,12 @@ class ActionUI:#UI class.
     "reso":"Resolution:",
     "set":"tab:settings",
     "titset":"Settings(press to toggle)",
-    "erxt":"force exit on error:",
-    "gcisenb":"Is gc enabled:",
+    "erxt":"force exit on error",
+    "gcisenb":"Is gc enabled",
     "totalmem":"Total Mem:",
     "gcthreshold":"gc threshold:",
     "gametitle":"game title:",
-    "usemod":"Is mod enabled:",
+    "usemod":"Is mod enabled",
     "noactulmodcnt":"(Configurated counts.)"};
     langdict2={
     "usemod":"是否启用模组:",
@@ -1253,9 +1253,9 @@ class ActionUI:#UI class.
     "cp3":"由德州仪器所有(TI)。使用此",
     "cp4":"软件将代表你同意使用规则。",
     "modamount":"模组加载数:",
-    "usemod":"启用模组:",
+    "usemod":"启用模组",
     "lang":"简体中文",
-    "erxt":"发生错误时退出:",
+    "erxt":"发生错误时退出",
     "set":"tab:设置",
     "savecfg":"s:保存设置",
     "dbdate":"测试日期:",
@@ -1305,7 +1305,7 @@ class ActionUI:#UI class.
     "load":"载入中...",
     "reso":"分辩率:",
     "titset":"设置(按下切换)",
-    "gcisenb":"是否启用垃圾清理:",
+    "gcisenb":"是否启用垃圾清理",
     "totalmem":"总运行内存:",
     "noactulmodcnt":"(被配置数量)",
     "gcthreshold":"清理阈值:"};
@@ -1318,6 +1318,18 @@ class ActionUI:#UI class.
       Kernel.Cout.Error("ActionUI.DispLanguage() method has an error occurred.")
       Kernel.ErrChk(1,"Missing key and value or dict error.")
       return langstr
+  @staticmethod
+  def CheckBox(x,y,ipt):#built-in function, a check box.
+    if ipt:
+      draw_rect(x,y,13,13)
+      draw_line(x,y+5,x+5,y+13)
+      x+=5
+      y+=13
+      draw_line(x,y,x+8,y-11)
+      return True
+    else:
+      draw_rect(x,y,13,13)
+      return False
   @staticmethod
   def DispUi(x,y,wintp):#built-in function,for display window, gui elements.
     global emptysave,erxt,dev,mapslt,debugs,v_live,v_hev,wpnslt,usemod,ammo9,ammo357,inclip9,inclip357,weapon_pst,weapon_crb,weapon_physcnn,weapon_357,dr,langtype,usemod,modamount,GAMETITLE
@@ -1333,13 +1345,13 @@ class ActionUI:#UI class.
         StdUtil.WaitStart(100,lambda:Kernel.GetGcState())
         set_color(0,0,0)
         draw_text(10,20,str(ActionUI.DispLanguage("memfree"))+str(gc.mem_free())+"|"+str(ActionUI.DispLanguage("totalmem"))+str(totalmem))
-        draw_text(10,35,str(ActionUI.DispLanguage("memalloc"))+str(gc.mem_alloc())+"|"+str(ActionUI.DispLanguage("gcisenb"))+str(gcenb))
+        draw_text(10,35,str(ActionUI.DispLanguage("memalloc"))+str(gc.mem_alloc())+"|"+str(ActionUI.DispLanguage("gcisenb"))+":"+str(gcenb))
         draw_text(10,55,str(ActionUI.DispLanguage("stackuse"))+str(mp.stack_use())+"|"+str(ActionUI.DispLanguage("pystackuse"))+str(mp.pystack_use()))
         draw_text(10,70,str(ActionUI.DispLanguage("gcthreshold"))+str(gc.threshold())+"|"+str(ActionUI.DispLanguage("cputick"))+str(ticks_cpu()))
         draw_text(10,85,str(ActionUI.DispLanguage("gametitle"))+GAMETITLE)
         draw_text(10,100,str(ActionUI.DispLanguage("localtime"))+str(localtime()))
         draw_text(10,115,str(ActionUI.DispLanguage("ppos"))+str(psx)+","+str(psy)+"|"+str(ActionUI.DispLanguage("mapid"))+str(mapslt))
-        draw_text(10,130,str(ActionUI.DispLanguage("usemod"))+str(usemod))
+        draw_text(10,130,str(ActionUI.DispLanguage("usemod"))+":"+str(usemod))
         draw_text(10,145,str(ActionUI.DispLanguage("ver"))+str(GAMEVER))
         draw_text(10,160,str(ActionUI.DispLanguage("dbdate")+str(DEBUGDATE)))
         draw_text(10,175,str(ActionUI.DispLanguage("platform"))+str(get_platform()))
@@ -1460,16 +1472,16 @@ class ActionUI:#UI class.
       draw_text(10,40,str(ActionUI.DispLanguage("titset")))
       if not dev:set_color(190,190,190)
       else:set_color(250,250,250)
-      draw_text(10,60,"a:"+str(ActionUI.DispLanguage("dr"))+":"+str(dr));set_color(250,250,250)
+      ActionUI.CheckBox(10,45,dr);draw_text(30,60,"a:"+str(ActionUI.DispLanguage("dr")));set_color(250,250,250)
       if released:set_color(190,190,190)
       else:set_color(250,250,250)
-      draw_text(10,80,"b:"+str(ActionUI.DispLanguage("dev"))+":"+str(dev));set_color(250,250,250)
+      ActionUI.CheckBox(10,65,dev);draw_text(30,80,"b:"+str(ActionUI.DispLanguage("dev")));set_color(250,250,250)
       draw_text(10,100,"c:"+str(ActionUI.DispLanguage("langset"))+":"+str(ActionUI.DispLanguage("lang")))
-      draw_text(10,120,"d:"+str(ActionUI.DispLanguage("usemod")+str(usemod)))
+      ActionUI.CheckBox(10,105,usemod);draw_text(30,120,"d:"+str(ActionUI.DispLanguage("usemod")))
       if not dev:set_color(190,190,190)
       else:set_color(250,250,250)
-      draw_text(10,140,"e:"+str(ActionUI.DispLanguage("erxt"))+str(erxt))
-      draw_text(10,160,"f:%s%s (%s)"%(ActionUI.DispLanguage("gcisenb"),gc.isenabled(),ActionUI.DispLanguage("dangerset")));set_color(250,250,250)
+      ActionUI.CheckBox(10,125,erxt);draw_text(30,140,"e:"+str(ActionUI.DispLanguage("erxt")))
+      ActionUI.CheckBox(10,145,gcenb);draw_text(30,160,"f:%s (%s)"%(ActionUI.DispLanguage("gcisenb"),ActionUI.DispLanguage("dangerset")));set_color(250,250,250)
       draw_text(10,180,str(ActionUI.DispLanguage("savecfg")))
       draw_text(10,200,str(ActionUI.DispLanguage("escres")))
       return 14
