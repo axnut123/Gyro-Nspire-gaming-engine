@@ -61,8 +61,9 @@ psx=int(0);
 psy=int(0);
 v_hev=int(0);
 PI=float(3.14159265358980);
-GAMEVER=str("IlChelcciCore 38 Build(0156)");
-DEBUGDATE=str("2025/11/17");
+GAMEVER=str("IlChelcciCore 38 Build(0158)");
+VERINT=int(158);
+DEBUGDATE=str("2025/11/24");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2025, all rights reserved.");
@@ -87,6 +88,7 @@ scrgeometx=int(0);
 scrgeomety=int(0);
 scrgeometmx=int(0);
 scrgeometmy=int(0);
+ignoreverchk=bool(False);
 gcthresholdint=int(-1);
 runmod=bool(False);
 runprgm=str("");
@@ -104,6 +106,7 @@ def version(vertype=0):#built-in function, version output. fill your version her
   elif vertype==2:return GAMETITLE
   elif vertype==3:return COPYRIGHT
   elif vertype==4:return COMPANY
+  elif vertype==5:return VERINT
   else:raise ValueError("Unknown arguments.")
 class CfgError(Exception):pass
 class ArgumentNotFound(Exception):pass
@@ -175,7 +178,7 @@ class Kernel:#Code base class.
       return True
   @staticmethod
   def SaveCfg():#built-in function, saving cfg variable to nspire document.
-    global autorunoutgmmod,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,gcthresholdint,autoloadmod,langtype,dev,dr,usemod,novid,modamount,erxt,openingtype,gcenb
+    global autorunoutgmmod,ignoreverchk,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,gcthresholdint,autoloadmod,langtype,dev,dr,usemod,novid,modamount,erxt,openingtype,gcenb
     try:
       IO.Save(True,"optp",openingtype)
       IO.Save(True,"scgx",scrgeometx)
@@ -196,6 +199,8 @@ class Kernel:#Code base class.
       IO.Save(True,"gcthint",int(gcthresholdint))
       if novid:IO.Save(True,"novid",1)#True or false dosent work here. use 1 or 0.
       else:IO.Save(True,"novid",0)
+      if ignoreverchk:IO.Save(True,"ignoreverchk",1)
+      else:IO.Save(True,"ignoreverchk",0)
       if gcenb:IO.Save(True,"gcenb",1)
       else:IO.Save(True,"gcenb",0)
       if autoloadmod:IO.Save(True,"autoloadmod",1)
@@ -216,7 +221,7 @@ class Kernel:#Code base class.
       return -1
   @staticmethod
   def Init(inittp):#built-in function.for init cfgs or other files engine needed.
-    global permissionlvl,autorunoutgmmod,gcenb,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,autoloadmod,gcthresholdint,dev,dr,novid,langtype,usemod,modamount,erxt,mod,released,openingtype
+    global ignoreverchk,permissionlvl,autorunoutgmmod,gcenb,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,autoloadmod,gcthresholdint,dev,dr,novid,langtype,usemod,modamount,erxt,mod,released,openingtype
     if inittp==1:
       try:
         cfg0=IO.Load(True,"gcenb")
@@ -226,6 +231,7 @@ class Kernel:#Code base class.
         cfg4=IO.Load(True,"usemod")
         cfg5=IO.Load(True,"autoloadmod")
         cfg6=IO.Load(True,"autorunoutgmmod")
+        cfg7=IO.Load(True,"ignoreverchk")
         openingtype=IO.Load(True,"optp")
         permissionlvl=int(IO.Load(True,"permlvl"))
         erxt=IO.Load(True,"erxt")
@@ -255,7 +261,9 @@ class Kernel:#Code base class.
         else:autoloadmod=False
         if cfg6==1:autorunoutgmmod=True
         else:autorunoutgmmod=False
-        del cfg0,cfg1,cfg2,cfg3,cfg4,cfg5,cfg6
+        if cfg7==1:ignoreverchk=True
+        else:ignoreverchk=False
+        del cfg0,cfg1,cfg2,cfg3,cfg4,cfg5,cfg6,cfg7
         if autoloadmod or autorunoutgmmod:Kernel._ModHandler(2)
         gc.threshold(gcthresholdint)
         Kernel.GetTotalMem()
@@ -308,7 +316,7 @@ class Kernel:#Code base class.
       else:raise UnknownError(reason)
   @staticmethod
   def _ModHandler(hdtp):#built-in function,for managing mods.
-    global vtk,mod,usemod,ingamemod
+    global vtk,mod,usemod,ingamemod,ignoreverchk
     if hdtp==1:
       try:
         del mod
@@ -358,7 +366,7 @@ class Kernel:#Code base class.
         Kernel.Cout.Error("Mod is not found.")
         Kernel.ErrChk(4,"Mod not found.")
     elif hdtp==5:
-      if ingamemod=="ingamemod" and mod.mod_type()=="ingamemod"and usemod and mod is not None and vtk:mod.mod_main()
+      if ingamemod=="ingamemod" and mod.mod_type()=="ingamemod"and usemod and mod is not None and vtk:mod.mod_main(ignoreverchk)
     else:
       Kernel.Cout.Error("Unknown argument.")
       Kernel.ErrChk(1,"Unknown argument.")
@@ -459,7 +467,7 @@ class Kernel:#Code base class.
     return 0
   @staticmethod
   def _GameLauncher():#Built-in function, for game loading process.
-    global runmod,novid,usemod,mod,ingamemod,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,gcthresholdint,runprgm,released,GAMETITLE,DEBUGDATE,GAMEVER,openingtype,COMPANY,COPYRIGHT,gcenb
+    global runmod,novid,usemod,mod,ingamemod,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,gcthresholdint,runprgm,released,GAMETITLE,DEBUGDATE,GAMEVER,openingtype,COMPANY,COPYRIGHT,gcenb,ignoreverchk
     Kernel.Cout.Preload("Starting console.")
     if not released:Kernel._Console()
     else:
@@ -485,7 +493,7 @@ class Kernel:#Code base class.
     if runmod and usemod and ingamemod=="outgamemod" and ingamemod is not None:
       clear()
       Kernel.Cout.Info("Trying to load mod script.")
-      mod.mod_main()
+      mod.mod_main(ignoreverchk)
     else:
       Kernel.Cout.Info("Mod loader was not enabled,\nrunning:%s."%(runprgm))
       usemod=True
@@ -493,7 +501,7 @@ class Kernel:#Code base class.
     return 0
   @staticmethod
   def _Console():#built-in function,for console.
-    global autorunoutgmmod,runprgm,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,ingamemod,modscripts,usemod,vtk,erxt,novid,mod,dev,dr,langtype,usemod,modamount,autoloadmod,gcthresholdint,kingignores,released,GAMEVER,DEBUGDATE,GAMETITLE,openingtype,COMPANY,COPYRIGHT,permissionlvl
+    global autorunoutgmmod,runprgm,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,ingamemod,modscripts,usemod,vtk,erxt,novid,mod,dev,dr,langtype,usemod,modamount,autoloadmod,gcthresholdint,kingignores,released,GAMEVER,DEBUGDATE,GAMETITLE,openingtype,COMPANY,COPYRIGHT,permissionlvl,ignoreverchk
     Kernel.Cout.Preload("Console is created because game is in debug state.")
     while True:
       g=str(input("]"))
@@ -509,6 +517,9 @@ class Kernel:#Code base class.
         runprgm=str(input("function name:"))
         del g
         break
+      elif g=="ignoreverchkonmod"and permissionlvl>=3:
+        if ignoreverchk:ignoreverchk=True
+        else:ignoreverchk=False
       elif g=="releasegame"and permissionlvl>=4:
         Kernel.Cout.Msg("Are you sure you want to release the game?\nOnce released, the console will no longer launch at startup.All dev-related configuration files will be preserved.Please review and update dev\nconfigs if necessary before proceeding. This\naction can only be undone by\nchanging the 'released' variable after console\nclosed or use 'cancelrelease' command before\nconsole closed.")
         r=str(input("Confirm. (y/n):"))
@@ -580,6 +591,8 @@ class Kernel:#Code base class.
         Kernel.Cout.Msg("IlChelcciCore engine help page 4:\nautoloadmod:toggle the auto mod loading\nprocess.\nsetlang:set a language for engine.\nbegin:start a dedicated function,\ne.g. 'Prgm.Main()' for main function.\nreleasegame:release your game.\ncancelrelease:undo when you released game\nwith command 'releasegame'.\nchangegameinfo:change the infos of game temporarily.")
       elif g=="help 5"and permissionlvl>=1:
         Kernel.Cout.Msg("IlChelcciCore engine help page 5:\nconvar:change a global var.\ngetvar:get a value from a var.\ndelvar:delete a provided var.\nsetopening:allocate a new opening type.\ntogglegcstate:toggle gc state to True or False.\ngccollect:trigger gc.collect.\nautorunoutgamemod:toggles when game is\nreleased automatically run out game mod.\nmypermlvl:get your current permission level.")
+      elif g=="help 6"and permissionlvl>=1:
+        Kernel.Cout.Msg("IlChelcciCore engine help page 6:\nsay:say a string.\nignoreverchkonmod:toggle mod version check.")
       elif g=="mypermlvl"and permissionlvl>=1:
         Kernel.Cout.Msg("Your current permission level is: %s."%(permissionlvl))
       elif g=="convar"and permissionlvl>=4:
@@ -597,6 +610,9 @@ class Kernel:#Code base class.
         del g
         Kernel.quit(0)
         break
+      elif permissionlvl>=1 and g=="say":
+        s=str(input("string:"))
+        sys.stdout.write(s+"\n")
       elif g=="changegameinfo"and permissionlvl>=4:
         Kernel.Cout.Console("Change info(1.version/2.debug date/3.company/4.copyright/5.game title/0.cancel.):")
         while True:
@@ -689,7 +705,7 @@ class Kernel:#Code base class.
       elif g=="loadgame"and permissionlvl>=1:
         IO.Load()
       elif g=="help"and permissionlvl>=1:
-        Kernel.Cout.Msg("Usage: help <1/2/3/4/5>.\nexample: help 1 for page 1.")
+        Kernel.Cout.Msg("Usage: help <1/2/3/4/5/6>.\nexample: help 1 for page 1.")
       elif permissionlvl>=1 and g=="cls"or permissionlvl>=1 and g=="clr" or g=="clear"and permissionlvl>=1:
         clear_history()
       elif permissionlvl>=4 and g=="dev"or g=="developer"and permissionlvl>=4:
@@ -716,7 +732,7 @@ class Kernel:#Code base class.
           del g
           Kernel.quit(0)
       elif g=="":pass
-      else:Kernel.Cout.Console("Unknown command or lacking\npermission on command:"+str(g)+".\nType help <page(1/2/3/4/5)> to get help.")
+      else:Kernel.Cout.Console("Unknown command or lacking\npermission on command:"+str(g)+".\nType help <page(1/2/3/4/5/6)> to get help.")
     return 0
   @staticmethod
   def Opening(optp=1):#the engine opening.

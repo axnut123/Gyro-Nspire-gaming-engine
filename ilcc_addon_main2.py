@@ -16,7 +16,10 @@ def mod_info(draw=False):#Your addon info should be here.
     draw_text(5,25,aocrd)
   else:
     return aover+"|"+aocrd
-def mod_main():#your addon main program should start from here.
+def mod_main(ignoreeverchk):#your addon main program should start from here.
+  if k.VERINT<158 and not ignoreeverchk:
+    k.Kernel.Cout.Error("Engine is too old for this mod. Update your engine and try again.")
+    raise OSError("Engine verion is too old.")
   set_color(0,0,0)
 #in game mod do not need loop, we already have
 #loop in main()
