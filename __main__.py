@@ -34,6 +34,8 @@
 import sys
 from random import randint
 from time import *
+showbar=bool(False);
+apptitle=str("Half-Life 2");
 novid=bool(False);
 autorunoutgmmod=bool(False);
 modamount=int(100);
@@ -61,9 +63,9 @@ psx=int(0);
 psy=int(0);
 v_hev=int(0);
 PI=float(3.14159265358980);
-GAMEVER=str("IlChelcciCore 38 Build(0158)");
-VERINT=int(158);
-DEBUGDATE=str("2025/11/24");
+GAMEVER=str("IlChelcciCore 39 Build(0163)");
+VERINT=int(163);
+DEBUGDATE=str("2025/12/19");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2025, all rights reserved.");
@@ -125,7 +127,9 @@ class Kernel:#Code base class.
   @staticmethod
   def GetVar(varName,logout=False):#built-in function, get a global variable.
     v=globals().get(varName)
-    if logout:Kernel.Cout.Info("Variable '%s' is: %s."%(varName,v))
+    if logout and v is not None:
+      Kernel.Cout.Info("Variable '%s' is: %s."%(varName,v))
+    elif logout and v is None:Kernel.Cout.Info("Variable '%s' is not defined."%(varName))
     return v
   @staticmethod
   def ConVar(varName,value,logout=False):#built-in function, for change a variable.
@@ -152,7 +156,7 @@ class Kernel:#Code base class.
   def GetGcState():#built-in function, get gc is enabled state.
     Kernel.ConVar("gcenb",gc.isenabled())
     Kernel.Cout.DevInfo("Gc enabled is now %s."%(gcenb))
-    return gcenb
+    return Kernel.GetVar("gcenb")
   @staticmethod
   def SetGcState(state):#built-in function, for set gc enabled.
     if state:
@@ -178,7 +182,7 @@ class Kernel:#Code base class.
       return True
   @staticmethod
   def SaveCfg():#built-in function, saving cfg variable to nspire document.
-    global autorunoutgmmod,ignoreverchk,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,gcthresholdint,autoloadmod,langtype,dev,dr,usemod,novid,modamount,erxt,openingtype,gcenb
+    global autorunoutgmmod,ignoreverchk,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,gcthresholdint,autoloadmod,langtype,dev,dr,usemod,novid,modamount,erxt,openingtype,gcenb,showbar
     try:
       IO.Save(True,"optp",openingtype)
       IO.Save(True,"scgx",scrgeometx)
@@ -197,6 +201,8 @@ class Kernel:#Code base class.
       IO.Save(True,"erxt",int(erxt))
       IO.Save(True,"modamount",modamount)
       IO.Save(True,"gcthint",int(gcthresholdint))
+      if showbar:IO.Save(True,"showbar",1)
+      else:IO.Save(True,"showbar",0)
       if novid:IO.Save(True,"novid",1)#True or false dosent work here. use 1 or 0.
       else:IO.Save(True,"novid",0)
       if ignoreverchk:IO.Save(True,"ignoreverchk",1)
@@ -221,7 +227,7 @@ class Kernel:#Code base class.
       return -1
   @staticmethod
   def Init(inittp):#built-in function.for init cfgs or other files engine needed.
-    global ignoreverchk,permissionlvl,autorunoutgmmod,gcenb,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,autoloadmod,gcthresholdint,dev,dr,novid,langtype,usemod,modamount,erxt,mod,released,openingtype
+    global showbar,ignoreverchk,permissionlvl,autorunoutgmmod,gcenb,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,autoloadmod,gcthresholdint,dev,dr,novid,langtype,usemod,modamount,erxt,mod,released,openingtype
     if inittp==1:
       try:
         cfg0=IO.Load(True,"gcenb")
@@ -232,6 +238,7 @@ class Kernel:#Code base class.
         cfg5=IO.Load(True,"autoloadmod")
         cfg6=IO.Load(True,"autorunoutgmmod")
         cfg7=IO.Load(True,"ignoreverchk")
+        cfg8=IO.Load(True,"showbar")
         openingtype=IO.Load(True,"optp")
         permissionlvl=int(IO.Load(True,"permlvl"))
         erxt=IO.Load(True,"erxt")
@@ -263,7 +270,9 @@ class Kernel:#Code base class.
         else:autorunoutgmmod=False
         if cfg7==1:ignoreverchk=True
         else:ignoreverchk=False
-        del cfg0,cfg1,cfg2,cfg3,cfg4,cfg5,cfg6,cfg7
+        if cfg8==1:showbar=True
+        else:showbar=False
+        del cfg0,cfg1,cfg2,cfg3,cfg4,cfg5,cfg6,cfg7,cfg8
         if autoloadmod or autorunoutgmmod:Kernel._ModHandler(2)
         gc.threshold(gcthresholdint)
         Kernel.GetTotalMem()
@@ -323,11 +332,11 @@ class Kernel:#Code base class.
         Kernel.Cout.Info("Mod is uninstalled, but reboot is\nrecommended.")
         gc.collect()
       except Exception as e:
-        Kernel.Cout.Error("Mod cannot be uninstalled, "+str(e))
+        Kernel.Cout.Error("Mod cannot be uninstalled, there is no mod installed.")
         Kernel.ErrChk(4,"Cannot uninstall mod.")
       vtk=False
       usemod=False
-      Kernel.Cout.Info("Mod disabled.")
+      Kernel.Cout.Info("Mod disable process done.")
     elif hdtp==2:
       if vtk!=True:
         Kernel.Cout.Info("Mod is loading... if mod loading amount is more than 100, it will take a long time to load,\nplease wait.")
@@ -484,12 +493,12 @@ class Kernel:#Code base class.
     Kernel.ConVar("menuslt",randint(1,2),True)
     Kernel._CreateWindow(scrgeomety,scrgeometx,scrgeometmx,scrgeometmy)
     if not novid:Kernel.Opening(openingtype)
-    if ingamemod=="ingamemod":usemod=False
     if autorunoutgmmod and released:
       runmod=True
       usemod=True
       Kernel.Cout.Info("Auto run out game mod enabled.")
     StdUtil.ConsoleLog(5)
+    if ingamemod=="ingamemod":usemod=False
     if runmod and usemod and ingamemod=="outgamemod" and ingamemod is not None:
       clear()
       Kernel.Cout.Info("Trying to load mod script.")
@@ -547,7 +556,7 @@ class Kernel:#Code base class.
         delv=str(input("variable name:"))
         try:Kernel.DelObj(delv,True)
         except Exception as e:
-          Kernel.Cout.Error("Unable to delete."+str(e))
+          Kernel.Cout.Error("Unable to delete var:"+str(e)+".")
       elif g=="togglegcstate"and permissionlvl>=4:
         Kernel.ToggleGcState()
       elif g=="setlang"and permissionlvl>=1:
@@ -563,7 +572,7 @@ class Kernel:#Code base class.
           Kernel.Cout.Error("Language type unknown, using default language.")
           langtype=1
           Kernel.ErrChk(3,"Language type unknown.")
-      elif g=="disablemod"and permissionlvl>=1:Kernel._ModHandler(1)
+      elif g=="disablemod"and permissionlvl>=1:Kernel._ModHandler(1);Kernel.ConVar("runmod",False,True)
       elif g=="autoloadmod"and permissionlvl>=1:
         if autoloadmod:autoloadmod=False
         else:autoloadmod=True
@@ -577,12 +586,13 @@ class Kernel:#Code base class.
         Kernel.ConVar("runmod",True,True)
         a=Kernel._ModHandler(3)
         if a==0:del a;break
+        else:Kernel.ConVar("runmod",False,True)
       elif g=="initcfg"and permissionlvl>=1:Kernel.Init(1)
       elif g=="modver"and permissionlvl>=1:Kernel._ModHandler(4)
       elif g=="savecfg"and permissionlvl>=1:
         Kernel.SaveCfg()
       elif g=="help 1"and permissionlvl>=1:
-        Kernel.Cout.Msg("IlChelcciCore engine help page 1:\nrun:start engine.\nhelp <page(1/2/3/4/5)>:get help.\nquit:stop engine and console.\nsetgeomet:set a new resolution for screen.\nforceexitonerror:forcibly stop whole engine when encounting any error and warn.\nversion:get engine version and credits.\nhwinfo:get hardware info.\ncls:clear screen.")
+        Kernel.Cout.Msg("IlChelcciCore engine help page 1:\nrun:start engine.\nhelp <page(1-6)>:get help.\nquit:stop engine and console.\nsetgeomet:set a new resolution for screen.\nforceexitonerror:forcibly stop whole engine when encounting any error and warn.\nversion:get engine version and credits.\nhwinfo:get hardware info.\ncls:clear screen.")
       elif g=="help 2"and permissionlvl>=1:
         Kernel.Cout.Msg("IlChelcciCore engine help page 2:\nloadgame:load game from saved file.\ndeletesave:delete saved game.\nmodinit:init installed mod.\nrunmod:start mod.\nmodver:get version for mod.\ndisablemod:disable mod.(pop)\nadjustthreshold:change the value for\ngc.threshold()\ndev: toggle developer mode.")
       elif g=="help 3"and permissionlvl>=1:
@@ -592,7 +602,15 @@ class Kernel:#Code base class.
       elif g=="help 5"and permissionlvl>=1:
         Kernel.Cout.Msg("IlChelcciCore engine help page 5:\nconvar:change a global var.\ngetvar:get a value from a var.\ndelvar:delete a provided var.\nsetopening:allocate a new opening type.\ntogglegcstate:toggle gc state to True or False.\ngccollect:trigger gc.collect.\nautorunoutgamemod:toggles when game is\nreleased automatically run out game mod.\nmypermlvl:get your current permission level.")
       elif g=="help 6"and permissionlvl>=1:
-        Kernel.Cout.Msg("IlChelcciCore engine help page 6:\nsay:say a string.\nignoreverchkonmod:toggle mod version check.")
+        Kernel.Cout.Msg("IlChelcciCore engine help page 6:\nsay:say a string.\nignoreverchkonmod:toggle mod version check.\nsetapptitle:set a new app title.\ntogglebar:toggles title bar.")
+      elif g=="togglebar"and permissionlvl>=1:
+        if Kernel.GetVar("showbar"):Kernel.ConVar("showbar",False)
+        else:Kernel.ConVar("showbar",True)
+        Kernel.Cout.Info("Show title bar is now: %s."%(Kernel.GetVar("showbar")))
+      elif g=="setapptitle"and permissionlvl>=4:
+        s=str(input("New app title:"))
+        Kernel.ConVar("apptitle",s)
+        Kernel.Cout.Info("New title is: %s."%(Kernel.GetVar("apptitle")))
       elif g=="mypermlvl"and permissionlvl>=1:
         Kernel.Cout.Msg("Your current permission level is: %s."%(permissionlvl))
       elif g=="convar"and permissionlvl>=4:
@@ -668,7 +686,8 @@ class Kernel:#Code base class.
         Kernel.Cout.Msg("mod amounts:"+str(modamount))
         Kernel.Cout.Msg("auto load mod:"+str(autoloadmod))
         Kernel.Cout.Msg("Resolution:"+str(scrgeometx)+","+str(scrgeomety)+","+str(scrgeometmx)+","+str(scrgeometmy))
-        Kernel.Cout.Msg("Permission level:%s"%(permissionlvl))
+        Kernel.Cout.Msg("Permission level:%s."%(permissionlvl))
+        Kernel.Cout.Msg("show bar:%s."%(Kernel.GetVar("showbar")))
       elif g=="forceexitonerror"and permissionlvl>=3:
         if erxt==1:
           erxt=0
@@ -705,7 +724,7 @@ class Kernel:#Code base class.
       elif g=="loadgame"and permissionlvl>=1:
         IO.Load()
       elif g=="help"and permissionlvl>=1:
-        Kernel.Cout.Msg("Usage: help <1/2/3/4/5/6>.\nexample: help 1 for page 1.")
+        Kernel.Cout.Msg("ILCC Command help.\nUsage: help <page 1-6>\nexample: help 1 for page 1.")
       elif permissionlvl>=1 and g=="cls"or permissionlvl>=1 and g=="clr" or g=="clear"and permissionlvl>=1:
         clear_history()
       elif permissionlvl>=4 and g=="dev"or g=="developer"and permissionlvl>=4:
@@ -732,19 +751,21 @@ class Kernel:#Code base class.
           del g
           Kernel.quit(0)
       elif g=="":pass
-      else:Kernel.Cout.Console("Unknown command or lacking\npermission on command:"+str(g)+".\nType help <page(1/2/3/4/5/6)> to get help.")
+      else:Kernel.Cout.Console("Unknown command or lacking\npermission on command:"+str(g)+".\nType help <page(1-6)> to get help.")
     return 0
   @staticmethod
   def Opening(optp=1):#the engine opening.
     if optp==1:
       set_color(0,0,0)
       fill_rect(0,0,500,300)
+      ActionUI.DispBaseUI(0,0,1)
       set_color(10,210,140)
       draw_text(80,120,ActionUI.DispLanguage("cp0"))
       paint_buffer()
       sleep(2)
       set_color(0,0,0)
       fill_rect(0,0,500,300)
+      ActionUI.DispBaseUI(0,0,1)
       set_color(255,100,120)
       draw_text(80,80,"POWERED BY:")
       set_color(10,10,255)
@@ -1038,6 +1059,13 @@ class Actors:#entity class.
   class King:#Player class.
     def __init__(self):pass
     @staticmethod
+    def Kick(logout=True):#built-in function, kick the player to main menu.
+      ActionUI.DispUi(0,0,"kickscr")
+      ActionUI.DispUi(0,0,9)
+      sleep(3)
+      StdUtil.InMenu(True)
+      if logout:Kernel.Cout.Info("Kicked player out of the game.")
+    @staticmethod
     def Draw(hide=False,ignorehide=False):#built-in function, draw player.
       global plr,plg,plb,psy,psx,plw,plh,v_live
       if not ignorehide and v_live<=0 or hide:return 1
@@ -1080,16 +1108,16 @@ class Actors:#entity class.
         ActionUI.DispUi(0,0,8)
       return ignoretp
     @staticmethod
-    def Move(mvtp,direction=None,step=5,goto=(0,0),ignorefreeze=False):#built-in function,for movements and teleporting. set the step to 0 to freeze player.
+    def Move(mvtp,direction,step=5,goto=(0,0),ignorefreeze=False):#built-in function,for movements and teleporting. set the step to 0 to freeze player.
       global psx,psy,v_live
       if mvtp==0:
         if not ignorefreeze and v_live<=0:
           Kernel.Cout.Info("Player died,ignored input.")
           return -1
-        if direction==1:psx+=step;return mvtp,direction,step,psx,psy
-        elif direction==2:psx-=step;return mvtp,direction,step,psx,psy
-        elif direction==3:psy+=step;return mvtp,direction,step,psx,psy
-        elif direction==4:psy-=step;return mvtp,direction,step,psx,psy
+        if direction==1 or direction=="right":psx+=step;return mvtp,direction,step,psx,psy
+        elif direction==2 or direction=="left":psx-=step;return mvtp,direction,step,psx,psy
+        elif direction==3 or direction=="down":psy+=step;return mvtp,direction,step,psx,psy
+        elif direction==4 or direction=="up":psy-=step;return mvtp,direction,step,psx,psy
         else:
           Kernel.Cout.Error("Undefined direction or None in direction.")
           Kernel.ErrChk(1,"Undefined direction or None in direction for Actors.King.Move().")
@@ -1106,52 +1134,52 @@ class Actors:#entity class.
     @staticmethod
     def Init(inittype,ar1=None,ar2=None,ar3=None):#built-in function,for init player vars.
       global plspd,plr,plg,plb,psy,psx,plw,plh,v_live,v_hev,ammo9,ammo357,inclip9,inclip357,item_suit,weapon_crb,weapon_pst,weapon_357,weapon_physcnn,kingignores
-      if inittype==1:
+      if inittype==1 or inittype=="color":
         plr=ar1
         plg=ar2
         plb=ar3
         return 1,plr,plg,plb
-      elif inittype==2:
+      elif inittype==2 or inittype=="position":
         psx=ar1
         psy=ar2
         return 2,psx,psy
-      elif inittype==3:
+      elif inittype==3 or inittype=="size":
         plw=ar1
         plh=ar2
         return 3,plw,plh
-      elif inittype==4:
+      elif inittype==4 or inittype=="health":
         v_live=ar1
         return 4,v_live
-      elif inittype==5:
+      elif inittype==5 or inittype=="suit":
         v_hev=ar1
         return 5,v_hev
-      elif inittype==6:
+      elif inittype==6 or inittype=="ammo9":
         ammo9=ar1
         inclip9=ar2
         return 6,ammo9,inclip9
-      elif inittype==7:
+      elif inittype==7 or inittype=="ammo357":
         ammo357=ar1
         inclip357=ar2
         return 7,ammo357,inclip357
-      elif inittype==8:
+      elif inittype==8 or inittype=="giveCrowbar":
         weapon_crb=ar1
         return 8,weapon_crb
-      elif inittype==9:
+      elif inittype==9 or inittype=="givePistol":
         weapon_pst=ar1
         return 9,weapon_pst
-      elif inittype==10:
+      elif inittype==10 or inittype=="give357":
         weapon_357=ar1
         return 10,weapon_357
-      elif inittype==11:
+      elif inittype==11 or inittype=="givePhyscnn":
         weapon_physcnn=ar1
         return 11,weapon_physcnn
-      elif inittype==12:
+      elif inittype==12 or inittype=="giveSuit":
         item_suit=ar1
         return 12,item_suit
-      elif inittype==13:
+      elif inittype==13 or inittype=="speed":
         plspd=ar1
         return 13,plspd
-      elif inittype==14:
+      elif inittype==14 or inittype=="ignores":
         kingignores=ar1
         return 14,kingignores
       else:
@@ -1252,6 +1280,9 @@ class ActionUI:#UI class.
     "totalmem":"Total Mem:",
     "gcthreshold":"gc threshold:",
     "gametitle":"game title:",
+    "kicktext":"You have been kicked out of the game.",
+    "wesendyoutomenu1":"We will send you back to",
+    "wesendyoutomenu2":"main menu in a few seconds.",
     "usemod":"Is mod enabled",
     "noactulmodcnt":"(Configurated counts.)"};
     langdict2={
@@ -1324,6 +1355,9 @@ class ActionUI:#UI class.
     "gcisenb":"是否启用垃圾清理",
     "totalmem":"总运行内存:",
     "noactulmodcnt":"(被配置数量)",
+    "kicktext":"你被踢出了游戏。",
+    "wesendyoutomenu1":"我们将在几秒后把你送回主菜单。",
+    "wesendyoutomenu2":"",
     "gcthreshold":"清理阈值:"};
     if langtype==1:out=str(langdict1.get(langstr))
     elif langtype==2:out=str(langdict2.get(langstr))
@@ -1355,7 +1389,6 @@ class ActionUI:#UI class.
       set_color(255,255,255)
       draw_text(x+10,y+20,"Vgui window")
       Kernel.Cout.Info("Vgui window render request sent to client.")
-      return 1
     elif wintp==2:
       if debugs and dev:
         StdUtil.WaitStart(100,lambda:Kernel.GetGcState())
@@ -1374,7 +1407,6 @@ class ActionUI:#UI class.
         draw_text(10,190,str(ActionUI.DispLanguage("reso"))+str(scrgeometx)+","+str(scrgeomety)+","+str(scrgeometmx)+","+str(scrgeometmy))
         draw_text(10,205,str(ActionUI.DispLanguage("modamount"))+str(modamount)+str(ActionUI.DispLanguage("noactulmodcnt")))
         paint_buffer()
-        return 2
     elif wintp==3:
       set_color(250,250,250)
       draw_text(10,80-20,"HALF-LIFE²")
@@ -1388,7 +1420,6 @@ class ActionUI:#UI class.
       draw_text(10,180-20,str(ActionUI.DispLanguage("delgm")))
       draw_text(10,200-20,str(ActionUI.DispLanguage("set")))
       draw_text(10,220-20,str(ActionUI.DispLanguage("quitgm")))
-      return 3
     elif wintp==4:
       set_color(250,250,250)
       draw_text(10,100,str(ActionUI.DispLanguage("start1")))
@@ -1401,7 +1432,6 @@ class ActionUI:#UI class.
       draw_text(10,180,str(ActionUI.DispLanguage("set")))
       draw_text(10,200,str(ActionUI.DispLanguage("escquit")))
       paint_buffer()
-      return 4
     elif wintp==5:
       set_color(120,120,120)
       fill_rect(30,0,15,15)
@@ -1411,7 +1441,6 @@ class ActionUI:#UI class.
       fill_rect(55,0,15,15)
       set_color(200,150,50)
       draw_text(56,13,"2")
-      return 5
     elif wintp==6 and item_suit:
       set_color(200,150,50)
       if v_hev>0:
@@ -1423,13 +1452,11 @@ class ActionUI:#UI class.
         set_color(250,100,10)
       draw_text(15,190,v_live)
       draw_text(15,200,str(ActionUI.DispLanguage("health")))
-      return 6
     elif wintp==7:
       set_color(210,10,10)
       fill_rect(0,0,500,300)
       set_color(255,255,255)
       draw_text(20,80,str(ActionUI.DispLanguage("youdied")))
-      return 7
     elif wintp==8:
       if wpnslt==1 or wpnslt==2:#ammunation management.
         pass
@@ -1449,24 +1476,20 @@ class ActionUI:#UI class.
         draw_text(210,200,str(ActionUI.DispLanguage("ammo")))
         draw_text(210,190,inclip357)
         draw_text(250,190,ammo357)
-        return 8
     elif wintp==9:
       set_color(250,250,250)
       draw_text(220,205,str(ActionUI.DispLanguage("load")))
       paint_buffer()
-      return 9
     elif wintp==10:
       set_color(120,120,120)
       fill_rect(30,30,80,50)
       set_color(200,150,50)
       draw_text(31,82,str(ActionUI.DispLanguage("crb")))
-      return 10
     elif wintp==11:
       set_color(120,120,120)
       fill_rect(30,100,120,50)
       set_color(200,150,50)
       draw_text(31,145,str(ActionUI.DispLanguage("physcnn")))
-      return 11
     elif wintp==12:
       set_color(120,120,120)
       fill_rect(55,30,80,50)
@@ -1474,7 +1497,6 @@ class ActionUI:#UI class.
         set_color(255,10,10)
       else:set_color(200,150,50)
       draw_text(56,82,str(ActionUI.DispLanguage("pst")))
-      return 12
     elif wintp==13:
       set_color(120,120,120)
       fill_rect(55,100,125,50)
@@ -1482,7 +1504,6 @@ class ActionUI:#UI class.
         set_color(255,10,10)
       else:set_color(200,150,50)
       draw_text(56,142,str(ActionUI.DispLanguage("357")))
-      return 13
     elif wintp==14:
       set_color(250,250,250)
       draw_text(10,40,str(ActionUI.DispLanguage("titset")))
@@ -1500,11 +1521,29 @@ class ActionUI:#UI class.
       ActionUI.CheckBox(10,145,gcenb);draw_text(30,160,"f:%s (%s)"%(ActionUI.DispLanguage("gcisenb"),ActionUI.DispLanguage("dangerset")));set_color(250,250,250)
       draw_text(10,180,str(ActionUI.DispLanguage("savecfg")))
       draw_text(10,200,str(ActionUI.DispLanguage("escres")))
-      return 14
+    elif wintp=="kickscr":
+      set_color(50,0,0)
+      fill_rect(0,0,500,300)
+      set_color(225,225,225)
+      draw_text(47,120,ActionUI.DispLanguage("kicktext"))
+      draw_text(47,135,ActionUI.DispLanguage("wesendyoutomenu1"))
+      draw_text(47,150,ActionUI.DispLanguage("wesendyoutomenu2"))
     else:
       Kernel.Cout.Error("UI type is not defined.")
       Kernel.ErrChk(1,"Missing UI type.")
-      return -1
+    ActionUI.DispBaseUI(0,0,1)#one little problem is if there is no dispui called front layered ui will not be displayed as well.
+  @staticmethod
+  def DispBaseUI(x,y,uitp):#built-in function. for display a ui that always at front.
+    if uitp==1:
+      if not Kernel.GetVar("showbar"):
+        return
+      set_color(30,30,30)
+      fill_rect(0,0,320,20)
+      set_color(210,210,210)
+      draw_text(7,17,Kernel.GetVar("apptitle"))#this is just a example. you can try other things.
+    else:
+      Kernel.Cout.Error("UI type is not defined.")
+      Kernel.ErrChk(1,"Missing UI type.")
   @staticmethod
   def Title(x,y,texttp):#built-in function,for display a title.
     if texttp==1:
@@ -1519,7 +1558,7 @@ class ActionUI:#UI class.
 class StdUtil:#Builtins class, Standard utilities.
   def __init__(self):pass
   @staticmethod
-  def ConsoleLog(numoflog,c=None):#built-in function,for console output.
+  def ConsoleLog(numoflog,c=None):#built-in function,for console output. do not use.
     logs={
       1:"[INFO]Screen updated.",
       2:"[INFO]Start the Opening.",
@@ -1594,6 +1633,14 @@ class StdUtil:#Builtins class, Standard utilities.
     ActionUI.DispUi(0,0,14)
     return 0
   @staticmethod
+  def InMenu(menustate):#built-in function, for changing menu state.
+    if menustate:Kernel.ConVar("inmenu",True)
+    else:Kernel.ConVar("inmenu",False)
+    return menustate
+  @staticmethod
+  def IsInMenu():#built-in function, for getting menu state.
+    return Kernel.GetVar("inmenu")
+  @staticmethod
   def PauseMenu():#pause menu,built-in function.
     set_color(120,120,120)
     fill_rect(0,0,500,300)
@@ -1620,6 +1667,11 @@ class StdUtil:#Builtins class, Standard utilities.
       return -1
 class Wbase:#Weapon system class.
   def __init__(self):pass
+  @staticmethod
+  def SelectWeapon(wpnid,logout=False):
+    Kernel.ConVar("wpnslt",wpnid)
+    if logout:Kernel.Cout.Info("Selected %s"%(Kernel.GetVar("wpnslt")))
+    return wpnid
   @staticmethod
   def EventAmmoPick(type,amount):#built-in function,for picking up the ammunation box event
     global ammo9,ammo9max,ammo357,ammo357max
@@ -1955,12 +2007,12 @@ class Prgm:#program class.
   def __init__(self):pass
   @staticmethod
   def Main():#main function.It's a very standard template for engine.
-    inmenu=True
+    StdUtil.InMenu(True)
     l_menuslt=Kernel.GetVar("menuslt",False)
     global ingamemod,released,erxt,modscripts,langtype,mapslt,dev,dr,emptysave,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,usemod,plspd,plw,plh,plr,plg,plb,kingignores
     StdUtil.ConsoleLog(4)
     while True:#game logic loop.
-      if inmenu:#menu guard.
+      if StdUtil.IsInMenu():#menu guard.
         Kernel._ResetGame()
         if l_menuslt==1:Assets.MainMenu1()
         else:Assets.MainMenu2()
@@ -1972,7 +2024,7 @@ class Prgm:#program class.
           emptysave=IO.Load(True,"emptysave",False)
           if k=="enter":
             Assets.gmanintro()
-            inmenu=False
+            StdUtil.InMenu(False)
             Actors.King.Init(1,0,0,0)
             Actors.King.Init(2,95,95)
             Actors.King.Init(3,5,5)
@@ -1993,7 +2045,7 @@ class Prgm:#program class.
               if emptysave==1:IO.Load()
             if emptysave==1:continue
             IO.Load()
-            inmenu=False
+            StdUtil.InMenu(False)
             break
           elif k=="c":
             IO.Delete()
@@ -2005,7 +2057,7 @@ class Prgm:#program class.
             paint_buffer()
           elif k=="a":
             Assets.gmanintlol()
-            inmenu=False
+            StdUtil.InMenu(False)
             Actors.King.Init(1,0,0,0)
             Actors.King.Init(2,95,95)
             Actors.King.Init(3,5,5)
@@ -2061,7 +2113,7 @@ class Prgm:#program class.
       if dr:StdUtil.ConsoleLog(1)#print a log when screen update.
       StdUtil.MapStat()#logic check in here,define your trigger in this function.
       for key in ["None"]:
-        while k!=key:
+        while k!=key and not StdUtil.IsInMenu():
           k=get_key()
           Kernel.WaitUpdate()
           StdUtil.MapStat()
@@ -2078,17 +2130,19 @@ class Prgm:#program class.
               Kernel.Cout.Info("Debug drawing disabled.")
               break
           elif k=="right":
-            Actors.King.Move(0,1,plspd)
+            Actors.King.Move(0,"right",plspd)
             break
           elif k=="left":
-            Actors.King.Move(0,2,plspd)
+            Actors.King.Move(0,"left",plspd)
             break
           elif k=="up":
-            Actors.King.Move(0,4,plspd)
+            Actors.King.Move(0,"up",plspd)
             break
           elif k=="down":
-            Actors.King.Move(0,3,plspd)
+            Actors.King.Move(0,"down",plspd)
             break
+          elif k=="p" and dev:
+            Actors.King.Kick()
           elif k=="t" and dev:
             v_hev-=10
             break
@@ -2196,13 +2250,13 @@ class Prgm:#program class.
                 Actors.King.Draw()
                 break
               elif k=="1" and weapon_crb==1:
-                wpnslt=1
+                Wbase.SelectWeapon(1)
                 clear()
                 StdUtil.MapStat()
                 Actors.King.Draw()
                 break
               elif k=="2" and weapon_physcnn==1:
-                wpnslt=2
+                Wbase.SelectWeapon(2)
                 clear()
                 StdUtil.MapStat()
                 Actors.King.Draw()
@@ -2224,13 +2278,13 @@ class Prgm:#program class.
                 Actors.King.Draw()
                 break
               elif k=="1" and weapon_pst==1 and ammo9!=0:
-                wpnslt=3
+                Wbase.SelectWeapon(3)
                 clear()
                 StdUtil.MapStat()
                 Actors.King.Draw()
                 break
               elif k=="2" and weapon_357==1 and ammo357!=0:
-                wpnslt=4
+                Wbase.SelectWeapon(1)
                 clear()
                 StdUtil.MapStat()
                 Actors.King.Draw()
@@ -2302,7 +2356,7 @@ class Prgm:#program class.
                     Kernel.Cout.Info("Return to main menu.")
                     l_menuslt=randint(1,2)
                     ActionUI.DispUi(0,0,9)
-                    inmenu=True
+                    StdUtil.InMenu(True)
                     break
                   elif k=="u":
                     if not debugs:
