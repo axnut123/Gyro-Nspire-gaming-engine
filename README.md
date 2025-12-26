@@ -2,6 +2,11 @@
 This is a gaming engine based on TI calculator,writed on pure python.
 
 Gyro and gml are legacy, download IlChelcciCore and cml instead.
+
+此引擎专为TI Nspire CX II设计，使用Python编写。
+
+Gyro以及gml已经不受支持，请下载IlChelcciCore和cml代替Gyro。
+
 Engine Showcase:
 <img width="324" height="244" alt="nspire_screenshot_20251003_161503" src="https://github.com/user-attachments/assets/0ad29c7d-4f92-4714-be24-7a83f749bbf7" />
 <img width="324" height="244" alt="nspire_screenshot_20251003_161526" src="https://github.com/user-attachments/assets/4ffdadc0-19cd-4944-a9b9-7b35975dc5e3" />
