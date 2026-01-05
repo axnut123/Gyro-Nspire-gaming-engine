@@ -40,6 +40,8 @@ chinese：
 
 源代码不可以在外部更改后输入tns文件，请在计算器中更改代码。
 
+账户系统目前非常简易。如你有能力，建议升级。
+
 此引擎并非包含完整游戏，仅是框架。
 
 English:
@@ -58,5 +60,7 @@ Additional instructions are provided on the first page of the .tns file. Please 
 others:
 
 Do not modify source code on any other editor except the calculator.To modify source code,do it on your calculator.
+
+Current account system is very simple. Please upgrade it if you can.
 
 This engine does not contain game. There's just a example in it.
