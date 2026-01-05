@@ -34,6 +34,7 @@
 import sys
 from random import randint
 from time import *
+import binascii as asc
 showbar=bool(False);
 apptitle=str("Half-Life 2");
 novid=bool(False);
@@ -63,9 +64,9 @@ psx=int(0);
 psy=int(0);
 v_hev=int(0);
 PI=float(3.14159265358980);
-GAMEVER=str("IlChelcciCore 39 Build(0163)");
-VERINT=int(163);
-DEBUGDATE=str("2025/12/19");
+GAMEVER=str("IlChelcciCore 39 Build(0164)");
+VERINT=int(164);
+DEBUGDATE=str("2026/01/05");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2025, all rights reserved.");
@@ -97,6 +98,8 @@ runprgm=str("");
 released=int(0);
 totalmem=int(0);
 gcenb=None;
+banned=int(0);
+newuser=int(0);
 emptysave=int(1);#True or False does not work.
 def Help(hptp=0):#built-in function, help infos. fill your own help in here.
   if hptp==0:
@@ -182,43 +185,44 @@ class Kernel:#Code base class.
       return True
   @staticmethod
   def SaveCfg():#built-in function, saving cfg variable to nspire document.
-    global autorunoutgmmod,ignoreverchk,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,gcthresholdint,autoloadmod,langtype,dev,dr,usemod,novid,modamount,erxt,openingtype,gcenb,showbar
+    global userid,autorunoutgmmod,ignoreverchk,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,gcthresholdint,autoloadmod,langtype,dev,dr,usemod,novid,modamount,erxt,openingtype,gcenb,showbar
+    suserid=str(userid)
     try:
-      IO.Save(True,"optp",openingtype)
-      IO.Save(True,"scgx",scrgeometx)
-      IO.Save(True,"scgy",scrgeomety)
-      IO.Save(True,"scgmx",scrgeometmx)
-      IO.Save(True,"scgmy",scrgeometmy)
+      IO.Save(True,"optp"+suserid,int(openingtype))
+      IO.Save(True,"scgx"+suserid,scrgeometx)
+      IO.Save(True,"scgy"+suserid,scrgeomety)
+      IO.Save(True,"scgmx"+suserid,scrgeometmx)
+      IO.Save(True,"scgmy"+suserid,scrgeometmy)
       if langtype==1:
-        IO.Save(True,"langtype",1)
+        IO.Save(True,"langtype"+suserid,1)
       elif langtype==2:
-        IO.Save(True,"langtype",2)
+        IO.Save(True,"langtype"+suserid,2)
       else:
-        IO.Save(True,"langtype",1)
+        IO.Save(True,"langtype"+suserid,1)
         Kernel.Cout.Warning("Language type not found, saving as default language.")
         Kernel.ErrChk(1,"Language type not found.")
-      IO.Save(True,"permlvl",permissionlvl)
-      IO.Save(True,"erxt",int(erxt))
-      IO.Save(True,"modamount",modamount)
-      IO.Save(True,"gcthint",int(gcthresholdint))
-      if showbar:IO.Save(True,"showbar",1)
-      else:IO.Save(True,"showbar",0)
-      if novid:IO.Save(True,"novid",1)#True or false dosent work here. use 1 or 0.
-      else:IO.Save(True,"novid",0)
-      if ignoreverchk:IO.Save(True,"ignoreverchk",1)
-      else:IO.Save(True,"ignoreverchk",0)
-      if gcenb:IO.Save(True,"gcenb",1)
-      else:IO.Save(True,"gcenb",0)
-      if autoloadmod:IO.Save(True,"autoloadmod",1)
-      else:IO.Save(True,"autoloadmod",0)
-      if dev:IO.Save(True,"dev",1)
-      else:IO.Save(True,"dev",0)
-      if dr:IO.Save(True,"dr",1)
-      else:IO.Save(True,"dr",0)
-      if usemod:IO.Save(True,"usemod",1)
-      else:IO.Save(True,"usemod",0)
-      if autorunoutgmmod:IO.Save(True,"autorunoutgmmod",1)
-      else:IO.Save(True,"autorunoutgmmod",0)
+      IO.Save(True,"permlvl"+suserid,permissionlvl)
+      IO.Save(True,"erxt"+suserid,int(erxt))
+      IO.Save(True,"modamount"+suserid,modamount)
+      IO.Save(True,"gcthint"+suserid,int(gcthresholdint))
+      if showbar:IO.Save(True,"showbar"+suserid,1)
+      else:IO.Save(True,"showbar"+suserid,0)
+      if novid:IO.Save(True,"novid"+suserid,1)#True or false dosent work here. use 1 or 0.
+      else:IO.Save(True,"novid"+suserid,0)
+      if ignoreverchk:IO.Save(True,"ignoreverchk"+suserid,1)
+      else:IO.Save(True,"ignoreverchk"+suserid,0)
+      if gcenb:IO.Save(True,"gcenb"+suserid,1)
+      else:IO.Save(True,"gcenb"+suserid,0)
+      if autoloadmod:IO.Save(True,"autoloadmod"+suserid,1)
+      else:IO.Save(True,"autoloadmod"+suserid,0)
+      if dev:IO.Save(True,"dev"+suserid,1)
+      else:IO.Save(True,"dev"+suserid,0)
+      if dr:IO.Save(True,"dr"+suserid,1)
+      else:IO.Save(True,"dr"+suserid,0)
+      if usemod:IO.Save(True,"usemod"+suserid,1)
+      else:IO.Save(True,"usemod"+suserid,0)
+      if autorunoutgmmod:IO.Save(True,"autorunoutgmmod"+suserid,1)
+      else:IO.Save(True,"autorunoutgmmod"+suserid,0)
       Kernel.Cout.Info("Cfg saving success.")
       return 0
     except Exception as e:
@@ -227,29 +231,30 @@ class Kernel:#Code base class.
       return -1
   @staticmethod
   def Init(inittp):#built-in function.for init cfgs or other files engine needed.
-    global showbar,ignoreverchk,permissionlvl,autorunoutgmmod,gcenb,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,autoloadmod,gcthresholdint,dev,dr,novid,langtype,usemod,modamount,erxt,mod,released,openingtype
+    global userid,showbar,ignoreverchk,permissionlvl,autorunoutgmmod,gcenb,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,autoloadmod,gcthresholdint,dev,dr,novid,langtype,usemod,modamount,erxt,mod,released,openingtype
+    suserid=str(userid)
     if inittp==1:
       try:
-        cfg0=IO.Load(True,"gcenb")
-        cfg1=IO.Load(True,"novid")
-        cfg2=IO.Load(True,"dev")
-        cfg3=IO.Load(True,"dr")
-        cfg4=IO.Load(True,"usemod")
-        cfg5=IO.Load(True,"autoloadmod")
-        cfg6=IO.Load(True,"autorunoutgmmod")
-        cfg7=IO.Load(True,"ignoreverchk")
-        cfg8=IO.Load(True,"showbar")
-        openingtype=IO.Load(True,"optp")
-        permissionlvl=int(IO.Load(True,"permlvl"))
-        erxt=IO.Load(True,"erxt")
-        langtype=IO.Load(True,"langtype")
+        cfg0=IO.Load(True,"gcenb"+suserid)
+        cfg1=IO.Load(True,"novid"+suserid)
+        cfg2=IO.Load(True,"dev"+suserid)
+        cfg3=IO.Load(True,"dr"+suserid)
+        cfg4=IO.Load(True,"usemod"+suserid)
+        cfg5=IO.Load(True,"autoloadmod"+suserid)
+        cfg6=IO.Load(True,"autorunoutgmmod"+suserid)
+        cfg7=IO.Load(True,"ignoreverchk"+suserid)
+        cfg8=IO.Load(True,"showbar"+suserid)
+        openingtype=IO.Load(True,"optp"+suserid)
+        permissionlvl=int(IO.Load(True,"permlvl"+suserid))
+        erxt=IO.Load(True,"erxt"+suserid)
+        langtype=IO.Load(True,"langtype"+suserid)
         released=IO.Load(True,"released")
-        scrgeometx=IO.Load(True,"scgx")
-        scrgeomety=IO.Load(True,"scgy")
-        scrgeometmx=IO.Load(True,"scgmx")
-        scrgeometmy=IO.Load(True,"scgmy")
-        modamount=IO.Load(True,"modamount")
-        gcthresholdint=IO.Load(True,"gcthint")
+        scrgeometx=IO.Load(True,"scgx"+suserid)
+        scrgeomety=IO.Load(True,"scgy"+suserid)
+        scrgeometmx=IO.Load(True,"scgmx"+suserid)
+        scrgeometmy=IO.Load(True,"scgmy"+suserid)
+        modamount=IO.Load(True,"modamount"+suserid)
+        gcthresholdint=IO.Load(True,"gcthint"+suserid)
         if cfg0==1:gcenb=True
         else:gcenb=False
         if cfg1==1:novid=True
@@ -602,7 +607,19 @@ class Kernel:#Code base class.
       elif g=="help 5"and permissionlvl>=1:
         Kernel.Cout.Msg("IlChelcciCore engine help page 5:\nconvar:change a global var.\ngetvar:get a value from a var.\ndelvar:delete a provided var.\nsetopening:allocate a new opening type.\ntogglegcstate:toggle gc state to True or False.\ngccollect:trigger gc.collect.\nautorunoutgamemod:toggles when game is\nreleased automatically run out game mod.\nmypermlvl:get your current permission level.")
       elif g=="help 6"and permissionlvl>=1:
-        Kernel.Cout.Msg("IlChelcciCore engine help page 6:\nsay:say a string.\nignoreverchkonmod:toggle mod version check.\nsetapptitle:set a new app title.\ntogglebar:toggles title bar.")
+        Kernel.Cout.Msg("IlChelcciCore engine help page 6:\nsay:say a string.\nignoreverchkonmod:toggle mod version check.\nsetapptitle:set a new app title.\ntogglebar:toggles title bar.\nban:ban a user by userid.\nunban:unban a user by userid.\nop:give a user op permission.\ndeop:remove a user's op permission.\nuser:check an user's permission level.")
+      elif g=="ban"and permissionlvl>=4:
+        a=int(input("userid to ban:"))
+        Permission.Ban(a)
+      elif g=="unban"and permissionlvl>=4 or g=="pardon" and permissionlvl>=4:
+        a=int(input("userid to unban:"))
+        Permission.Unban(a)
+      elif g=="op"and permissionlvl>=4:
+        a=int(input("userid to op:"))
+        Permission.SetGroup(a,4)
+      elif g=="deop"and permissionlvl>=4 or g=="pardon"and permissionlvl>=4:
+        a=int(input("userid to deop:"))
+        Permission.RemoveGroup(a)
       elif g=="togglebar"and permissionlvl>=1:
         if Kernel.GetVar("showbar"):Kernel.ConVar("showbar",False)
         else:Kernel.ConVar("showbar",True)
@@ -613,6 +630,9 @@ class Kernel:#Code base class.
         Kernel.Cout.Info("New title is: %s."%(Kernel.GetVar("apptitle")))
       elif g=="mypermlvl"and permissionlvl>=1:
         Kernel.Cout.Msg("Your current permission level is: %s."%(permissionlvl))
+      elif g=="user"and permissionlvl>=4:
+        a=int(input("User ID:"))
+        Kernel.Cout.Console("User ID %s's permission level is: %s."%(a,Permission.User(a)))
       elif g=="convar"and permissionlvl>=4:
         v=str(input("variable:"))
         f=str(input("value:"))
@@ -824,32 +844,33 @@ class IO:#Input-Output class.
       return ch2
   @staticmethod
   def Save(custom=False,name="customFile",gamevar=None,logout=True):#built-in function, for saving game.
-    global emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,plspd,plr,plg,plb,plh,plw,kingignores
+    global userid,emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,plspd,plr,plg,plb,plh,plw,kingignores
+    suserid=str(userid)
     if not custom:
       try:
-        store_value("playery",psy)
-        store_value("playerx",psx)
-        store_value("v_hev",v_hev)
-        store_value("emptysave",0)
-        store_value("inclip9",inclip9)
-        store_value("inclip357",inclip357)
-        store_value("wpnslt",wpnslt)
-        store_value("v_live",v_live)
-        store_value("weapon_crb",weapon_crb)
-        store_value("weapon_physcnn",weapon_physcnn)
-        store_value("weapon_pst",weapon_pst)
-        store_value("weapon_357",weapon_357)
-        store_value("mapslt",mapslt)
-        store_value("ammo9",ammo9)
-        store_value("ammo357",ammo357)
-        store_value("item_suit",item_suit)
-        store_value("plspd",plspd)
-        store_value("plw",plw)
-        store_value("plh",plh)
-        store_value("plr",plr)
-        store_value("plg",plg)
-        store_value("plb",plb)
-        store_value("kingignores",int(IO._Translator(1,inputs=kingignores)))
+        store_value("playery"+suserid,psy)
+        store_value("playerx"+suserid,psx)
+        store_value("v_hev"+suserid,v_hev)
+        store_value("emptysave"+suserid,0)
+        store_value("inclip9"+suserid,inclip9)
+        store_value("inclip357"+suserid,inclip357)
+        store_value("wpnslt"+suserid,wpnslt)
+        store_value("v_live"+suserid,v_live)
+        store_value("weapon_crb"+suserid,weapon_crb)
+        store_value("weapon_physcnn"+suserid,weapon_physcnn)
+        store_value("weapon_pst"+suserid,weapon_pst)
+        store_value("weapon_357"+suserid,weapon_357)
+        store_value("mapslt"+suserid,mapslt)
+        store_value("ammo9"+suserid,ammo9)
+        store_value("ammo357"+suserid,ammo357)
+        store_value("item_suit"+suserid,item_suit)
+        store_value("plspd"+suserid,plspd)
+        store_value("plw"+suserid,plw)
+        store_value("plh"+suserid,plh)
+        store_value("plr"+suserid,plr)
+        store_value("plg"+suserid,plg)
+        store_value("plb"+suserid,plb)
+        store_value("kingignores"+suserid,int(IO._Translator(1,inputs=kingignores)))
         if logout:Kernel.Cout.IO("Game saved.")
         return 0
       except Exception as e:
@@ -867,32 +888,33 @@ class IO:#Input-Output class.
         return -1
   @staticmethod
   def Delete(custom=False,name="customFile",gamevar=None,logout=True):#built-in function, for delete saved game.
-    global emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,plspd,plr,plg,plb,plh,plw,kingignores
+    global userid,emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,plspd,plr,plg,plb,plh,plw,kingignores
+    suserid=str(userid)
     if not custom:
       try:
-        store_value("playery",95)
-        store_value("playerx",95)
-        store_value("plspd",5)
-        store_value("kingignores",0)
-        store_value("v_hev",0)
-        store_value("emptysave",1)
-        store_value("inclip9",0)
-        store_value("inclip357",0)
-        store_value("wpnslt",0)
-        store_value("v_live",100)
-        store_value("weapon_crb",0)
-        store_value("weapon_physcnn",0)
-        store_value("weapon_pst",0)
-        store_value("weapon_357",0)
-        store_value("mapslt",0)
-        store_value("ammo9",0)
-        store_value("plh",5)
-        store_value("plw",5)
-        store_value("plr",0)
-        store_value("plg",0)
-        store_value("plb",0)
-        store_value("ammo357",0)
-        store_value("item_suit",0)
+        store_value("playery"+suserid,95)
+        store_value("playerx"+suserid,95)
+        store_value("plspd"+suserid,5)
+        store_value("kingignores"+suserid,0)
+        store_value("v_hev"+suserid,0)
+        store_value("emptysave"+suserid,1)
+        store_value("inclip9"+suserid,0)
+        store_value("inclip357"+suserid,0)
+        store_value("wpnslt"+suserid,0)
+        store_value("v_live"+suserid,100)
+        store_value("weapon_crb"+suserid,0)
+        store_value("weapon_physcnn"+suserid,0)
+        store_value("weapon_pst"+suserid,0)
+        store_value("weapon_357"+suserid,0)
+        store_value("mapslt"+suserid,0)
+        store_value("ammo9"+suserid,0)
+        store_value("plh"+suserid,5)
+        store_value("plw"+suserid,5)
+        store_value("plr"+suserid,0)
+        store_value("plg"+suserid,0)
+        store_value("plb"+suserid,0)
+        store_value("ammo357"+suserid,0)
+        store_value("item_suit"+suserid,0)
         if logout:Kernel.Cout.IO("File deleted.")
         return 0
       except Exception as e:
@@ -901,7 +923,7 @@ class IO:#Input-Output class.
         return -1
     else:
       try:
-        store_value(str(name),gamevar)
+        store_value(str(name),int(gamevar))
         if logout:Kernel.Cout.IO("File operate success on:"+str(name)+".")
         return 0
       except Exception as e:
@@ -909,34 +931,35 @@ class IO:#Input-Output class.
         Kernel.ErrChk(2,"Cannot operate file.")
         return -1
   @staticmethod
-  def Load(custom=False,name="customFile",logout=True):#built-in function, for load a saved game.
+  def Load(custom=False,name="customFile",ReturnZeroOnNull=False,logout=True):#built-in function, for load a saved game.
     returnval=None
-    global emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,plspd,plw,plh,plr,plg,plb,kingignores
+    global userid,emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,plspd,plw,plh,plr,plg,plb,kingignores
+    suserid=str(userid)
     if not custom:
       try:
-        plr=recall_value("plr")
-        plg=recall_value("plg")
-        plb=recall_value("plb")
-        plw=recall_value("plw")
-        plh=recall_value("plh")
-        plspd=recall_value("plspd")
-        kingignoreinputraw=recall_value("kingignores")
-        mapslt=recall_value("mapslt")
-        emptysave=recall_value("emptysave")
-        wpnslt=recall_value("wpnslt")
-        weapon_357=recall_value("weapon_357")
-        weapon_pst=recall_value("weapon_pst")
-        ammo9=recall_value("ammo9")
-        ammo357=recall_value("ammo357")
-        psy=recall_value("playery")
-        psx=recall_value("playerx")
-        v_live=recall_value("v_live")
-        v_hev=recall_value("v_hev")
-        inclip9=recall_value("inclip9")
-        inclip357=recall_value("inclip357")
-        weapon_crb=recall_value("weapon_crb")
-        weapon_physcnn=recall_value("weapon_physcnn")
-        item_suit=recall_value("item_suit")
+        plr=recall_value("plr"+suserid)
+        plg=recall_value("plg"+suserid)
+        plb=recall_value("plb"+suserid)
+        plw=recall_value("plw"+suserid)
+        plh=recall_value("plh"+suserid)
+        plspd=recall_value("plspd"+suserid)
+        kingignoreinputraw=recall_value("kingignores"+suserid)
+        mapslt=recall_value("mapslt"+suserid)
+        emptysave=recall_value("emptysave"+suserid)
+        wpnslt=recall_value("wpnslt"+suserid)
+        weapon_357=recall_value("weapon_357"+suserid)
+        weapon_pst=recall_value("weapon_pst"+suserid)
+        ammo9=recall_value("ammo9"+suserid)
+        ammo357=recall_value("ammo357"+suserid)
+        psy=recall_value("playery"+suserid)
+        psx=recall_value("playerx"+suserid)
+        v_live=recall_value("v_live"+suserid)
+        v_hev=recall_value("v_hev"+suserid)
+        inclip9=recall_value("inclip9"+suserid)
+        inclip357=recall_value("inclip357"+suserid)
+        weapon_crb=recall_value("weapon_crb"+suserid)
+        weapon_physcnn=recall_value("weapon_physcnn"+suserid)
+        item_suit=recall_value("item_suit"+suserid)
         kingignores=IO._Translator(2,kingignoreinputraw)
         del kingignoreinputraw
         if v_live<=0:
@@ -962,7 +985,51 @@ class IO:#Input-Output class.
       except Exception as e:
         Kernel.Cout.Error("File operation failed on:"+str(name)+".\n"+str(e))
         Kernel.ErrChk(2,"Cannot load file.")
-        return None
+        if ReturnZeroOnNull:return 0
+        else:return None
+class Permission:#permission level class.
+  def __init__(self):pass
+  @staticmethod
+  def User(id):#built-in function, get current permission level.
+    return IO.Load(True,"permlvl"+str(id),False,False)
+  @staticmethod
+  def SetGroup(id,level):#built-in function, set current permission level.
+    if level>4:
+      level=4
+      Kernel.Cout.Warning("Permission level cannot exceed 4, set to 4 automatically.")
+      Kernel.ErrChk(3,"Permission level exceed max level.")
+    elif level<1:
+      level=1
+      Kernel.Cout.Warning("Permission level cannot below 1, set to 1 automatically.")
+      Kernel.ErrChk(3,"Permission level below min level.")
+    IO.Save(True,"permlvl"+str(id),int(level),False)
+    Kernel.Cout.Info("Changed user ID %s's permission level to '%s'."%(id,level))
+    return id,level
+  @staticmethod
+  def RemoveGroup(id):#built-in function, remove current permission level.
+    IO.Save(True,"permlvl"+str(id),1,False)
+    Kernel.Cout.Info("Deopped user ID '%s'."%(id))
+    return id
+  @staticmethod
+  def Ban(id):#built-in function, ban a user by userid.
+    IO.Save(True,"banned"+str(id),1,False)
+    Kernel.Cout.Info("Banned user ID '%s'."%(id))
+    return id
+  @staticmethod
+  def Unban(id):#built-in function, unban a user by userid.
+    IO.Save(True,"banned"+str(id),0,False)
+    Kernel.Cout.Info("Unbanned user ID '%s'."%(id))
+    return id
+  @staticmethod
+  def IsBanned(id):#built-in function, check if a user is banned by userid.
+    b=IO.Load(True,"banned"+str(id),False)
+    if b==1:
+      return True
+    else:
+      return False
+  @staticmethod
+  def Pardon(id):#built-in function, pardon a user by userid.
+    Permission.Unban(id)
 class UniFX:#Universal VFX class.
   def __init__(self):pass
   @staticmethod
@@ -2009,7 +2076,8 @@ class Prgm:#program class.
   def Main():#main function.It's a very standard template for engine.
     StdUtil.InMenu(True)
     l_menuslt=Kernel.GetVar("menuslt",False)
-    global ingamemod,released,erxt,modscripts,langtype,mapslt,dev,dr,emptysave,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,usemod,plspd,plw,plh,plr,plg,plb,kingignores
+    global userid,ingamemod,released,erxt,modscripts,langtype,mapslt,dev,dr,emptysave,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,usemod,plspd,plw,plh,plr,plg,plb,kingignores
+    suserid=str(userid)
     StdUtil.ConsoleLog(4)
     while True:#game logic loop.
       if StdUtil.IsInMenu():#menu guard.
@@ -2021,7 +2089,7 @@ class Prgm:#program class.
         paint_buffer()
         while True:#main menu.
           k=get_key()
-          emptysave=IO.Load(True,"emptysave",False)
+          emptysave=IO.Load(True,"emptysave"+suserid,False)
           if k=="enter":
             Assets.gmanintro()
             StdUtil.InMenu(False)
@@ -2301,7 +2369,7 @@ class Prgm:#program class.
                   clear()
                   StdUtil.PauseMenu()
                   k=get_key()
-                  emptysave=IO.Load(True,"emptysave",False)
+                  emptysave=IO.Load(True,"emptysave"+suserid,False)
                   ActionUI.DispUi(0,0,2)
                   paint_buffer()
                   if k=="esc":
@@ -2391,12 +2459,24 @@ if (__name__=="__main__"):#all program starts from here.
       draw_text(10,100,ActionUI.DispLanguage("reqmis"))
       draw_text(10,120,ActionUI.DispLanguage("prsesc"))
       paint_buffer()
-      Kernel.Cout.Fatal("Library import failed.")
+      Kernel.Cout.Fatal("Library import failed.\nPlease check the libraries installed.\nRequired: ti_system, micropython.")
       while get_key()!="esc":pass
       Kernel.quit(-1)
     except:
-      Kernel.Cout.Fatal("The engine cannot run on your device.\nPlease check the libraries installed.")
+      Kernel.Cout.Fatal("The engine cannot run on your device.\nPlease check the libraries installed.\nRequired: ti_system, micropython.")
       Kernel.quit(-1)
+  userid=int(recall_value("loggedinuser"))
+  if userid==0 or userid=="0":
+    Kernel.Cout.Error("You need an account to play this\ngame!")
+    Kernel.quit(1)
+  banned=int(recall_value("banned"+str(userid)))
+  newuser=int(recall_value("newuser"+str(userid)))
+  if banned==1 or banned=="1":
+    Kernel.Cout.Error("Your account has been banned from\nthis game.")
+    Kernel.quit(1)
+  if newuser==1 or newuser=="1":
+    Kernel.SaveCfg()
+    IO.Save(True,"newuser"+str(userid),0)
   Kernel.Init(2)
   Kernel.Init(1)
   Kernel._GameLauncher()
