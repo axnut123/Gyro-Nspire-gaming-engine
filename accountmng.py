@@ -114,6 +114,7 @@ class Accounts:
         b=int(input(">Your password:"))
         Accounts.Login(a,b)
       elif g=="register":
+        cout(">>Notice: Only numbers and no longer than 4 digits.")
         a=int(input(">New ID:"))
         b=int(input(">New password:"))
         Accounts.Register(a,b)

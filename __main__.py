@@ -38,7 +38,7 @@ import binascii as asc
 showbar=bool(False);
 apptitle=str("Half-Life 2");
 novid=bool(False);
-autorunoutgmmod=bool(False);
+arogmmd=bool(False);
 modamount=int(100);
 endtick=None;
 langtype=int(1);
@@ -185,7 +185,7 @@ class Kernel:#Code base class.
       return True
   @staticmethod
   def SaveCfg():#built-in function, saving cfg variable to nspire document.
-    global userid,autorunoutgmmod,ignoreverchk,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,gcthresholdint,autoloadmod,langtype,dev,dr,usemod,novid,modamount,erxt,openingtype,gcenb,showbar
+    global userid,arogmmd,ignoreverchk,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,gcthresholdint,autoloadmod,langtype,dev,dr,usemod,novid,modamount,erxt,openingtype,gcenb,showbar
     suserid=str(userid)
     try:
       IO.Save(True,"optp"+suserid,int(openingtype))
@@ -221,8 +221,8 @@ class Kernel:#Code base class.
       else:IO.Save(True,"dr"+suserid,0)
       if usemod:IO.Save(True,"usemod"+suserid,1)
       else:IO.Save(True,"usemod"+suserid,0)
-      if autorunoutgmmod:IO.Save(True,"autorunoutgmmod"+suserid,1)
-      else:IO.Save(True,"autorunoutgmmod"+suserid,0)
+      if arogmmd:IO.Save(True,"arogmmd"+suserid,1)
+      else:IO.Save(True,"arogmmd"+suserid,0)
       Kernel.Cout.Info("Cfg saving success.")
       return 0
     except Exception as e:
@@ -231,7 +231,7 @@ class Kernel:#Code base class.
       return -1
   @staticmethod
   def Init(inittp):#built-in function.for init cfgs or other files engine needed.
-    global userid,showbar,ignoreverchk,permissionlvl,autorunoutgmmod,gcenb,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,autoloadmod,gcthresholdint,dev,dr,novid,langtype,usemod,modamount,erxt,mod,released,openingtype
+    global userid,showbar,ignoreverchk,permissionlvl,arogmmd,gcenb,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,autoloadmod,gcthresholdint,dev,dr,novid,langtype,usemod,modamount,erxt,mod,released,openingtype
     suserid=str(userid)
     if inittp==1:
       try:
@@ -241,7 +241,7 @@ class Kernel:#Code base class.
         cfg3=IO.Load(True,"dr"+suserid)
         cfg4=IO.Load(True,"usemod"+suserid)
         cfg5=IO.Load(True,"autoloadmod"+suserid)
-        cfg6=IO.Load(True,"autorunoutgmmod"+suserid)
+        cfg6=IO.Load(True,"arogmmd"+suserid)
         cfg7=IO.Load(True,"ignoreverchk"+suserid)
         cfg8=IO.Load(True,"showbar"+suserid)
         openingtype=IO.Load(True,"optp"+suserid)
@@ -271,14 +271,14 @@ class Kernel:#Code base class.
         else:usemod=False
         if cfg5==1:autoloadmod=True
         else:autoloadmod=False
-        if cfg6==1:autorunoutgmmod=True
-        else:autorunoutgmmod=False
+        if cfg6==1:arogmmd=True
+        else:arogmmd=False
         if cfg7==1:ignoreverchk=True
         else:ignoreverchk=False
         if cfg8==1:showbar=True
         else:showbar=False
         del cfg0,cfg1,cfg2,cfg3,cfg4,cfg5,cfg6,cfg7,cfg8
-        if autoloadmod or autorunoutgmmod:Kernel._ModHandler(2)
+        if autoloadmod or arogmmd:Kernel._ModHandler(2)
         gc.threshold(gcthresholdint)
         Kernel.GetTotalMem()
         gc.collect()
@@ -498,7 +498,7 @@ class Kernel:#Code base class.
     Kernel.ConVar("menuslt",randint(1,2),True)
     Kernel._CreateWindow(scrgeomety,scrgeometx,scrgeometmx,scrgeometmy)
     if not novid:Kernel.Opening(openingtype)
-    if autorunoutgmmod and released:
+    if arogmmd and released:
       runmod=True
       usemod=True
       Kernel.Cout.Info("Auto run out game mod enabled.")
@@ -515,7 +515,7 @@ class Kernel:#Code base class.
     return 0
   @staticmethod
   def _Console():#built-in function,for console.
-    global autorunoutgmmod,runprgm,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,ingamemod,modscripts,usemod,vtk,erxt,novid,mod,dev,dr,langtype,usemod,modamount,autoloadmod,gcthresholdint,kingignores,released,GAMEVER,DEBUGDATE,GAMETITLE,openingtype,COMPANY,COPYRIGHT,permissionlvl,ignoreverchk
+    global arogmmd,runprgm,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,ingamemod,modscripts,usemod,vtk,erxt,novid,mod,dev,dr,langtype,usemod,modamount,autoloadmod,gcthresholdint,kingignores,released,GAMEVER,DEBUGDATE,GAMETITLE,openingtype,COMPANY,COPYRIGHT,permissionlvl,ignoreverchk
     Kernel.Cout.Preload("Console is created because game is in debug state.")
     while True:
       g=str(input("]"))
@@ -584,9 +584,9 @@ class Kernel:#Code base class.
         Kernel.Cout.Console("Auto mod load process is now:"+str(autoloadmod)+".")
       elif g=="modinit"and permissionlvl>=1:Kernel._ModHandler(2)
       elif g=="autorunoutgamemod"and permissionlvl>=1:
-        if autorunoutgmmod:autorunoutgmmod=False
-        else:autorunoutgmmod=True
-        Kernel.Cout.Info("autorunoutgmmod is now: %s"%(autorunoutgmmod))
+        if arogmmd:arogmmd=False
+        else:arogmmd=True
+        Kernel.Cout.Console("auto run out game mod is now: %s."%(arogmmd))
       elif g=="runmod"and permissionlvl>=1:
         Kernel.ConVar("runmod",True,True)
         a=Kernel._ModHandler(3)
@@ -605,9 +605,17 @@ class Kernel:#Code base class.
       elif g=="help 4"and permissionlvl>=1:
         Kernel.Cout.Msg("IlChelcciCore engine help page 4:\nautoloadmod:toggle the auto mod loading\nprocess.\nsetlang:set a language for engine.\nbegin:start a dedicated function,\ne.g. 'Prgm.Main()' for main function.\nreleasegame:release your game.\ncancelrelease:undo when you released game\nwith command 'releasegame'.\nchangegameinfo:change the infos of game temporarily.")
       elif g=="help 5"and permissionlvl>=1:
-        Kernel.Cout.Msg("IlChelcciCore engine help page 5:\nconvar:change a global var.\ngetvar:get a value from a var.\ndelvar:delete a provided var.\nsetopening:allocate a new opening type.\ntogglegcstate:toggle gc state to True or False.\ngccollect:trigger gc.collect.\nautorunoutgamemod:toggles when game is\nreleased automatically run out game mod.\nmypermlvl:get your current permission level.")
+        Kernel.Cout.Msg("IlChelcciCore engine help page 5:\nconvar:change a global var.\ngetvar:get a value from a var.\ndelvar:delete a provided var.\nsetopening:allocate a new opening type.\ntogglegcstate:toggle gc state to True or False.\ngccollect:trigger gc.collect.\nautorunoutgamemod:toggles when game is\nreleased automatically run out game mod.\nme:get current user ID and current permission level.")
       elif g=="help 6"and permissionlvl>=1:
         Kernel.Cout.Msg("IlChelcciCore engine help page 6:\nsay:say a string.\nignoreverchkonmod:toggle mod version check.\nsetapptitle:set a new app title.\ntogglebar:toggles title bar.\nban:ban a user by userid.\nunban:unban a user by userid.\nop:give a user op permission.\ndeop:remove a user's op permission.\nuser:check an user's permission level.")
+      elif g=="help 7"and permissionlvl>=1:
+        Kernel.Cout.Msg("IlChelcciCore engine help page 7:\nisbanned:check ban state of given user ID.\npardon:same as unban.")
+      elif g=="isbanned" and permissionlvl >=4:
+        a=int(input("userid to check ban state:"))
+        if Permission.IsValid(a) is False:
+          Kernel.Cout.Console("User ID does not exist.")
+          continue
+        Kernel.Cout.Info("User ID %s's ban state is: '%s'"%(a,Permission.IsBanned(a)))
       elif g=="ban"and permissionlvl>=4:
         a=int(input("userid to ban:"))
         Permission.Ban(a)
@@ -623,15 +631,19 @@ class Kernel:#Code base class.
       elif g=="togglebar"and permissionlvl>=1:
         if Kernel.GetVar("showbar"):Kernel.ConVar("showbar",False)
         else:Kernel.ConVar("showbar",True)
-        Kernel.Cout.Info("Show title bar is now: %s."%(Kernel.GetVar("showbar")))
+        Kernel.Cout.Console("Show title bar is now: %s."%(Kernel.GetVar("showbar")))
       elif g=="setapptitle"and permissionlvl>=4:
         s=str(input("New app title:"))
         Kernel.ConVar("apptitle",s)
-        Kernel.Cout.Info("New title is: %s."%(Kernel.GetVar("apptitle")))
-      elif g=="mypermlvl"and permissionlvl>=1:
+        Kernel.Cout.Console("New title is: %s."%(Kernel.GetVar("apptitle")))
+      elif g=="me"and permissionlvl>=1:
+        Kernel.Cout.Msg("Current user is: %s."%(Kernel.GetVar("userid")))
         Kernel.Cout.Msg("Your current permission level is: %s."%(permissionlvl))
       elif g=="user"and permissionlvl>=4:
         a=int(input("User ID:"))
+        if Permission.IsValid(a) is False:
+          Kernel.Cout.Console("User ID does not exist.")
+          continue
         Kernel.Cout.Console("User ID %s's permission level is: %s."%(a,Permission.User(a)))
       elif g=="convar"and permissionlvl>=4:
         v=str(input("variable:"))
@@ -691,7 +703,7 @@ class Kernel:#Code base class.
           scrgeomety=int(input("ymin:"))
           scrgeometmx=int(input("xmax:"))
           scrgeometmy=int(input("ymax:"))
-          Kernel.Cout.Info("Resolution set to:"+str(scrgeometx)+","+str(scrgeomety)+","+str(scrgeometmx)+","+str(scrgeometmy))
+          Kernel.Cout.Console("Resolution set to:"+str(scrgeometx)+","+str(scrgeomety)+","+str(scrgeometmx)+","+str(scrgeometmy))
         except Exception as e:
           Kernel.Cout.Error("Setting was failed. "+str(e))
           Kernel.ErrChk(3,"Bad arguments.")
@@ -763,7 +775,7 @@ class Kernel:#Code base class.
         g=str(input("execute:"))
         try:
           exec(g)
-          Kernel.Cout.Info("Executed code.")
+          Kernel.Cout.Console("Executed code.")
         except Exception as e:
           Kernel.Cout.Error("Unable to execute code. "+str(e))
           Kernel.ErrChk(5,"Cannot execute code.")
@@ -990,10 +1002,22 @@ class IO:#Input-Output class.
 class Permission:#permission level class.
   def __init__(self):pass
   @staticmethod
+  def IsValid(id):#built-in function, validate given id.
+    a=int(IO.Load(True,"user"+str(id),True,False))
+    if a==0 or a=="0":
+      return False
+    else: return True
+  @staticmethod
   def User(id):#built-in function, get current permission level.
+    if not Permission.IsValid(id):
+      Kernel.Cout.Error("Current user does not exist.")
+      return 1
     return IO.Load(True,"permlvl"+str(id),False,False)
   @staticmethod
   def SetGroup(id,level):#built-in function, set current permission level.
+    if not Permission.IsValid(id):
+      Kernel.Cout.Error("Current user does not exist.")
+      return 1
     if level>4:
       level=4
       Kernel.Cout.Warning("Permission level cannot exceed 4, set to 4 automatically.")
@@ -1002,26 +1026,45 @@ class Permission:#permission level class.
       level=1
       Kernel.Cout.Warning("Permission level cannot below 1, set to 1 automatically.")
       Kernel.ErrChk(3,"Permission level below min level.")
+    if str(id)==str(Kernel.GetVar("userid")):
+      Kernel.ConVar("permissionlvl",level)
     IO.Save(True,"permlvl"+str(id),int(level),False)
     Kernel.Cout.Info("Changed user ID %s's permission level to '%s'."%(id,level))
     return id,level
   @staticmethod
   def RemoveGroup(id):#built-in function, remove current permission level.
+    if not Permission.IsValid(id):
+      Kernel.Cout.Error("Current user does not exist.")
+      return 1
     IO.Save(True,"permlvl"+str(id),1,False)
+    if str(id)==str(Kernel.GetVar("userid")):
+      Kernel.ConVar("permissionlvl",1)
     Kernel.Cout.Info("Deopped user ID '%s'."%(id))
     return id
   @staticmethod
   def Ban(id):#built-in function, ban a user by userid.
+    if not Permission.IsValid(id):
+      Kernel.Cout.Error("Current user does not exist")
+      return 1
+    if str(id)==str(Kernel.GetVar("userid")):
+      Kernel.Cout.Error("You may not ban yourself.")
+      return 1
     IO.Save(True,"banned"+str(id),1,False)
     Kernel.Cout.Info("Banned user ID '%s'."%(id))
     return id
   @staticmethod
   def Unban(id):#built-in function, unban a user by userid.
+    if not Permission.IsValid(id):
+      Kernel.Cout.Error("Current user does not exist")
+      return 1
     IO.Save(True,"banned"+str(id),0,False)
     Kernel.Cout.Info("Unbanned user ID '%s'."%(id))
     return id
   @staticmethod
   def IsBanned(id):#built-in function, check if a user is banned by userid.
+    if not Permission.IsValid(id):
+      Kernel.Cout.Error("Current user does not exist")
+      return 1
     b=IO.Load(True,"banned"+str(id),False)
     if b==1:
       return True
