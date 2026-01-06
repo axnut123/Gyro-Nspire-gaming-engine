@@ -950,9 +950,9 @@ class IO:#Input-Output class.
   def Load(custom=False,name="customFile",ReturnZeroOnNull=False,logout=True):#built-in function, for load a saved game.
     returnval=None
     global userid,emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,plspd,plw,plh,plr,plg,plb,kingignores
-    suserid=str(userid)
     if not custom:
       try:
+        suserid=str(userid)
         plr=recall_value("plr"+suserid)
         plg=recall_value("plg"+suserid)
         plb=recall_value("plb"+suserid)
