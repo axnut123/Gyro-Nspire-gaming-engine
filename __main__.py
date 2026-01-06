@@ -2530,6 +2530,7 @@ if (__name__=="__main__"):#all program starts from here.
     Kernel.quit(1)
   if newuser==1 or newuser=="1":
     Kernel.SaveCfg()
+    IO.Save(True,"emptysave"+str(userid),0)
     IO.Save(True,"newuser"+str(userid),0)
   Kernel.Init(2)
   Kernel.Init(1)
