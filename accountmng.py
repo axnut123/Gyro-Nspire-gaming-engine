@@ -2,7 +2,7 @@ from ti_system import *
 import binascii as asc
 import sys
 
-version="1.0"
+version="1.1"
 perm=1
 
 def cout(text):
@@ -35,13 +35,13 @@ class Accounts:
   def __init__(self):pass
   
   @staticmethod
-  def Login(ids,password,nologin=False,nopw=False):
+  def Login(ids,password,ignoreban=False,nologin=False,nopw=False):
     global perm
     try:
       LoadedUserIds=recall_value("user"+str(ids))
       LoadedUserPassword=recall_value("pw"+str(ids))
       LoadedBannedStatus=recall_value("banned"+str(ids))
-      if LoadedBannedStatus==1:
+      if LoadedBannedStatus==1 and not ignoreban:
         cout(">>This account is banned!")
         return 3
     except:

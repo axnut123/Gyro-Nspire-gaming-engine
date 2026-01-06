@@ -34,7 +34,6 @@
 import sys
 from random import randint
 from time import *
-import binascii as asc
 showbar=bool(False);
 apptitle=str("Half-Life 2");
 novid=bool(False);
@@ -64,9 +63,9 @@ psx=int(0);
 psy=int(0);
 v_hev=int(0);
 PI=float(3.14159265358980);
-GAMEVER=str("IlChelcciCore 39 Build(0164)");
+GAMEVER=str("IlChelcciCore 40 Build(0166)");
 VERINT=int(164);
-DEBUGDATE=str("2026/01/05");
+DEBUGDATE=str("2026/01/06");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2025, all rights reserved.");
@@ -114,7 +113,7 @@ def version(vertype=0):#built-in function, version output. fill your version her
   elif vertype==5:return VERINT
   else:raise ValueError("Unknown arguments.")
 class CfgError(Exception):pass
-class ArgumentNotFound(Exception):pass
+class BadArguments(Exception):pass
 class UnknownError(Exception):pass
 class ModError(Exception):pass
 class IOError(Exception):pass#MicroPy does not have this.
@@ -322,7 +321,7 @@ class Kernel:#Code base class.
       if not forceraise:Kernel.Cout.Debug("Error or warning encountered,\nstopped engine.")
       else:Kernel.Cout.Debug("Forcibly raised an error!")
       gc.collect()
-      if errtype==1:raise ArgumentNotFound(reason)
+      if errtype==1:raise BadArguments(reason)
       elif errtype==2:raise IOError(reason)
       elif errtype==3:raise CfgError(reason)
       elif errtype==4:raise ModError(reason)
@@ -597,7 +596,7 @@ class Kernel:#Code base class.
       elif g=="savecfg"and permissionlvl>=1:
         Kernel.SaveCfg()
       elif g=="help 1"and permissionlvl>=1:
-        Kernel.Cout.Msg("IlChelcciCore engine help page 1:\nrun:start engine.\nhelp <page(1-6)>:get help.\nquit:stop engine and console.\nsetgeomet:set a new resolution for screen.\nforceexitonerror:forcibly stop whole engine when encounting any error and warn.\nversion:get engine version and credits.\nhwinfo:get hardware info.\ncls:clear screen.")
+        Kernel.Cout.Msg("IlChelcciCore engine help page 1:\nrun:start engine.\nhelp <page(1-7)>:get help.\nquit:stop engine and console.\nsetgeomet:set a new resolution for screen.\nforceexitonerror:forcibly stop whole engine when encounting any error and warn.\nversion:get engine version and credits.\nhwinfo:get hardware info.\ncls:clear screen.")
       elif g=="help 2"and permissionlvl>=1:
         Kernel.Cout.Msg("IlChelcciCore engine help page 2:\nloadgame:load game from saved file.\ndeletesave:delete saved game.\nmodinit:init installed mod.\nrunmod:start mod.\nmodver:get version for mod.\ndisablemod:disable mod.(pop)\nadjustthreshold:change the value for\ngc.threshold()\ndev: toggle developer mode.")
       elif g=="help 3"and permissionlvl>=1:
@@ -611,22 +610,26 @@ class Kernel:#Code base class.
       elif g=="help 7"and permissionlvl>=1:
         Kernel.Cout.Msg("IlChelcciCore engine help page 7:\nisbanned:check ban state of given user ID.\npardon:same as unban.")
       elif g=="isbanned" and permissionlvl >=4:
-        a=int(input("userid to check ban state:"))
-        if Permission.IsValid(a) is False:
+        a=int(input("userid to check ban state(input 0 to cancel):"))
+        if Permission.IsValid(a) is False or a==0:
           Kernel.Cout.Console("User ID does not exist.")
           continue
-        Kernel.Cout.Info("User ID %s's ban state is: '%s'"%(a,Permission.IsBanned(a)))
+        Kernel.Cout.Info("User ID %s's ban state is: '%s'."%(a,Permission.IsBanned(a)))
       elif g=="ban"and permissionlvl>=4:
-        a=int(input("userid to ban:"))
+        a=int(input("userid to ban(input 0 to cancel):"))
+        if a==0:continue
         Permission.Ban(a)
       elif g=="unban"and permissionlvl>=4 or g=="pardon" and permissionlvl>=4:
-        a=int(input("userid to unban:"))
+        a=int(input("userid to unban(input 0 to cancel):"))
+        if a==0:continue
         Permission.Unban(a)
       elif g=="op"and permissionlvl>=4:
-        a=int(input("userid to op:"))
+        a=int(input("userid to op(input 0 to cancel):"))
+        if a==0:continue
         Permission.SetGroup(a,4)
       elif g=="deop"and permissionlvl>=4 or g=="pardon"and permissionlvl>=4:
-        a=int(input("userid to deop:"))
+        a=int(input("userid to deop(input 0 to cancel):"))
+        if a==0:continue
         Permission.RemoveGroup(a)
       elif g=="togglebar"and permissionlvl>=1:
         if Kernel.GetVar("showbar"):Kernel.ConVar("showbar",False)
@@ -640,7 +643,8 @@ class Kernel:#Code base class.
         Kernel.Cout.Msg("Current user is: %s."%(Kernel.GetVar("userid")))
         Kernel.Cout.Msg("Your current permission level is: %s."%(permissionlvl))
       elif g=="user"and permissionlvl>=4:
-        a=int(input("User ID:"))
+        a=int(input("User ID(input 0 to cancel):"))
+        if a==0:continue
         if Permission.IsValid(a) is False:
           Kernel.Cout.Console("User ID does not exist.")
           continue
@@ -756,7 +760,7 @@ class Kernel:#Code base class.
       elif g=="loadgame"and permissionlvl>=1:
         IO.Load()
       elif g=="help"and permissionlvl>=1:
-        Kernel.Cout.Msg("ILCC Command help.\nUsage: help <page 1-6>\nexample: help 1 for page 1.")
+        Kernel.Cout.Msg("ILCC Command help.\nUsage: help <page 1-7>\nexample: help 1 for page 1.")
       elif permissionlvl>=1 and g=="cls"or permissionlvl>=1 and g=="clr" or g=="clear"and permissionlvl>=1:
         clear_history()
       elif permissionlvl>=4 and g=="dev"or g=="developer"and permissionlvl>=4:
@@ -783,7 +787,7 @@ class Kernel:#Code base class.
           del g
           Kernel.quit(0)
       elif g=="":pass
-      else:Kernel.Cout.Console("Unknown command or lacking\npermission on command:"+str(g)+".\nType help <page(1-6)> to get help.")
+      else:Kernel.Cout.Console("Unknown command or lacking\npermission on command:"+str(g)+".\nType help <page(1-7)> to get help.")
     return 0
   @staticmethod
   def Opening(optp=1):#the engine opening.
@@ -1011,21 +1015,23 @@ class Permission:#permission level class.
   def User(id):#built-in function, get current permission level.
     if not Permission.IsValid(id):
       Kernel.Cout.Error("Current user does not exist.")
+      Kernel.ErrChk(1,"Current user does not exist.")
       return 1
     return IO.Load(True,"permlvl"+str(id),False,False)
   @staticmethod
   def SetGroup(id,level):#built-in function, set current permission level.
     if not Permission.IsValid(id):
       Kernel.Cout.Error("Current user does not exist.")
+      Kernel.ErrChk(1,"Current user does not exist.")
       return 1
     if level>4:
       level=4
       Kernel.Cout.Warning("Permission level cannot exceed 4, set to 4 automatically.")
-      Kernel.ErrChk(3,"Permission level exceed max level.")
+      Kernel.ErrChk(1,"Permission level exceed max level.")
     elif level<1:
       level=1
       Kernel.Cout.Warning("Permission level cannot below 1, set to 1 automatically.")
-      Kernel.ErrChk(3,"Permission level below min level.")
+      Kernel.ErrChk(1,"Permission level below min level.")
     if str(id)==str(Kernel.GetVar("userid")):
       Kernel.ConVar("permissionlvl",level)
     IO.Save(True,"permlvl"+str(id),int(level),False)
@@ -1035,6 +1041,7 @@ class Permission:#permission level class.
   def RemoveGroup(id):#built-in function, remove current permission level.
     if not Permission.IsValid(id):
       Kernel.Cout.Error("Current user does not exist.")
+      Kernel.ErrChk(1,"Current user does not exist.")
       return 1
     IO.Save(True,"permlvl"+str(id),1,False)
     if str(id)==str(Kernel.GetVar("userid")):
@@ -1044,10 +1051,12 @@ class Permission:#permission level class.
   @staticmethod
   def Ban(id):#built-in function, ban a user by userid.
     if not Permission.IsValid(id):
-      Kernel.Cout.Error("Current user does not exist")
+      Kernel.Cout.Error("Current user does not exist.")
+      Kernel.ErrChk(1,"Current user does not exist.")
       return 1
     if str(id)==str(Kernel.GetVar("userid")):
       Kernel.Cout.Error("You may not ban yourself.")
+      Kernel.ErrChk(1,"You may not ban yourself.")
       return 1
     IO.Save(True,"banned"+str(id),1,False)
     Kernel.Cout.Info("Banned user ID '%s'."%(id))
@@ -1055,7 +1064,8 @@ class Permission:#permission level class.
   @staticmethod
   def Unban(id):#built-in function, unban a user by userid.
     if not Permission.IsValid(id):
-      Kernel.Cout.Error("Current user does not exist")
+      Kernel.Cout.Error("Current user does not exist.")
+      Kernel.ErrChk(1,"Current user does not exist.")
       return 1
     IO.Save(True,"banned"+str(id),0,False)
     Kernel.Cout.Info("Unbanned user ID '%s'."%(id))
@@ -1063,7 +1073,8 @@ class Permission:#permission level class.
   @staticmethod
   def IsBanned(id):#built-in function, check if a user is banned by userid.
     if not Permission.IsValid(id):
-      Kernel.Cout.Error("Current user does not exist")
+      Kernel.Cout.Error("Current user does not exist.")
+      Kernel.ErrChk(1,"Current user does not exist.")
       return 1
     b=IO.Load(True,"banned"+str(id),False)
     if b==1:
@@ -2508,14 +2519,14 @@ if (__name__=="__main__"):#all program starts from here.
     except:
       Kernel.Cout.Fatal("The engine cannot run on your device.\nPlease check the libraries installed.\nRequired: ti_system, micropython.")
       Kernel.quit(-1)
-  userid=int(recall_value("loggedinuser"))
+  userid=int(IO.Load(True,"loggedinuser",True,False))
   if userid==0 or userid=="0":
     Kernel.Cout.Error("You need an account to play this\ngame!")
     Kernel.quit(1)
-  banned=int(recall_value("banned"+str(userid)))
-  newuser=int(recall_value("newuser"+str(userid)))
+  banned=int(IO.Load(True,"banned"+str(userid),True,False))
+  newuser=int(IO.Load(True,"newuser"+str(userid),True,False))
   if banned==1 or banned=="1":
-    Kernel.Cout.Error("Your account has been banned from\nthis game.")
+    Kernel.Cout.Fatal("Your account has been banned from\nthis game.")
     Kernel.quit(1)
   if newuser==1 or newuser=="1":
     Kernel.SaveCfg()
