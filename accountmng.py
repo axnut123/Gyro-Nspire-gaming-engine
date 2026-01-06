@@ -2,7 +2,7 @@ from ti_system import *
 import binascii as asc
 import sys
 
-version="1.1"
+version="1.2"
 perm=1
 
 def cout(text):
@@ -42,8 +42,7 @@ class Accounts:
       LoadedUserPassword=recall_value("pw"+str(ids))
       LoadedBannedStatus=recall_value("banned"+str(ids))
       if LoadedBannedStatus==1 and not ignoreban:
-        cout(">>This account is banned!")
-        return 3
+        cout(">>This account has been banned!")
     except:
       cout(">>User ID or password incorrect!")
       return 1
@@ -51,7 +50,8 @@ class Accounts:
       cout(">>Current user ID does not exist!")
       return 2
     DUserPassword=str(Encrypt.DecryptStr(str(LoadedUserPassword)))
-    if int(DUserPassword)==int(password) or nopw==True:
+    if nopw:password=str(Encrypt.DecryptStr(str(LoadedUserPassword)))
+    if int(DUserPassword)==int(password):
       if nologin==False:
         cout(">>User logged in!")
         store_value("loggedinuser",int(ids))
@@ -84,9 +84,16 @@ class Accounts:
     store_value("newuser"+str(ids),1)
     cout(">>User registeration successful.")
     return 0
-  
+    
   @staticmethod
-  def DeleteAccount(ids,password,permlvl=True):
+  def CPassword(ids,oldpw,newpw,ignorepw=False):
+    if Accounts.Login(str(ids),int(oldpw),True,ignorepw)!=0:return 1
+    store_value("pw"+str(ids),int(Encrypt.EncryptStr(newpw)))
+    cout(">>User password changed.")
+    return 0
+    
+  @staticmethod
+  def DeleteAccount(ids,password,permlvl=1):
     if permlvl==4:
       ignorepw=True
     else:
@@ -103,10 +110,16 @@ class Accounts:
     
   @staticmethod
   def _Console():
+    global perm
+    try:
+      perm=recall_value("permlvl"+str(recall_value("loggedinuser")))
+    except:perm=1
     while True:
       g=str(input("]"))
       if g=="help 1":
-        cout(">>ILCC account manager help.\n>>add 'sudo:' to some commands to forcibly execute it.\n-login: login with an id and password.\n-logout: logout current account\n-register: registet a new account\n-deleteuser: delete an account.\n-currentuser: get current user ID.\n-quit: quit program.\n-help <pages>: get help.\n-version: get version of program.")
+        cout(">>add 'sudo:' to some commands to forcibly execute it.\n-login: login with an id and password.\n-logout: logout current account\n-register: registet a new account\n-deleteuser: delete an account.\n-currentuser: get current user ID.\n-quit: quit program.\n-help <pages>: get help.\n-version: get version of program.")
+      elif g=="help 2":
+        cout(">>help page 2(1/2)\n-cpw: change your password")
       elif g=="sudo":
         cout(">>Usage: sudo:<command>.\n>>To execute commands with admin privileges.")
       elif g=="login":
@@ -127,6 +140,27 @@ class Accounts:
       elif g=="sudo:deleteuser" and perm>=4:
         a=int(input(">Provide an ID:"))
         Accounts.DeleteAccount(a,0,4)
+      elif g=="cpw":
+        while True:
+          d=int(input(">Provide an ID(input 0 to cancel):"))
+          if d==0:break
+          b=int(input(">Old password of this account:"))
+          a=int(input(">New password of this account:"))
+          c=int(input(">Repeat new password."))
+          if a!=c:
+            cout(">>Repeated password does not match.")
+            continue
+          if Accounts.CPassword(d,b,a,False)==0:break
+      elif g=="sudo:cpw" and perm>=4:
+        while True:
+          d=int(input(">Provide an ID(input 0 to cancel):"))
+          if d==0:break
+          a=int(input(">New password of this account:"))
+          c=int(input(">Repeat new password:"))
+          if a!=c:
+            cout(">>Repeated password does not match.")
+            continue
+          if Accounts.CPassword(d,str(Encrypt.DecryptStr(str(recall_value("pw"+str(d))))),a,True)==0:break
       elif g=="currentuser":
         cout(">>Current user ID is: %s."%(recall_value("loggedinuser")))
       elif g=="stop" or g=="exit" or g=="quit" or g=="esc":
