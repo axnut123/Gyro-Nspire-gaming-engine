@@ -42,7 +42,7 @@ class Accounts:
       LoadedUserPassword=recall_value("pw"+str(ids))
       LoadedBannedStatus=recall_value("banned"+str(ids))
       if LoadedBannedStatus==1 and not ignoreban:
-        cout(">>This account has been banned!")
+        cout(">>This account have been banned!")
     except:
       cout(">>User ID or password incorrect!")
       return 1
