@@ -2,7 +2,7 @@ from ti_system import *
 import binascii as asc
 import sys
 
-version="1.2"
+version="1.3"
 perm=1
 
 def cout(text):
@@ -77,6 +77,12 @@ class Accounts:
       cout(">>This ID was already used. Try another ID.")
       return 1
     else:pass
+    if len(str(ids))>4:
+      cout(">>User ID was longer than expected. Under 4 digits.")
+      return 1
+    if len(str(password))<4:
+      cout(">> Password must contain at least 4 digits.")
+      return 1
     store_value("user"+str(ids),int(ids))
     store_value("permlvl"+str(ids),1)
     store_value("banned"+str(ids),0)
