@@ -2,7 +2,7 @@ from ti_system import *
 import binascii as asc
 import sys
 
-version="1.3"
+version="1.3.1"
 perm=1
 
 def cout(text):
@@ -117,13 +117,14 @@ class Accounts:
   @staticmethod
   def _Console():
     global perm
+    cout(">>Welcome to ILCC account manager.\n>>Type help <page(1-2)> to get help.")
     try:
       perm=recall_value("permlvl"+str(recall_value("loggedinuser")))
     except:perm=1
     while True:
       g=str(input("]"))
       if g=="help 1":
-        cout(">>add 'sudo:' to some commands to forcibly execute it.\n-login: login with an id and password.\n-logout: logout current account\n-register: registet a new account\n-deleteuser: delete an account.\n-currentuser: get current user ID.\n-quit: quit program.\n-help <pages>: get help.\n-version: get version of program.")
+        cout(">>add 'sudo:' to some commands to forcibly execute it.\n-login: login with an id and password.\n-logout: logout current account\n-register: registet a new account\n-deleteuser: delete an account.\n-currentuser: get current user ID.\n-quit: quit program.\n-help <page(1-2)>: get help.\n-version: get version of program.")
       elif g=="help 2":
         cout(">>help page 2(1/2)\n-cpw: change your password")
       elif g=="sudo":
