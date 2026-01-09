@@ -63,9 +63,9 @@ psx=int(0);
 psy=int(0);
 v_hev=int(0);
 PI=float(3.14159265358980);
-GAMEVER=str("IlChelcciCore 40 Build(0166)");
-VERINT=int(164);
-DEBUGDATE=str("2026/01/06");
+GAMEVER=str("IlChelcciCore 40 Build(0167)");
+VERINT=int(167);
+DEBUGDATE=str("2026/01/09");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2025, all rights reserved.");
@@ -859,7 +859,7 @@ class IO:#Input-Output class.
       ch2=tsdt2.get(inputs)
       return ch2
   @staticmethod
-  def Save(custom=False,name="customFile",gamevar=None,logout=True):#built-in function, for saving game.
+  def Save(custom=False,name="customFile",gamevar=None,overwriteOnly=False,logout=True):#built-in function, for saving game.
     global userid,emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,plspd,plr,plg,plb,plh,plw,kingignores
     suserid=str(userid)
     if not custom:
@@ -895,6 +895,9 @@ class IO:#Input-Output class.
         return -1
     else:
       try:
+        if overwriteOnly==True:
+          if IO.Load(True,name,False,False) is None:
+            return -1
         store_value(str(name),gamevar)
         if logout:Kernel.Cout.IO("Saved file:"+str(name)+".")
         return 0
@@ -1034,7 +1037,7 @@ class Permission:#permission level class.
       Kernel.ErrChk(1,"Permission level below min level.")
     if str(id)==str(Kernel.GetVar("userid")):
       Kernel.ConVar("permissionlvl",level)
-    IO.Save(True,"permlvl"+str(id),int(level),False)
+    IO.Save(True,"permlvl"+str(id),int(level),True,False)
     Kernel.Cout.Info("Changed user ID %s's permission level to '%s'."%(id,level))
     return id,level
   @staticmethod
@@ -1043,7 +1046,7 @@ class Permission:#permission level class.
       Kernel.Cout.Error("Current user does not exist.")
       Kernel.ErrChk(1,"Current user does not exist.")
       return 1
-    IO.Save(True,"permlvl"+str(id),1,False)
+    IO.Save(True,"permlvl"+str(id),1,True,False)
     if str(id)==str(Kernel.GetVar("userid")):
       Kernel.ConVar("permissionlvl",1)
     Kernel.Cout.Info("Deopped user ID '%s'."%(id))
@@ -1058,7 +1061,7 @@ class Permission:#permission level class.
       Kernel.Cout.Error("You may not ban yourself.")
       Kernel.ErrChk(1,"You may not ban yourself.")
       return 1
-    IO.Save(True,"banned"+str(id),1,False)
+    IO.Save(True,"banned"+str(id),1,True,False)
     Kernel.Cout.Info("Banned user ID '%s'."%(id))
     return id
   @staticmethod
@@ -1067,7 +1070,7 @@ class Permission:#permission level class.
       Kernel.Cout.Error("Current user does not exist.")
       Kernel.ErrChk(1,"Current user does not exist.")
       return 1
-    IO.Save(True,"banned"+str(id),0,False)
+    IO.Save(True,"banned"+str(id),0,True,False)
     Kernel.Cout.Info("Unbanned user ID '%s'."%(id))
     return id
   @staticmethod
