@@ -73,7 +73,7 @@ wpnslt=int(0);
 permissionlvl=int(1);
 item_suit=int(0);
 weapon_crb=int(0);
-weapon_physcnn=int(0);
+weapon_pcn=int(0);
 weapon_pst=int(0);
 weapon_357=int(0);
 ammo357=int(0);
@@ -464,8 +464,8 @@ class Kernel:#Code base class.
       if dev:Kernel.Cout._CoutBase(8,text,autoret,flush)
   @staticmethod
   def _ResetGame():#built-in function,for soft reset.
-    global plspd,ammo9max,ammo357max,mapslt,psx,v_live,v_hev,plh,plw,plr,plg,plb,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
-    plspd=0;mapslt=0;plh=0;plw=0;plg=0;plb=0;plr=0;psx=0;psy=0;v_hev=0;wpnslt=0;item_suit=0;weapon_crb=0;weapon_physcnn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0;v_live=100;ammo9max=180;ammo357max=12;inclip9=0;inclip357=0
+    global plspd,ammo9max,ammo357max,mapslt,psx,v_live,v_hev,plh,plw,plr,plg,plb,psy,weapon_crb,debugs,v_hev,weapon_pcn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
+    plspd=0;mapslt=0;plh=0;plw=0;plg=0;plb=0;plr=0;psx=0;psy=0;v_hev=0;wpnslt=0;item_suit=0;weapon_crb=0;weapon_pcn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0;v_live=100;ammo9max=180;ammo357max=12;inclip9=0;inclip357=0
     Kernel.Cout.Info("Game reset completed.")
     return 0
   @staticmethod
@@ -859,8 +859,8 @@ class IO:#Input-Output class.
       ch2=tsdt2.get(inputs)
       return ch2
   @staticmethod
-  def Save(custom=False,name="customFile",gamevar=None,overwriteOnly=False,logout=True):#built-in function, for saving game.
-    global userid,emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,plspd,plr,plg,plb,plh,plw,kingignores
+  def Save(custom=False,name="customFile",gamevar=None,logout=True,overwriteOnly=False):#built-in function, for saving game.
+    global userid,emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_pcn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,plspd,plr,plg,plb,plh,plw,kingignores
     suserid=str(userid)
     if not custom:
       try:
@@ -873,7 +873,7 @@ class IO:#Input-Output class.
         store_value("wpnslt"+suserid,wpnslt)
         store_value("v_live"+suserid,v_live)
         store_value("weapon_crb"+suserid,weapon_crb)
-        store_value("weapon_physcnn"+suserid,weapon_physcnn)
+        store_value("weapon_pcn"+suserid,weapon_pcn)
         store_value("weapon_pst"+suserid,weapon_pst)
         store_value("weapon_357"+suserid,weapon_357)
         store_value("mapslt"+suserid,mapslt)
@@ -907,7 +907,7 @@ class IO:#Input-Output class.
         return -1
   @staticmethod
   def Delete(custom=False,name="customFile",gamevar=None,logout=True):#built-in function, for delete saved game.
-    global userid,emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,plspd,plr,plg,plb,plh,plw,kingignores
+    global userid,emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_pcn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,plspd,plr,plg,plb,plh,plw,kingignores
     suserid=str(userid)
     if not custom:
       try:
@@ -922,7 +922,7 @@ class IO:#Input-Output class.
         store_value("wpnslt"+suserid,0)
         store_value("v_live"+suserid,100)
         store_value("weapon_crb"+suserid,0)
-        store_value("weapon_physcnn"+suserid,0)
+        store_value("weapon_pcn"+suserid,0)
         store_value("weapon_pst"+suserid,0)
         store_value("weapon_357"+suserid,0)
         store_value("mapslt"+suserid,0)
@@ -950,9 +950,9 @@ class IO:#Input-Output class.
         Kernel.ErrChk(2,"Cannot operate file.")
         return -1
   @staticmethod
-  def Load(custom=False,name="customFile",ReturnZeroOnNull=False,logout=True):#built-in function, for load a saved game.
+  def Load(custom=False,name="customFile",logout=True,ReturnZeroOnNull=False,):#built-in function, for load a saved game.
     returnval=None
-    global userid,emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,plspd,plw,plh,plr,plg,plb,kingignores
+    global userid,emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_pcn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,plspd,plw,plh,plr,plg,plb,kingignores
     if not custom:
       try:
         suserid=str(userid)
@@ -977,7 +977,7 @@ class IO:#Input-Output class.
         inclip9=recall_value("inclip9"+suserid)
         inclip357=recall_value("inclip357"+suserid)
         weapon_crb=recall_value("weapon_crb"+suserid)
-        weapon_physcnn=recall_value("weapon_physcnn"+suserid)
+        weapon_pcn=recall_value("weapon_pcn"+suserid)
         item_suit=recall_value("item_suit"+suserid)
         kingignores=IO._Translator(2,kingignoreinputraw)
         del kingignoreinputraw
@@ -1010,7 +1010,7 @@ class Permission:#permission level class.
   def __init__(self):pass
   @staticmethod
   def IsValid(id):#built-in function, validate given id.
-    a=int(IO.Load(True,"user"+str(id),True,False))
+    a=int(IO.Load(True,"user"+str(id),False,True))
     if a==0 or a=="0":
       return False
     else: return True
@@ -1037,7 +1037,7 @@ class Permission:#permission level class.
       Kernel.ErrChk(1,"Permission level below min level.")
     if str(id)==str(Kernel.GetVar("userid")):
       Kernel.ConVar("permissionlvl",level)
-    IO.Save(True,"permlvl"+str(id),int(level),True,False)
+    IO.Save(True,"permlvl"+str(id),int(level),False,True)
     Kernel.Cout.Info("Changed user ID %s's permission level to '%s'."%(id,level))
     return id,level
   @staticmethod
@@ -1046,7 +1046,7 @@ class Permission:#permission level class.
       Kernel.Cout.Error("Current user does not exist.")
       Kernel.ErrChk(1,"Current user does not exist.")
       return 1
-    IO.Save(True,"permlvl"+str(id),1,True,False)
+    IO.Save(True,"permlvl"+str(id),1,False,True)
     if str(id)==str(Kernel.GetVar("userid")):
       Kernel.ConVar("permissionlvl",1)
     Kernel.Cout.Info("Deopped user ID '%s'."%(id))
@@ -1061,7 +1061,7 @@ class Permission:#permission level class.
       Kernel.Cout.Error("You may not ban yourself.")
       Kernel.ErrChk(1,"You may not ban yourself.")
       return 1
-    IO.Save(True,"banned"+str(id),1,True,False)
+    IO.Save(True,"banned"+str(id),1,False,True)
     Kernel.Cout.Info("Banned user ID '%s'."%(id))
     return id
   @staticmethod
@@ -1070,7 +1070,7 @@ class Permission:#permission level class.
       Kernel.Cout.Error("Current user does not exist.")
       Kernel.ErrChk(1,"Current user does not exist.")
       return 1
-    IO.Save(True,"banned"+str(id),0,True,False)
+    IO.Save(True,"banned"+str(id),0,False,True)
     Kernel.Cout.Info("Unbanned user ID '%s'."%(id))
     return id
   @staticmethod
@@ -1257,7 +1257,7 @@ class Actors:#entity class.
         return -1
     @staticmethod
     def Init(inittype,ar1=None,ar2=None,ar3=None):#built-in function,for init player vars.
-      global plspd,plr,plg,plb,psy,psx,plw,plh,v_live,v_hev,ammo9,ammo357,inclip9,inclip357,item_suit,weapon_crb,weapon_pst,weapon_357,weapon_physcnn,kingignores
+      global plspd,plr,plg,plb,psy,psx,plw,plh,v_live,v_hev,ammo9,ammo357,inclip9,inclip357,item_suit,weapon_crb,weapon_pst,weapon_357,weapon_pcn,kingignores
       if inittype==1 or inittype=="color":
         plr=ar1
         plg=ar2
@@ -1295,8 +1295,8 @@ class Actors:#entity class.
         weapon_357=ar1
         return 10,weapon_357
       elif inittype==11 or inittype=="givePhyscnn":
-        weapon_physcnn=ar1
-        return 11,weapon_physcnn
+        weapon_pcn=ar1
+        return 11,weapon_pcn
       elif inittype==12 or inittype=="giveSuit":
         item_suit=ar1
         return 12,item_suit
@@ -1506,7 +1506,7 @@ class ActionUI:#UI class.
       return False
   @staticmethod
   def DispUi(x,y,wintp):#built-in function,for display window, gui elements.
-    global emptysave,erxt,dev,mapslt,debugs,v_live,v_hev,wpnslt,usemod,ammo9,ammo357,inclip9,inclip357,weapon_pst,weapon_crb,weapon_physcnn,weapon_357,dr,langtype,usemod,modamount,GAMETITLE
+    global emptysave,erxt,dev,mapslt,debugs,v_live,v_hev,wpnslt,usemod,ammo9,ammo357,inclip9,inclip357,weapon_pst,weapon_crb,weapon_pcn,weapon_357,dr,langtype,usemod,modamount,GAMETITLE
     if wintp==1:
       set_color(135,135,135)
       fill_rect(x,y,120,40)
@@ -2133,7 +2133,7 @@ class Prgm:#program class.
   def Main():#main function.It's a very standard template for engine.
     StdUtil.InMenu(True)
     l_menuslt=Kernel.GetVar("menuslt",False)
-    global userid,ingamemod,released,erxt,modscripts,langtype,mapslt,dev,dr,emptysave,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_physcnn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,usemod,plspd,plw,plh,plr,plg,plb,kingignores
+    global userid,ingamemod,released,erxt,modscripts,langtype,mapslt,dev,dr,emptysave,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_pcn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,usemod,plspd,plw,plh,plr,plg,plb,kingignores
     suserid=str(userid)
     StdUtil.ConsoleLog(4)
     while True:#game logic loop.
@@ -2297,7 +2297,7 @@ class Prgm:#program class.
               UniFX.BulletFX.BltFlr(2)
             if wpnslt==1 and weapon_crb==1:
               UniFX.BulletFX.BltFlr(3)
-            if wpnslt==2 and weapon_physcnn==1:
+            if wpnslt==2 and weapon_pcn==1:
               UniFX.BulletFX.BltFlr(4)
             paint_buffer()
             sleep(0.1)
@@ -2311,7 +2311,7 @@ class Prgm:#program class.
               UniFX.BulletFX.BltFlr(6)
             if wpnslt==1 and weapon_crb==1:
               UniFX.BulletFX.BltFlr(7)
-            if wpnslt==2 and weapon_physcnn==1:
+            if wpnslt==2 and weapon_pcn==1:
               UniFX.BulletFX.BltFlr(8)
             paint_buffer()
             sleep(0.1)
@@ -2325,7 +2325,7 @@ class Prgm:#program class.
               UniFX.BulletFX.BltFlr(10)
             if wpnslt==1 and weapon_crb==1:
               UniFX.BulletFX.BltFlr(11)
-            if wpnslt==2 and weapon_physcnn==1:
+            if wpnslt==2 and weapon_pcn==1:
               UniFX.BulletFX.BltFlr(12)
             paint_buffer()
             sleep(0.1)
@@ -2339,7 +2339,7 @@ class Prgm:#program class.
               UniFX.BulletFX.BltFlr(14)
             if wpnslt==1 and weapon_crb==1:
               UniFX.BulletFX.BltFlr(15)
-            if wpnslt==2 and weapon_physcnn==1:
+            if wpnslt==2 and weapon_pcn==1:
               UniFX.BulletFX.BltFlr(16)
             paint_buffer()
             sleep(0.1)
@@ -2364,7 +2364,7 @@ class Prgm:#program class.
             ActionUI.DispUi(0,0,5)
             if weapon_crb==1:
               ActionUI.DispUi(0,0,10)
-            if weapon_physcnn==1:
+            if weapon_pcn==1:
               ActionUI.DispUi(0,0,11)
             paint_buffer()
             while k!="0":
@@ -2380,7 +2380,7 @@ class Prgm:#program class.
                 StdUtil.MapStat()
                 Actors.King.Draw()
                 break
-              elif k=="2" and weapon_physcnn==1:
+              elif k=="2" and weapon_pcn==1:
                 Wbase.SelectWeapon(2)
                 clear()
                 StdUtil.MapStat()
@@ -2522,14 +2522,14 @@ if (__name__=="__main__"):#all program starts from here.
     except:
       Kernel.Cout.Fatal("The engine cannot run on your device.\nPlease check the libraries installed.\nRequired: ti_system, micropython.")
       Kernel.quit(-1)
-  userid=int(IO.Load(True,"loggedinuser",True,False))
+  userid=int(IO.Load(True,"loggedinuser",False,True))
   if userid==0 or userid=="0":
     Kernel.Cout.Error("You need an account to play this\ngame!")
     Kernel.quit(1)
-  banned=int(IO.Load(True,"banned"+str(userid),True,False))
-  newuser=int(IO.Load(True,"newuser"+str(userid),True,False))
+  banned=int(IO.Load(True,"banned"+str(userid),False,True))
+  newuser=int(IO.Load(True,"newuser"+str(userid),False,True))
   if banned==1 or banned=="1":
-    Kernel.Cout.Fatal("Your account has been banned from\nthis game.")
+    Kernel.Cout.Fatal("Your account have been banned from\nthis game.")
     Kernel.quit(1)
   if newuser==1 or newuser=="1":
     Kernel.SaveCfg()
