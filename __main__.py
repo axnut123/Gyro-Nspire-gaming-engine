@@ -63,9 +63,9 @@ psx=int(0);
 psy=int(0);
 v_hev=int(0);
 PI=float(3.14159265358980);
-GAMEVER=str("IlChelcciCore 40 Build(0167)");
+GAMEVER=str("IlChelcciCore 40 Build(0168)");
 VERINT=int(167);
-DEBUGDATE=str("2026/01/09");
+DEBUGDATE=str("2026/01/11");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2025, all rights reserved.");
@@ -561,7 +561,7 @@ class Kernel:#Code base class.
         del getv
       elif g=="delvar"and permissionlvl>=4:
         delv=str(input("variable name(input 0 to cancel):"))
-        if getv=="0":continue
+        if delv=="0":continue
         try:Kernel.DelObj(delv,True)
         except Exception as e:
           Kernel.Cout.Error("Unable to delete var:"+str(e)+".")
@@ -657,7 +657,7 @@ class Kernel:#Code base class.
       elif g=="convar"and permissionlvl>=4:
         v=str(input("variable(input 0 to cancel):"))
         if v=="0":continue
-        f=str(input("value:"))
+        f=str(input("value(input 0 to cancel):"))
         if f=="0":continue
         try:
           Kernel.ConVar(v,f,True)
