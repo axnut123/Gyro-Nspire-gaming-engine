@@ -150,37 +150,37 @@ class Kernel:#Code base class.
     gc.collect()
     raise SystemExit(code)
   @staticmethod
-  def GetTotalMem():#built-in function, for getting total memory.
+  def GetTotalMem(logout=False):#built-in function, for getting total memory.
     Kernel.ConVar("totalmem",gc.mem_alloc()+gc.mem_free())
-    Kernel.Cout.DevInfo("Total mem is %s."%(globals().get("totalmem")))
+    if logout:Kernel.Cout.DevInfo("Total mem is %s."%(globals().get("totalmem")))
     return Kernel.GetVar("totalmem")
   @staticmethod
-  def GetGcState():#built-in function, get gc is enabled state.
+  def GetGcState(logout=False):#built-in function, get gc is enabled state.
     Kernel.ConVar("gcenb",gc.isenabled())
-    Kernel.Cout.DevInfo("Gc enabled is now %s."%(gcenb))
+    if logout:Kernel.Cout.DevInfo("Gc enabled is now %s."%(gcenb))
     return Kernel.GetVar("gcenb")
   @staticmethod
-  def SetGcState(state):#built-in function, for set gc enabled.
+  def SetGcState(state,logout=False):#built-in function, for set gc enabled.
     if state:
       gc.enable()
-      Kernel.Cout.Info("Gc enabled.")
+      if logout:Kernel.Cout.DevInfo("Gc enabled.")
       Kernel.ConVar("gcenb",True)
       return True
     else:
       gc.disable()
-      Kernel.Cout.Info("Gc disabled.")
+      if logout:Kernel.Cout.DevInfo("Gc disabled.")
       Kernel.ConVar("gcenb",False)
       return False
   @staticmethod
-  def ToggleGcState():#built-in function, for toggle gc enabled.
+  def ToggleGcState(logout=False):#built-in function, for toggle gc enabled.
     global gcenb
     if gcenb:
       Kernel.SetGcState(False)
-      Kernel.Cout.DevInfo("Gc disabled.")
+      if logout:Kernel.Cout.DevInfo("Gc disabled.")
       return False
     else:
       Kernel.SetGcState(True)
-      Kernel.Cout.DevInfo("Gc enabled.")
+      if logout:Kernel.Cout.DevInfo("Gc enabled.")
       return True
   @staticmethod
   def SaveCfg():#built-in function, saving cfg variable to nspire document.
