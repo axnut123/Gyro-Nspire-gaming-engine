@@ -63,9 +63,9 @@ psx=int(0);
 psy=int(0);
 v_hev=int(0);
 PI=float(3.14159265358980);
-GAMEVER=str("IlChelcciCore 40 Build(0168)");
-VERINT=int(167);
-DEBUGDATE=str("2026/01/11");
+GAMEVER=str("IlChelcciCore 41 Build(0170)");
+VERINT=int(170);
+DEBUGDATE=str("2026/01/22");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2025, all rights reserved.");
@@ -610,7 +610,7 @@ class Kernel:#Code base class.
       elif g=="help 5"and permissionlvl>=1:
         Kernel.Cout.Msg("IlChelcciCore engine help page 5:\nconvar:change a global var.\ngetvar:get a value from a var.\ndelvar:delete a provided var.\nsetopening:allocate a new opening type.\ntogglegcstate:toggle gc state to True or False.\ngc:trigger garbage collect.\nautorunoutgamemod:toggles when game is\nreleased automatically run out game mod.\nme:get current user ID and current permission level.")
       elif g=="help 6"and permissionlvl>=1:
-        Kernel.Cout.Msg("IlChelcciCore engine help page 6:\nsay:say a string.\nignoreverchkonmod:toggle mod version check.\nsetapptitle:set a new app title.\ntogglebar:toggles title bar.\nban:ban a user by userid.\nunban:unban a user by userid.\nop:give a user op permission.\ndeop:remove a user's op permission.\nuser:check an user's permission level.")
+        Kernel.Cout.Msg("IlChelcciCore engine help page 6:\nsay:say a string.\nignoreverchkonmod:toggle mod version check.\nsetapptitle:set a new app title.\ntogglebar:toggles title bar.\nban:ban an user by userid.\nunban:unban an user by userid.\nop:give an user op permission.\ndeop:remove an user's op permission.\nuser:check an user's permission level.")
       elif g=="help 7"and permissionlvl>=1:
         Kernel.Cout.Msg("IlChelcciCore engine help page 7:\nisbanned:check ban state of given user ID.\npardon:same as unban.")
       elif g=="isbanned" and permissionlvl >=4:
@@ -1054,7 +1054,7 @@ class Permission:#permission level class.
     Kernel.Cout.Info("Deopped user ID '%s'."%(id))
     return id
   @staticmethod
-  def Ban(id):#built-in function, ban a user by userid.
+  def Ban(id):#built-in function, ban an user by userid.
     if not Permission.IsValid(id):
       Kernel.Cout.Error("Current user does not exist.")
       Kernel.ErrChk(1,"Current user does not exist.")
@@ -1067,7 +1067,7 @@ class Permission:#permission level class.
     Kernel.Cout.Info("Banned user ID '%s'."%(id))
     return id
   @staticmethod
-  def Unban(id):#built-in function, unban a user by userid.
+  def Unban(id):#built-in function, unban an user by userid.
     if not Permission.IsValid(id):
       Kernel.Cout.Error("Current user does not exist.")
       Kernel.ErrChk(1,"Current user does not exist.")
@@ -1076,7 +1076,7 @@ class Permission:#permission level class.
     Kernel.Cout.Info("Unbanned user ID '%s'."%(id))
     return id
   @staticmethod
-  def IsBanned(id):#built-in function, check if a user is banned by userid.
+  def IsBanned(id):#built-in function, check if an user is banned by userid.
     if not Permission.IsValid(id):
       Kernel.Cout.Error("Current user does not exist.")
       Kernel.ErrChk(1,"Current user does not exist.")
@@ -1087,7 +1087,7 @@ class Permission:#permission level class.
     else:
       return False
   @staticmethod
-  def Pardon(id):#built-in function, pardon a user by userid.
+  def Pardon(id):#built-in function, pardon an user by userid.
     Permission.Unban(id)
 class UniFX:#Universal VFX class.
   def __init__(self):pass
@@ -2535,7 +2535,7 @@ if (__name__=="__main__"):#all program starts from here.
     Kernel.quit(1)
   if newuser==1 or newuser=="1":
     Kernel.SaveCfg()
-    IO.Save(True,"emptysave"+str(userid),0)
+    IO.Delete()
     IO.Save(True,"newuser"+str(userid),0)
   Kernel.Init(2)
   Kernel.Init(1)
