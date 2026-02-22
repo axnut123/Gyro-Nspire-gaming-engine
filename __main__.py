@@ -63,9 +63,9 @@ psx=int(0);
 psy=int(0);
 v_hev=int(0);
 PI=float(3.14159265358980);
-GAMEVER=str("IlChelcciCore 41 Build(0170)");
-VERINT=int(170);
-DEBUGDATE=str("2026/01/22");
+GAMEVER=str("IlChelcciCore 41 Build(0174)");
+VERINT=int(173);
+DEBUGDATE=str("2026/02/16");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2025, all rights reserved.");
@@ -127,16 +127,20 @@ class Kernel:#Code base class.
     gc.collect()
     return 0
   @staticmethod
-  def GetVar(varName,logout=False):#built-in function, get a global variable.
-    v=globals().get(varName)
+  def GetVar(varName,logout=False,loadFromNsp=False):#built-in function, get a global variable.
+    if loadFromNsp:
+      v=IO.Load(True,varName,False,True)
+    else:v=globals().get(varName)
     if logout and v is not None:
       Kernel.Cout.Info("Variable '%s' is: %s."%(varName,v))
-    elif logout and v is None:Kernel.Cout.Info("Variable '%s' is not defined."%(varName))
+    elif logout and v is None:Kernel.Cout.Info("Variable '%s' not found."%(varName))
     return v
   @staticmethod
-  def ConVar(varName,value,logout=False):#built-in function, for change a variable.
-    globals()[varName]=value
-    if logout:Kernel.Cout.Info("Changed variable '%s' to %s."%(varName,value))
+  def ConVar(varName,value,logout=False,saveToNsp=False,overwriteOnly=False):#built-in function, for change a variable.
+    if saveToNsp:
+      IO.Save(True,varName,value,False,overwriteOnly)
+    else:globals()[varName]=value
+    if logout:Kernel.Cout.Info("Changed the value of variable '%s' to %s."%(varName,value))
     return varName,value
   @staticmethod
   def KrTerminateProcess(code=None):#built-in function, for forcibly stop this engine.
@@ -157,7 +161,7 @@ class Kernel:#Code base class.
   @staticmethod
   def GetGcState(logout=False):#built-in function, get gc is enabled state.
     Kernel.ConVar("gcenb",gc.isenabled())
-    if logout:Kernel.Cout.DevInfo("Gc enabled is now %s."%(gcenb))
+    if logout:Kernel.Cout.DevInfo("Gc enabled is now %s."%(Kernel.GetVar("gcenb")))
     return Kernel.GetVar("gcenb")
   @staticmethod
   def SetGcState(state,logout=False):#built-in function, for set gc enabled.
@@ -174,6 +178,7 @@ class Kernel:#Code base class.
   @staticmethod
   def ToggleGcState(logout=False):#built-in function, for toggle gc enabled.
     global gcenb
+    Kernel.GetGcState()
     if gcenb:
       Kernel.SetGcState(False)
       if logout:Kernel.Cout.DevInfo("Gc disabled.")
@@ -418,7 +423,14 @@ class Kernel:#Code base class.
       if flush:sys.stdout.flush()
       return 0
     @staticmethod
-    def Msg(text,autoret=True,flush=True):Kernel.Cout._CoutBase(0,text,autoret,flush)
+    def Msg(text,autoret=True,flush=True):
+#The reason of why Msg dont use _CoutBase is
+#Msg is here for raw texts, when we use pure
+#write function it will be faster than coutbase.      
+      if autoret:r="\n"
+      sys.stdout.write(text+r)
+      if flush:sys.stdout.flush()
+      return 0
     @staticmethod
     def Warning(text,autoret=True,flush=True):Kernel.Cout._CoutBase(1,text,autoret,flush)
     @staticmethod
@@ -612,7 +624,24 @@ class Kernel:#Code base class.
       elif g=="help 6"and permissionlvl>=1:
         Kernel.Cout.Msg("IlChelcciCore engine help page 6:\nsay:say a string.\nignoreverchkonmod:toggle mod version check.\nsetapptitle:set a new app title.\ntogglebar:toggles title bar.\nban:ban an user by userid.\nunban:unban an user by userid.\nop:give an user op permission.\ndeop:remove an user's op permission.\nuser:check an user's permission level.")
       elif g=="help 7"and permissionlvl>=1:
-        Kernel.Cout.Msg("IlChelcciCore engine help page 7:\nisbanned:check ban state of given user ID.\npardon:same as unban.")
+        Kernel.Cout.Msg("IlChelcciCore engine help page 7:\nisbanned:check ban state of given user ID.\npardon:same as unban.\nperm:set an user's permission level manually.\nconnvar:change a Nspire var.\ngetnvar:get a Nspire var.")
+      elif g=="connvar"and permissionlvl>=4:
+        v=str(input("variable(input 0 to cancel):"))
+        if v=="0":continue
+        f=input("value(input 0 to cancel):")
+        if f==0:continue
+        try:
+          Kernel.ConVar(v,int(f),True,True)
+        except Exception as e:
+          Kernel.Cout.Error("Variable operation failed. %s"%(e))
+        del v,f
+      elif g=="getnvar" and permissionlvl>=4:
+        getv=str(input("variable name(input 0 to cancel):"))
+        if getv=="0":continue
+        try:Kernel.GetVar(getv,True,True)
+        except Exception as e:
+          Kernel.Cout.Error("Unable to get var."+str(e))
+        del getv
       elif g=="isbanned" and permissionlvl >=4:
         a=int(input("userid to check ban state(input 0 to cancel):"))
         if Permission.IsValid(a) is False or a==0:
@@ -623,6 +652,11 @@ class Kernel:#Code base class.
         a=int(input("userid to ban(input 0 to cancel):"))
         if a==0:continue
         Permission.Ban(a)
+      elif g=="perm" and permissionlvl>=4 or g=="permission" and permissionlvl>=4:
+        a=int(input("userid(input 0 to cancel):"))
+        if a==0:continue
+        b=int(input("permission level to set:"))
+        Permission.SetGroup(a,b)
       elif g=="unban"and permissionlvl>=4 or g=="pardon" and permissionlvl>=4:
         a=int(input("userid to unban(input 0 to cancel):"))
         if a==0:continue
@@ -952,7 +986,7 @@ class IO:#Input-Output class.
         Kernel.ErrChk(2,"Cannot operate file.")
         return -1
   @staticmethod
-  def Load(custom=False,name="customFile",logout=True,ReturnZeroOnNull=False,):#built-in function, for load a saved game.
+  def Load(custom=False,name="customFile",logout=True,ReturnZeroOnNull=False):#built-in function, for load a saved game.
     returnval=None
     global userid,emptysave,mapslt,psx,v_live,v_hev,psy,weapon_crb,v_hev,weapon_pcn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,plspd,plw,plh,plr,plg,plb,kingignores
     if not custom:
@@ -1707,9 +1741,9 @@ class StdUtil:#Builtins class, Standard utilities.
     global v_live,psy,psx
     if psx>=minx and psx<=maxx and psy>=miny and psy<=maxy:
       if trgtp==1:
-        if not Kernel.GetVar("gtemp1"):
+        if not Kernel.GetVar("gtemp1",False,True):
           v_live-=10
-          Kernel.ConVar("gtemp1",True)
+          Kernel.ConVar("gtemp1",1,False,True)
           Kernel.Cout.Info("Trigger executed.")
           return 1
         else:return 0
@@ -1727,7 +1761,7 @@ class StdUtil:#Builtins class, Standard utilities.
         return 1
       elif trgtp==2:
         mapslt=1
-        Kernel.ConVar("gtemp1",None)
+        Kernel.ConVar("gtemp1",0,False,True)
 #this code is mean to reset the trigger once in
 #map0, you can choose to not reset the trigger.
         Kernel.Cout.Info("Trigger executed.")
@@ -2134,21 +2168,20 @@ class Prgm:#program class.
   @staticmethod
   def Main():#main function.It's a very standard template for engine.
     StdUtil.InMenu(True)
-    l_menuslt=Kernel.GetVar("menuslt",False)
     global userid,ingamemod,released,erxt,modscripts,langtype,mapslt,dev,dr,emptysave,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_pcn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,usemod,plspd,plw,plh,plr,plg,plb,kingignores
     suserid=str(userid)
     StdUtil.ConsoleLog(4)
     while True:#game logic loop.
       if StdUtil.IsInMenu():#menu guard.
         Kernel._ResetGame()
-        if l_menuslt==1:Assets.MainMenu1()
+        emptysave=IO.Load(True,"emptysave"+suserid,False)
+        if Kernel.GetVar("menuslt",False)==1:Assets.MainMenu1()
         else:Assets.MainMenu2()
         ActionUI.DispUi(0,0,4)
         gc.collect()
         paint_buffer()
         while True:#main menu.
           k=get_key()
-          emptysave=IO.Load(True,"emptysave"+suserid,False)
           if k=="enter":
             Assets.gmanintro()
             StdUtil.InMenu(False)
@@ -2178,7 +2211,7 @@ class Prgm:#program class.
             IO.Delete()
           elif k=="menu":
             ActionUI.DispUi(0,0,9)
-            if l_menuslt==1:Assets.MainMenu1()
+            if Kernel.GetVar("menuslt",False)==1:Assets.MainMenu1()
             else:Assets.MainMenu2()
             ActionUI.DispUi(0,0,4)
             paint_buffer()
@@ -2228,7 +2261,7 @@ class Prgm:#program class.
                 Kernel.SaveCfg()
               elif k=="esc":
                 ActionUI.DispUi(0,0,9)
-                if l_menuslt==1:Assets.MainMenu1()
+                if Kernel.GetVar("menuslt",False)==1:Assets.MainMenu1()
                 else:Assets.MainMenu2()
                 ActionUI.DispUi(0,0,4)
                 paint_buffer()
@@ -2411,7 +2444,7 @@ class Prgm:#program class.
                 Actors.King.Draw()
                 break
               elif k=="2" and weapon_357==1 and ammo357!=0:
-                Wbase.SelectWeapon(1)
+                Wbase.SelectWeapon(4)
                 clear()
                 StdUtil.MapStat()
                 Actors.King.Draw()
@@ -2481,7 +2514,7 @@ class Prgm:#program class.
                     break
                   elif k=="menu":
                     Kernel.Cout.Info("Return to main menu.")
-                    l_menuslt=randint(1,2)
+                    Kernel.ConVar("menuslt",randint(1,2),False)
                     ActionUI.DispUi(0,0,9)
                     StdUtil.InMenu(True)
                     break
@@ -2499,6 +2532,13 @@ class Prgm:#program class.
         break
     return 0
 if (__name__=="__main__"):#all program starts from here.
+  texts={4:"+"+"-"*17+"+",
+       1:"|   IlChelcciCore Engine   |",
+       2:"|   Construct, Build, Play  |",
+       3:"|    Initializing engine...      |"}
+  for v in texts.values():
+    Kernel.Cout.Msg(v)
+  Kernel.Cout.Msg(texts.get(4))
   try:#import check.
     from ti_system import *#normally,gui tools are also included in ti_system.
     import micropython as mp

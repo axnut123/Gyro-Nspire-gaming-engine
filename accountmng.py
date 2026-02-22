@@ -2,7 +2,7 @@ from ti_system import *
 import binascii as asc
 import sys
 
-version="1.3.1"
+version="1.4.1"
 perm=1
 
 def cout(text):
@@ -124,28 +124,36 @@ class Accounts:
     while True:
       g=str(input("]"))
       if g=="help 1":
-        cout(">>add 'sudo:' to some commands to forcibly execute it.\n-login: login with an id and password.\n-logout: logout current account\n-register: registet a new account\n-deleteuser: delete an account.\n-currentuser: get current user ID.\n-quit: quit program.\n-help <page(1-2)>: get help.\n-version: get version of program.")
+        cout(">>add 'sudo.' to some commands to forcibly execute it.\n-login: login with an id and password.\n-logout: logout current account\n-register: registet a new account\n-deleteuser: delete an account.\n-currentuser: get current user ID.\n-quit: quit program.\n-help <page(1-2)>: get help.\n-version: get version of program.")
       elif g=="help 2":
         cout(">>help page 2(1/2)\n-cpw: change your password")
       elif g=="sudo":
-        cout(">>Usage: sudo:<command>.\n>>To execute commands with admin privileges.")
+        cout(">>Usage: sudo.<command>.\n>>To execute commands with admin privileges.")
       elif g=="login":
-        a=int(input(">Your ID:"))
+        a=int(input(">Your ID(input 0 to cancel):"))
+        if a==0:continue
         b=int(input(">Your password:"))
         Accounts.Login(a,b)
+      elif g=="sudo.login" and perm==4:
+        a=int(input(">Your ID(input 0 to cancel):"))
+        if a==0:continue
+        Accounts.Login(a,0,True,False,True)
       elif g=="register":
         cout(">>Notice: Only numbers and no longer than 4 digits.")
-        a=int(input(">New ID:"))
+        a=int(input(">New ID(input 0 to cancel):"))
+        if a==0:continue
         b=int(input(">New password:"))
         Accounts.Register(a,b)
       elif g=="logout":
         Accounts.Logout()
       elif g=="deleteuser":
-        a=int(input(">Provide an ID:"))
+        a=int(input(">Provide an ID(input 0 to cancel):"))
+        if a==0:continue
         b=int(input(">The password of the provided ID:"))
         Accounts.DeleteAccount(a,b)
-      elif g=="sudo:deleteuser" and perm>=4:
-        a=int(input(">Provide an ID:"))
+      elif g=="sudo.deleteuser" and perm>=4:
+        a=int(input(">Provide an ID(input 0 to cancel):"))
+        if a==0:continue
         Accounts.DeleteAccount(a,0,4)
       elif g=="cpw":
         while True:
@@ -158,7 +166,7 @@ class Accounts:
             cout(">>Repeated password does not match.")
             continue
           if Accounts.CPassword(d,b,a,False)==0:break
-      elif g=="sudo:cpw" and perm>=4:
+      elif g=="sudo.cpw" and perm>=4:
         while True:
           d=int(input(">Provide an ID(input 0 to cancel):"))
           if d==0:break
