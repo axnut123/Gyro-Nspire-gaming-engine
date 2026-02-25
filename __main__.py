@@ -1,5 +1,5 @@
 #IlChelcciCore 2D engine-Core module and source code.
-#COPYRIGHT (C) Haoriwa 2024 - 2025
+#COPYRIGHT (C) Haoriwa 2024 - 2026
 #All rights reserved.
 #Licensed under the GNU General Public
 #License v3.0 (or later).
@@ -63,9 +63,9 @@ psx=int(0);
 psy=int(0);
 v_hev=int(0);
 PI=float(3.14159265358980);
-GAMEVER=str("IlChelcciCore 41 Build(0174)");
-VERINT=int(173);
-DEBUGDATE=str("2026/02/16");
+GAMEVER=str("IlChelcciCore 42 Build(0175)");
+VERINT=int(175);
+DEBUGDATE=str("2026/02/15");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2025, all rights reserved.");
@@ -120,6 +120,18 @@ class IOError(Exception):pass#MicroPy does not have this.
 class GameError(Exception):pass#Error classes.
 class Kernel:#Code base class.
   def __init__(self):pass
+  @staticmethod
+  def ReverseGivenVar(var,logout=False):#built-in function, reverse true and false in a given var.
+    if Kernel.GetVar(var) is not True and Kernel.GetVar(var) is not False:
+      Kernel.Cout.Error("Given variable '%s' is not bool type."%(var))
+      Kernel.ErrChk(1,"Given variable '%s' is not bool type."%(var))
+      return -1
+    if Kernel.GetVar(var) is True:
+      Kernel.ConVar(var,False,logout)
+      return False
+    else:
+      Kernel.ConVar(var,True,logout)
+      return True
   @staticmethod
   def DelObj(objName,logout=False):#built-in function, deletd an object located in globals() dict.
     globals().pop(objName)
@@ -545,8 +557,7 @@ class Kernel:#Code base class.
         del g
         break
       elif g=="ignoreverchkonmod"and permissionlvl>=3:
-        if ignoreverchk:ignoreverchk=True
-        else:ignoreverchk=False
+        Kernel.ReverseGivenVar("ignoreverchk",True)
       elif g=="releasegame"and permissionlvl>=4:
         Kernel.Cout.Msg("Are you sure you want to release the game?\nOnce released, the console will no longer launch at startup.All dev-related configuration files will be preserved.Please review and update dev\nconfigs if necessary before proceeding. This\naction can only be undone by\nchanging the 'released' variable after console\nclosed or use 'cancelrelease' command before\nconsole closed.")
         r=str(input("Confirm. (y/n, 0 to cancel):"))
@@ -557,6 +568,9 @@ class Kernel:#Code base class.
         else:Kernel.Cout.Console("User cancelled.")
         del r
       elif g=="cancelrelease"and permissionlvl>=4:
+        if released==0:
+          Kernel.Cout.Info("Game is not released yet.")
+          continue
         r=str(input("Confirm for cancelling your releasegame\ncommand. (y/n, 0 to cancel):"))
         if r=="y":
           released=0
@@ -612,7 +626,7 @@ class Kernel:#Code base class.
       elif g=="savecfg"and permissionlvl>=1:
         Kernel.SaveCfg()
       elif g=="help 1"and permissionlvl>=1:
-        Kernel.Cout.Msg("IlChelcciCore engine help page 1:\nrun:start engine.\nhelp <page(1-7)>:get help.\nquit:stop engine and console.\nsetgeomet:set a new resolution for screen.\nforceexitonerror:forcibly stop whole engine when encounting any error and warn.\nversion:get engine version and credits.\nhwinfo:get hardware info.\ncls:clear screen.")
+        Kernel.Cout.Msg("IlChelcciCore engine help page 1:\nrun:start engine.\nhelp <page(1-7)>:get help.\nquit:stop engine and console.\nsetgeomet:set a new resolution for screen.\nforceexitonerror:forcibly stop whole engine when encounting any error and warn.\nversion:get engine version and credits.\nstatus:get hardware info.\ncls:clear screen.")
       elif g=="help 2"and permissionlvl>=1:
         Kernel.Cout.Msg("IlChelcciCore engine help page 2:\nloadgame:load game from saved file.\ndeletesave:delete saved game.\nmodinit:init installed mod.\nrunmod:start mod.\nmodver:get version for mod.\ndisablemod:disable mod.(pop)\nadjustthreshold:change the value for\ngc.threshold()\ndev: toggle developer mode.")
       elif g=="help 3"and permissionlvl>=1:
@@ -740,9 +754,7 @@ class Kernel:#Code base class.
         modamount=input("how many mods should engine load:")
         Kernel.Cout.Console(str(modamount)+" mods will be trying to load at next time.")
       elif g=="scuptoggle"and permissionlvl>=2:
-        if not dr:
-          dr=True;Kernel.Cout.Console("Enabled.")
-        else:dr=False;Kernel.Cout.Console("Disabled.")
+        Kernel.ReverseGivenVar("dr",True)
       elif g=="setgeomet"and permissionlvl>=2:
         try:
           scrgeometx=int(input("xmin:"))
@@ -774,13 +786,8 @@ class Kernel:#Code base class.
       elif permissionlvl>=1 and g=="version"or g=="ver"and permissionlvl>=1:
         Kernel.Cout.Msg("IlChelcciCore 2D Gaming engine.\n"+str(GAMEVER)+"\nDebugged in:"+str(DEBUGDATE)+"\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:"+str(sys.version)+"\nEngine built on Python 3.4.0.\nCopyright and company info:"+COPYRIGHT+","+COMPANY+".")
       elif g=="novid"and permissionlvl>=2:
-        if not novid:
-          novid=True
-          Kernel.Cout.Console("Disabled launch video.")
-        else:
-          novid=False
-          Kernel.Cout.Console("Enabled launch video.")
-      elif g=="hwinfo"and permissionlvl>=2:
+        Kernel.ReverseGivenVar("novid",True)
+      elif g=="status"and permissionlvl>=2:
         Kernel.Cout.Msg("Version:"+str(GAMEVER))
         Kernel.Cout.Msg("Platform:"+str(get_platform()))
         Kernel.Cout.Msg("mem free:"+str(gc.mem_free())+" | mem alloc:"+str(gc.mem_alloc()))
@@ -798,10 +805,7 @@ class Kernel:#Code base class.
       elif permissionlvl>=1 and g=="cls"or permissionlvl>=1 and g=="clr" or g=="clear"and permissionlvl>=1:
         clear_history()
       elif permissionlvl>=4 and g=="dev"or g=="developer"and permissionlvl>=4:
-        if not dev:
-          dev=True
-          Kernel.Cout.Console("Dev mode enabled.")
-        else:dev=False;Kernel.Cout.Console("Dev mode disabled.")
+        Kernel.ReverseGivenVar("dev",True)
       elif g=="adjustthreshold"and permissionlvl>=4:
         try:
           gcthresholdint=int(input("gc.threshold(input 0 to cancel):"))
@@ -1828,7 +1832,7 @@ class StdUtil:#Builtins class, Standard utilities.
 class Wbase:#Weapon system class.
   def __init__(self):pass
   @staticmethod
-  def SelectWeapon(wpnid,logout=False):
+  def SelectWeapon(wpnid,logout=False):#built-in function, select a weapon by given numeric ID.
     Kernel.ConVar("wpnslt",wpnid)
     if logout:Kernel.Cout.Info("Selected %s"%(Kernel.GetVar("wpnslt")))
     return wpnid
@@ -2240,19 +2244,16 @@ class Prgm:#program class.
               StdUtil.SettingMenu()
               paint_buffer()
               if k=="a" and dev:
-                if dr:dr=False
-                else:dr=True
+                Kernel.ReverseGivenVar("dr")
               elif k=="b" and not released:
-                if dev:dev=False
-                else:dev=True
+                Kernel.ReverseGivenVar("dev")
               elif k=="c":#add more conditions if you have more language.
                 if langtype==1:
                   langtype=2
                 elif langtype==2:
                   langtype=1
               elif k=="d":
-                if usemod:usemod=False
-                else:usemod=True
+                Kernel.ReverseGivenVar("usemod")
               elif k=="e" and dev:
                 if erxt==1:erxt=0
                 else:erxt=1
@@ -2282,13 +2283,8 @@ class Prgm:#program class.
           Actors.King.Draw()
           Actors.King.Status(kingignores)
           if k=="u" and dev:
-            if not debugs:
-              debugs=True
-              Kernel.Cout.Info("Debug drawing enabled.")
-            else:
-              debugs=False
-              Kernel.Cout.Info("Debug drawing disabled.")
-              break
+            Kernel.ReverseGivenVar("debugs",True)
+            break
           elif k=="right":
             Actors.King.Move(0,"right",plspd)
             break
@@ -2477,19 +2473,16 @@ class Prgm:#program class.
                       StdUtil.SettingMenu()
                       paint_buffer()
                       if k=="a" and dev:
-                        if dr:dr=False
-                        else:dr=True
+                        Kernel.ReverseGivenVar("dr")
                       elif k=="b" and not released:
-                        if dev:dev=False
-                        else:dev=True
+                        Kernel.ReverseGivenVar("dev")
                       elif k=="c":#add more conditions if you have more language.
                         if langtype==1:
                           langtype=2
                         elif langtype==2:
                           langtype=1
                       elif k=="d":
-                        if not usemod:usemod=True
-                        else:usemod=False
+                        Kernel.ReverseGivenVar("usemod")
                       elif k=="e" and dev:
                         if erxt==1:erxt=0
                         else:erxt=1
@@ -2519,12 +2512,7 @@ class Prgm:#program class.
                     StdUtil.InMenu(True)
                     break
                   elif k=="u":
-                    if not debugs:
-                      debugs=True
-                      Kernel.Cout.Info("Debug drawing enabled.")
-                    else:
-                      debugs=False
-                      Kernel.Cout.Info("Debug drawing disabled.")
+                    Kernel.ReverseGivenVar("debugs",True)
                 break
               break
             break
