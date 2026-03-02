@@ -63,12 +63,12 @@ psx=int(0);
 psy=int(0);
 v_hev=int(0);
 PI=float(3.14159265358980);
-GAMEVER=str("IlChelcciCore 42 Build(0175)");
-VERINT=int(175);
-DEBUGDATE=str("2026/02/15");
+GAMEVER=str("IlChelcciCore 42 Build(0176)");
+VERINT=int(176);
+DEBUGDATE=str("2026/03/02");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
-COPYRIGHT=str("(C)Haoriwa 2024-2025, all rights reserved.");
+COPYRIGHT=str("(C)Haoriwa 2024-2026, all rights reserved.");
 wpnslt=int(0);
 permissionlvl=int(1);
 item_suit=int(0);
@@ -148,10 +148,10 @@ class Kernel:#Code base class.
     elif logout and v is None:Kernel.Cout.Info("Variable '%s' not found."%(varName))
     return v
   @staticmethod
-  def ConVar(varName,value,logout=False,saveToNsp=False,overwriteOnly=False):#built-in function, for change a variable.
+  def ConVar(varName,value,logout=False,saveToNsp=False,overwriteOnly=False,alsoFromLocal=False):#built-in function, for change a variable.
     if saveToNsp:
       IO.Save(True,varName,value,False,overwriteOnly)
-    else:globals()[varName]=value
+    if saveToNsp and alsoFromLocal or not saveToNsp and not alsoFromLocal:globals()[varName]=value
     if logout:Kernel.Cout.Info("Changed the value of variable '%s' to %s."%(varName,value))
     return varName,value
   @staticmethod
@@ -490,6 +490,7 @@ class Kernel:#Code base class.
   def _ResetGame():#built-in function,for soft reset.
     global plspd,ammo9max,ammo357max,mapslt,psx,v_live,v_hev,plh,plw,plr,plg,plb,psy,weapon_crb,debugs,v_hev,weapon_pcn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit
     plspd=0;mapslt=0;plh=0;plw=0;plg=0;plb=0;plr=0;psx=0;psy=0;v_hev=0;wpnslt=0;item_suit=0;weapon_crb=0;weapon_pcn=0;weapon_pst=0;weapon_357=0;ammo357=0;ammo9=0;v_live=100;ammo9max=180;ammo357max=12;inclip9=0;inclip357=0
+    Kernel.ConVar("gtemp1",0)
     Kernel.Cout.Info("Game reset completed.")
     return 0
   @staticmethod
@@ -1383,7 +1384,7 @@ class ActionUI:#UI class.
     "prsesc":"Press esc to quit.",
     "libchk":"please check the libraries. Press esc to quit.",
     "cp0":"Made by:Alex_Nute",
-    "cp1":"Copyright © Haoriwa 2024 - 2025, the Half-Life 2 is",
+    "cp1":"Copyright © Haoriwa 2024 - 2026, the Half-Life 2 is",
     "cp2":"copyright for Valve.The ti_draw,ti_system",
     "cp3":"is copyright for Texas Instruments.Using this",
     "cp4":"software represents you agreed our terms.",
@@ -1459,7 +1460,7 @@ class ActionUI:#UI class.
     "supsys":"可运行的平台:hh,ios,dt。当前平台:",
     "prsesc":"按下esc以退出。",
     "cp0":"由Alex_Nute制作",
-    "cp1":"版权所有 © Haoriwa 2024 - 2025, 半条命2",
+    "cp1":"版权所有 © Haoriwa 2024 - 2026, 半条命2",
     "cp2":"(半衰期2)由Valve所有。ti_draw,ti_system库",
     "cp3":"由德州仪器所有(TI)。使用此",
     "cp4":"软件将代表你同意使用规则。",
@@ -1735,19 +1736,41 @@ class StdUtil:#Builtins class, Standard utilities.
     Kernel.Cout.Msg(l)
     return numoflog
   @staticmethod
+  def ResetTrigger(triggerid):#built-in function. reset trigger that saved by nspire var.
+    global userid
+    Kernel.ConVar(str(triggerid)+str(userid),0,False,True,False,True)
+    return 0
+  @staticmethod
+  def SetTriggerState(triggerid,state,saveToNsp=True,both=False):#built-in function, set the state of trigger once.
+    global userid
+    Kernel.ConVar(str(triggerid)+str(userid),state,False,saveToNsp,False)
+    if both:Kernel.ConVar(str(triggerid)+str(userid),state,False)
+    return 0
+  @staticmethod
+  def GetTriggerState(triggerid):#built-in function, get the state of trigger once.
+    global userid
+    if Kernel.GetVar("emptysave"):
+      return Kernel.GetVar(str(triggerid)+str(userid),False,False)
+    else:return Kernel.GetVar(str(triggerid)+str(userid),False,True)
+  @staticmethod
   def WaitStart(sec,callback):#built-in function. Async sleep.
     global endtick,active,action
     endtick=ticks_cpu()+sec
     active=True
     action=callback
   @staticmethod
-  def TriggerOnce(minx,miny,maxx,maxy,trgtp):#built-in function. trigger that only run once.
+  def TriggerOnce(minx,miny,maxx,maxy,trgtp,show=False):#built-in function. trigger that only run once.
     global v_live,psy,psx
+    if show:
+      set_pen("thick","dashed")
+      set_color(0,0,250)
+      draw_rect(minx,miny,maxx-minx,maxy-miny)
+      set_pen("thin","solid")
     if psx>=minx and psx<=maxx and psy>=miny and psy<=maxy:
       if trgtp==1:
-        if not Kernel.GetVar("gtemp1",False,True):
+        if not StdUtil.GetTriggerState("gtemp1"):
           v_live-=10
-          Kernel.ConVar("gtemp1",1,False,True)
+          StdUtil.SetTriggerState("gtemp1",1,saveToNsp=True,both=True)
           Kernel.Cout.Info("Trigger executed.")
           return 1
         else:return 0
@@ -1756,8 +1779,13 @@ class StdUtil:#Builtins class, Standard utilities.
         Kernel.ErrChk(1,"Unknown trigger.")
         return -1
   @staticmethod
-  def Trigger(minx,miny,maxx,maxy,trgtp):#built-in function,for trigger a specific event.
+  def Trigger(minx,miny,maxx,maxy,trgtp,show=False):#built-in function,for trigger a specific event.
     global v_live,mapslt,psx,psy#map selection needs global var
+    if show:
+      set_pen("thick","dashed")
+      set_color(250,0,0)
+      draw_rect(minx,miny,maxx-minx,maxy-miny)
+      set_pen("thin","solid")
     if psx>=minx and psx<=maxx and psy>=miny and psy<=maxy:
       if trgtp==1:
         ActionUI.Title(120,80,1)
@@ -1765,7 +1793,7 @@ class StdUtil:#Builtins class, Standard utilities.
         return 1
       elif trgtp==2:
         mapslt=1
-        Kernel.ConVar("gtemp1",0,False,True)
+        StdUtil.ResetTrigger("gtemp1")
 #this code is mean to reset the trigger once in
 #map0, you can choose to not reset the trigger.
         Kernel.Cout.Info("Trigger executed.")
@@ -1818,12 +1846,12 @@ class StdUtil:#Builtins class, Standard utilities.
     global mapslt
     if mapslt==0:
       Assets.c1a0()
-      StdUtil.Trigger(0,0,20,50,2)
-      StdUtil.TriggerOnce(150,50,150,100,1)
+      StdUtil.Trigger(0,0,20,50,2,debugs)
+      StdUtil.TriggerOnce(150,50,300,150,1,debugs)
       return 0
     if mapslt==1:
       Assets.c0a0()
-      StdUtil.Trigger(125,75,225,175,3)
+      StdUtil.Trigger(125,75,225,175,3,debugs)
       return 1
     else:
       Kernel.Cout.Error("MapStat function cannot find defined type.")
@@ -2178,6 +2206,7 @@ class Prgm:#program class.
     while True:#game logic loop.
       if StdUtil.IsInMenu():#menu guard.
         Kernel._ResetGame()
+        StdUtil.SetTriggerState("gtemp1",0,False)
         emptysave=IO.Load(True,"emptysave"+suserid,False)
         if Kernel.GetVar("menuslt",False)==1:Assets.MainMenu1()
         else:Assets.MainMenu2()
@@ -2209,6 +2238,7 @@ class Prgm:#program class.
               if emptysave==1:IO.Load()
             if emptysave==1:continue
             IO.Load()
+            emptysave=0
             StdUtil.InMenu(False)
             break
           elif k=="c":
@@ -2222,6 +2252,7 @@ class Prgm:#program class.
           elif k=="a":
             Assets.gmanintlol()
             StdUtil.InMenu(False)
+            emptysave=1
             Actors.King.Init(1,0,0,0)
             Actors.King.Init(2,95,95)
             Actors.King.Init(3,5,5)
@@ -2503,6 +2534,7 @@ class Prgm:#program class.
                       for i in range(2):
                         if emptysave==1:IO.Load()
                     if emptysave==1:continue
+                    emptysave=0
                     IO.Load()
                     break
                   elif k=="menu":

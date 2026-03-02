@@ -15,9 +15,14 @@ def MouseBox():
   else:return False
 def BoxHandler(ipt):
   global x1,y1,x2,y2
+  k=get_key()
   if ipt==False:set_color(20,20,20)
-  else:set_color(255,20,20)
-  fill_rect(x1,y1,x2,y2)
+  else:
+    if k=="center" or k=="enter":
+      set_color(20,255,20)
+    else:set_color(255,20,20)
+    if k=="esc":raise SystemExit(0)
+  fill_rect(x1,y1,x2-x1,y2-y1)
 def main():
   global x1,x2,y1,y2
   print("Box test, hold esc to stop.")
@@ -25,6 +30,9 @@ def main():
   x2=int(input("maxx"))
   y1=int(input("miny"))
   y2=int(input("maxy"))
-  while get_key()!="esc":
+  use_buffer()
+  while True:
+    clear()
     BoxHandler(MouseBox())
+    set_color(0,0,0);draw_text(80,80,str(get_mouse()));paint_buffer()
 if __name__=="__main__":main()
