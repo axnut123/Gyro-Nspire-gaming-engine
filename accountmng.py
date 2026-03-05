@@ -2,7 +2,7 @@ from ti_system import *
 import binascii as asc
 import sys
 
-version="1.4.1"
+version="1.4.2"
 perm=1
 
 def cout(text):
@@ -41,8 +41,11 @@ class Accounts:
       LoadedUserIds=recall_value("user"+str(ids))
       LoadedUserPassword=recall_value("pw"+str(ids))
       LoadedBannedStatus=recall_value("banned"+str(ids))
+      LoadedWarnStatus=recall_value("warn"+str(ids))
       if LoadedBannedStatus==1 and not ignoreban:
         cout(">>This account have been banned!")
+      if LoadedWarnStatus==1 and not ignoreban:
+        cout(">>This account have an active warning.")
     except:
       cout(">>User ID or password incorrect!")
       return 1
@@ -63,7 +66,9 @@ class Accounts:
     
   @staticmethod
   def Logout():
+    global perm
     store_value("loggedinuser",0)
+    perm=1
     cout(">>Logout successful.")
     return 0
     
@@ -86,6 +91,8 @@ class Accounts:
     store_value("user"+str(ids),int(ids))
     store_value("permlvl"+str(ids),1)
     store_value("banned"+str(ids),0)
+    store_value("warn"+str(ids),0)
+    store_value("wmodid"+str(ids),0)
     store_value("pw"+str(ids),int(Encrypt.EncryptStr(password)))
     store_value("newuser"+str(ids),1)
     cout(">>User registeration successful.")
@@ -109,6 +116,8 @@ class Accounts:
     store_value("pw"+str(ids),0)
     store_value("banned"+str(ids),0)
     store_value("permlvl"+str(ids),1)
+    store_value("warn"+str(ids),0)
+    store_value("wmodid"+str(ids),0)
     store_value("newuser"+str(ids),0)
     store_value("loggedinuser",0)
     cout(">>Account deletion successful.")
@@ -124,9 +133,9 @@ class Accounts:
     while True:
       g=str(input("]"))
       if g=="help 1":
-        cout(">>add 'sudo.' to some commands to forcibly execute it.\n-login: login with an id and password.\n-logout: logout current account\n-register: registet a new account\n-deleteuser: delete an account.\n-currentuser: get current user ID.\n-quit: quit program.\n-help <page(1-2)>: get help.\n-version: get version of program.")
+        cout(">>add 'sudo.' to some commands to forcibly execute it.\n-login: login with an id and password.\n-logout: logout current account\n-register: registet a new account\n-deleteuser: delete an account.\n-me: get current user ID.\n-quit: quit program.\n-help <page(1-2)>: get help.\n-version: get version of program.")
       elif g=="help 2":
-        cout(">>help page 2(1/2)\n-cpw: change your password")
+        cout(">>help page 2(1/2)\n-cpw: change your password\n-cls: clear history.")
       elif g=="sudo":
         cout(">>Usage: sudo.<command>.\n>>To execute commands with admin privileges.")
       elif g=="login":
@@ -176,8 +185,8 @@ class Accounts:
             cout(">>Repeated password does not match.")
             continue
           if Accounts.CPassword(d,str(Encrypt.DecryptStr(str(recall_value("pw"+str(d))))),a,True)==0:break
-      elif g=="currentuser":
-        cout(">>Current user ID is: %s."%(recall_value("loggedinuser")))
+      elif g=="me":
+        cout(">>Current user ID is: %s.\nPermission level is:%s."%(recall_value("loggedinuser"),perm))
       elif g=="stop" or g=="exit" or g=="quit" or g=="esc":
         quit(0)
       elif g=="help":

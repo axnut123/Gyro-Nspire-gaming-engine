@@ -63,9 +63,9 @@ psx=int(0);
 psy=int(0);
 v_hev=int(0);
 PI=float(3.14159265358980);
-GAMEVER=str("IlChelcciCore 42 Build(0176)");
-VERINT=int(176);
-DEBUGDATE=str("2026/03/02");
+GAMEVER=str("IlChelcciCore 42 Build(0177)");
+VERINT=int(177);
+DEBUGDATE=str("2026/03/05");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2026, all rights reserved.");
@@ -542,6 +542,7 @@ class Kernel:#Code base class.
     global arogmmd,runprgm,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,ingamemod,modscripts,usemod,vtk,erxt,novid,mod,dev,dr,langtype,usemod,modamount,autoloadmod,gcthresholdint,kingignores,released,GAMEVER,DEBUGDATE,GAMETITLE,openingtype,COMPANY,COPYRIGHT,permissionlvl,ignoreverchk
     Kernel.Cout.Preload("Console is created because game is in debug state.")
     Kernel.Cout.Console("Welcome to ILCC console!\nTo get help, type help <page(1-7)>.")
+    gc.collect()
     while True:
       g=str(input("]"))
       permissionlvl=int(permissionlvl)
@@ -639,7 +640,7 @@ class Kernel:#Code base class.
       elif g=="help 6"and permissionlvl>=1:
         Kernel.Cout.Msg("IlChelcciCore engine help page 6:\nsay:say a string.\nignoreverchkonmod:toggle mod version check.\nsetapptitle:set a new app title.\ntogglebar:toggles title bar.\nban:ban an user by userid.\nunban:unban an user by userid.\nop:give an user op permission.\ndeop:remove an user's op permission.\nuser:check an user's permission level.")
       elif g=="help 7"and permissionlvl>=1:
-        Kernel.Cout.Msg("IlChelcciCore engine help page 7:\nisbanned:check ban state of given user ID.\npardon:same as unban.\nperm:set an user's permission level manually.\nconnvar:change a Nspire var.\ngetnvar:get a Nspire var.")
+        Kernel.Cout.Msg("IlChelcciCore engine help page 7:\nisbanned:check ban state of given user ID.\npardon:same as unban.\nperm:set an user's permission level manually.\nconnvar:change a Nspire var.\ngetnvar:get a Nspire var.\nwarn:issue a warn to player.\nunwarn:cancel warn to player\nwarns:check player's warning(s).")
       elif g=="connvar"and permissionlvl>=4:
         v=str(input("variable(input 0 to cancel):"))
         if v=="0":continue
@@ -696,6 +697,29 @@ class Kernel:#Code base class.
       elif g=="me"and permissionlvl>=1:
         Kernel.Cout.Msg("Current user is: %s."%(Kernel.GetVar("userid")))
         Kernel.Cout.Msg("Your current permission level is: %s."%(permissionlvl))
+      elif g=="warn" and permissionlvl>=4:
+        a=str(input("User ID(input 0 to cancel):"))
+        if a=="0":continue
+        Permission.Warn(a)
+      elif g=="unwarn" and permissionlvl>=4:
+        a=str(input("User ID(input 0 to cancel):"))
+        if a=="0":continue
+        Permission.UnWarn(a)
+      elif g=="warns" and permissionlvl>=1:
+        if permissionlvl<4:
+          userwarn,wmod=Permission.Warns(userid)
+          if userwarn==0 and wmod==0:
+            Kernel.Cout.Msg("You have no active warning.")
+            continue
+          Kernel.Cout.Msg("Your warning(s):%s, issued by moderator:%s."%(str(Permission.Warns(a)),str(wmod)))
+          continue
+        a=str(input("User ID to check(input 0 to cancel):"))
+        userwarn,wmod=Permission.Warns(a)
+        if not userwarn and not wmod:
+          Kernel.Cout.Msg("This player have no active warning.")
+          continue
+        Kernel.Cout.Msg("Player %s's warning(s):%s,issued by moderator:%s."%(a,str(Permission.Warns(a)),str(wmod)))
+        continue
       elif g=="user"and permissionlvl>=4:
         a=int(input("User ID(input 0 to cancel):"))
         if a==0:continue
@@ -1063,6 +1087,45 @@ class Permission:#permission level class.
       return 1
     return IO.Load(True,"permlvl"+str(id),False,False)
   @staticmethod
+  def Warns(id):#built-in function, check given player's warning(s).
+    if not Permission.IsValid(id):
+      Kernel.Cout.Error("Current user does not exist.")
+      Kernel.ErrChk(1,"Current user does not exist.")
+      return 0,0#return code meaning:(0,0) does not exist.
+    return IO.Load(True,"warn"+str(id),False,True),IO.Load(True,"wmodid"+str(id),False,True)
+  @staticmethod
+  def UnWarn(id):#built-in function, cancel warnings to given id.
+    if not Permission.IsValid(id):
+      Kernel.Cout.Error("Current user does not exist.")
+      Kernel.ErrChk(1,"Current user does not exist.")
+      return 1
+    IO.Save(True,"warn"+str(id),0,False,True)
+    IO.Save(True,"wmodid"+str(id),0,False,False)
+    Kernel.Cout.Info("Moderator %s canceled warnings of player %s"%(Kernel.GetVar("userid"),id))
+    return 0
+  @staticmethod
+  def Warn(id):#built-in function, issue a warning to given id.
+    if not Permission.IsValid(id):
+      Kernel.Cout.Error("Current user does not exist.")
+      Kernel.ErrChk(1,"Current user does not exist.")
+      return 0
+    if Kernel.GetVar("userid")==str(id):
+      Kernel.Cout.Error("You may not issue warning to yourself.")
+      Kernel.ErrChk(1,"Cannot execute to yourself.")
+      return 1
+    warn=IO.Load(True,"warn"+str(id),False,True)
+    if warn==0:
+      warn+=1
+      Kernel.Cout.Info("Moderator %s issued a warning to player %s."%(Kernel.GetVar("userid"),id))
+    elif warn==1:
+      warn=0
+      Kernel.Cout.Info("Moderator %s issued final warning to player %s."%(Kernel.GetVar("userid"),id))
+      Permission.Ban(id)
+      Permission.RemoveGroup(id)
+    IO.Save(True,"wmodid"+str(id),int(Kernel.GetVar("userid")),False,False)
+    IO.Save(True,"warn"+str(id),warn,False,True)
+    return 0
+  @staticmethod
   def SetGroup(id,level):#built-in function, set current permission level.
     if not Permission.IsValid(id):
       Kernel.Cout.Error("Current user does not exist.")
@@ -1240,6 +1303,30 @@ class Actors:#entity class.
       set_color(plr,plg,plb)
       fill_rect(psx,psy,plw,plh)
       return 0
+    @staticmethod
+    def ModifyVal(mdmode,mdtype,value,logout=False):#built-in function, damage or heal player's suit or health by given value.
+      global v_live,v_hev
+      def cout(logout):
+        if logout:
+          Kernel.Cout.Info("Modified the value of %s."%(mdtype))
+        return 0
+      def _Error():
+        Kernel.Cout.Error("Unknown modify type or mode.")
+        Kernel.ErrChk(1,"Unknown modify type or mode.")
+        return -1
+      if mdtype=="v_live"or mdtype==1:
+        if mdmode=="heal"or mdmode==1:
+          v_live+=value
+          cout(logout)
+        elif mdmode=="damage"or mdmode==0:v_live-=value;cout(logout)
+        else:_Error()
+      elif mdtype=="v_hev"or mdtype==2:
+        if mdmode=="heal"or mdmode==1:
+          v_hev+=value
+          cout(logout)
+        elif mdmode=="damage"or mdmode==0:v_hev-=value;cout(logout)
+        else:_Error()
+      else:_Error()
     @staticmethod
     def Kill(clearsuit=False,devonly=False,logout=True):#built-in function, kill player.
       if devonly:return -1
@@ -1749,7 +1836,7 @@ class StdUtil:#Builtins class, Standard utilities.
   @staticmethod
   def GetTriggerState(triggerid):#built-in function, get the state of trigger once.
     global userid
-    if Kernel.GetVar("emptysave"):
+    if Kernel.GetVar("emptysave")==1:
       return Kernel.GetVar(str(triggerid)+str(userid),False,False)
     else:return Kernel.GetVar(str(triggerid)+str(userid),False,True)
   @staticmethod
@@ -1768,8 +1855,8 @@ class StdUtil:#Builtins class, Standard utilities.
       set_pen("thin","solid")
     if psx>=minx and psx<=maxx and psy>=miny and psy<=maxy:
       if trgtp==1:
-        if not StdUtil.GetTriggerState("gtemp1"):
-          v_live-=10
+        if StdUtil.GetTriggerState("gtemp1")==0:
+          Actors.King.ModifyVal("damage","v_live",10,True)
           StdUtil.SetTriggerState("gtemp1",1,saveToNsp=True,both=True)
           Kernel.Cout.Info("Trigger executed.")
           return 1
@@ -2245,6 +2332,7 @@ class Prgm:#program class.
             IO.Delete()
           elif k=="menu":
             ActionUI.DispUi(0,0,9)
+            Kernel.ConVar("menuslt",randint(1,2),True)
             if Kernel.GetVar("menuslt",False)==1:Assets.MainMenu1()
             else:Assets.MainMenu2()
             ActionUI.DispUi(0,0,4)
@@ -2331,20 +2419,20 @@ class Prgm:#program class.
           elif k=="p" and dev:
             Actors.King.Kick()
           elif k=="t" and dev:
-            v_hev-=10
+            Actors.King.ModifyVal("damage","v_hev",10,True)
             break
           elif k=="s"and dev:
-            v_hev+=10
+            Actors.King.ModifyVal("heal","v_hev",10,True)
             break
           elif k=="z"and dev:
-            v_live-=10
+            Actors.King.ModifyVal("damage","v_live",10,True)
             break
           elif k=="h"and dev:
             Wbase.EventAmmoPick(1,18)
             Wbase.EventAmmoPick(2,6)
             break
           elif k=="y"and dev:
-            v_live+=10
+            Actors.King.ModifyVal("heal","v_live",10,True)
             break
           elif k=="tab" and dev:
             gc.collect()
@@ -2597,6 +2685,7 @@ if (__name__=="__main__"):#all program starts from here.
     Kernel.SaveCfg()
     IO.Delete()
     IO.Save(True,"newuser"+str(userid),0)
+  del newuser,banned
   Kernel.Init(2)
   Kernel.Init(1)
   Kernel._GameLauncher()

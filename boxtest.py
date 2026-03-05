@@ -16,12 +16,12 @@ def MouseBox():
 def BoxHandler(ipt):
   global x1,y1,x2,y2
   k=get_key()
+  if k=="esc":raise SystemExit(0)
   if ipt==False:set_color(20,20,20)
   else:
     if k=="center" or k=="enter":
       set_color(20,255,20)
     else:set_color(255,20,20)
-    if k=="esc":raise SystemExit(0)
   fill_rect(x1,y1,x2-x1,y2-y1)
 def main():
   global x1,x2,y1,y2
