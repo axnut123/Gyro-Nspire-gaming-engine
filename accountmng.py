@@ -2,7 +2,7 @@ from ti_system import *
 import binascii as asc
 import sys
 
-version="1.4.2"
+version="1.4.3"
 perm=1
 
 def cout(text):
@@ -91,6 +91,7 @@ class Accounts:
     store_value("user"+str(ids),int(ids))
     store_value("permlvl"+str(ids),1)
     store_value("banned"+str(ids),0)
+    stord_value("bmodid"+str(ids),0)
     store_value("warn"+str(ids),0)
     store_value("wmodid"+str(ids),0)
     store_value("pw"+str(ids),int(Encrypt.EncryptStr(password)))
@@ -115,6 +116,7 @@ class Accounts:
     store_value("user"+str(ids),0)
     store_value("pw"+str(ids),0)
     store_value("banned"+str(ids),0)
+    stord_value("bmodid"+str(ids),0)
     store_value("permlvl"+str(ids),1)
     store_value("warn"+str(ids),0)
     store_value("wmodid"+str(ids),0)
