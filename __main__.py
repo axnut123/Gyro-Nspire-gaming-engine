@@ -63,9 +63,9 @@ psx=int(0);
 psy=int(0);
 v_hev=int(0);
 PI=float(3.14159265358980);
-GAMEVER=str("IlChelcciCore 42 Build(0179)");
-VERINT=int(179);
-DEBUGDATE=str("2026/03/07");
+GAMEVER=str("IlChelcciCore 43 Build(0180)");
+VERINT=int(180);
+DEBUGDATE=str("2026/03/09");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2026, all rights reserved.");
@@ -200,15 +200,12 @@ class Kernel:#Code base class.
       if logout:Kernel.Cout.DevInfo("Gc enabled.")
       return True
   @staticmethod
-  def SaveCfg():#built-in function, saving cfg variable to nspire document.
+  def SaveCfg(modeR=False):#built-in function, saving cfg variable to nspire document.
     global userid,arogmmd,ignoreverchk,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,gcthresholdint,autoloadmod,langtype,dev,dr,usemod,novid,modamount,erxt,openingtype,gcenb,showbar
+    r=""
     suserid=str(userid)
     try:
-      IO.Save(True,"optp"+suserid,int(openingtype))
-      IO.Save(True,"scgx"+suserid,scrgeometx)
-      IO.Save(True,"scgy"+suserid,scrgeomety)
-      IO.Save(True,"scgmx"+suserid,scrgeometmx)
-      IO.Save(True,"scgmy"+suserid,scrgeometmy)
+      IO.Save(True,"permlvl"+suserid,permissionlvl)
       if langtype==1:
         IO.Save(True,"langtype"+suserid,1)
       elif langtype==2:
@@ -217,28 +214,40 @@ class Kernel:#Code base class.
         IO.Save(True,"langtype"+suserid,1)
         Kernel.Cout.Warning("Language type not found, saving as default language.")
         Kernel.ErrChk(1,"Language type not found.")
-      IO.Save(True,"permlvl"+suserid,permissionlvl)
-      IO.Save(True,"erxt"+suserid,int(erxt))
-      IO.Save(True,"modamount"+suserid,modamount)
-      IO.Save(True,"gcthint"+suserid,int(gcthresholdint))
-      if showbar:IO.Save(True,"showbar"+suserid,1)
-      else:IO.Save(True,"showbar"+suserid,0)
-      if novid:IO.Save(True,"novid"+suserid,1)#True or false dosent work here. use 1 or 0.
-      else:IO.Save(True,"novid"+suserid,0)
-      if ignoreverchk:IO.Save(True,"ignoreverchk"+suserid,1)
-      else:IO.Save(True,"ignoreverchk"+suserid,0)
-      if gcenb:IO.Save(True,"gcenb"+suserid,1)
-      else:IO.Save(True,"gcenb"+suserid,0)
-      if autoloadmod:IO.Save(True,"autoloadmod"+suserid,1)
-      else:IO.Save(True,"autoloadmod"+suserid,0)
-      if dev:IO.Save(True,"dev"+suserid,1)
-      else:IO.Save(True,"dev"+suserid,0)
-      if dr:IO.Save(True,"dr"+suserid,1)
-      else:IO.Save(True,"dr"+suserid,0)
-      if usemod:IO.Save(True,"usemod"+suserid,1)
-      else:IO.Save(True,"usemod"+suserid,0)
-      if arogmmd:IO.Save(True,"arogmmd"+suserid,1)
-      else:IO.Save(True,"arogmmd"+suserid,0)
+    except Exception as e:
+      Kernel.Cout.Error("Cfg saving failed."+str(e))
+      Kernel.ErrChk(3,"Failed to save cfgs.")
+      return -1
+    if modeR:
+      r="r"
+      suserid=""
+    try:
+      IO.Save(True,r+"optp"+suserid,int(openingtype))
+      IO.Save(True,r+"scgx"+suserid,scrgeometx)
+      IO.Save(True,r+"scgy"+suserid,scrgeomety)
+      IO.Save(True,r+"scgmx"+suserid,scrgeometmx)
+      IO.Save(True,r+"scgmy"+suserid,scrgeometmy)
+      IO.Save(True,r+"erxt"+suserid,int(erxt))
+      IO.Save(True,r+"modamount"+suserid,modamount)
+      IO.Save(True,r+"gcthint"+suserid,int(gcthresholdint))
+      if showbar:IO.Save(True,r+"showbar"+suserid,1)
+      else:IO.Save(True,r+"showbar"+suserid,0)
+      if novid:IO.Save(True,r+"novid"+suserid,1)#True or false dosent work here. use 1 or 0.
+      else:IO.Save(True,r+"novid"+suserid,0)
+      if ignoreverchk:IO.Save(True,r+"ignoreverchk"+suserid,1)
+      else:IO.Save(True,r+"ignoreverchk"+suserid,0)
+      if gcenb:IO.Save(True,r+"gcenb"+suserid,1)
+      else:IO.Save(True,r+"gcenb"+suserid,0)
+      if autoloadmod:IO.Save(True,r+"autoloadmod"+suserid,1)
+      else:IO.Save(True,r+"autoloadmod"+suserid,0)
+      if dev:IO.Save(True,r+"dev"+suserid,1)
+      else:IO.Save(True,r+"dev"+suserid,0)
+      if dr:IO.Save(True,r+"dr"+suserid,1)
+      else:IO.Save(True,r+"dr"+suserid,0)
+      if usemod:IO.Save(True,r+"usemod"+suserid,1)
+      else:IO.Save(True,r+"usemod"+suserid,0)
+      if arogmmd:IO.Save(True,r+"arogmmd"+suserid,1)
+      else:IO.Save(True,r+"arogmmd"+suserid,0)
       Kernel.Cout.Info("Cfg saving success.")
       return 0
     except Exception as e:
@@ -246,31 +255,35 @@ class Kernel:#Code base class.
       Kernel.ErrChk(3,"Failed to save cfgs.")
       return -1
   @staticmethod
-  def Init(inittp):#built-in function.for init cfgs or other files engine needed.
+  def Init(inittp,modeR=0):#built-in function.for init cfgs or other files engine needed.
     global userid,showbar,ignoreverchk,permissionlvl,arogmmd,gcenb,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,autoloadmod,gcthresholdint,dev,dr,novid,langtype,usemod,modamount,erxt,mod,released,openingtype
     suserid=str(userid)
+    r=""
+    permissionlvl=int(IO.Load(True,"permlvl"+suserid))
+    langtype=IO.Load(True,"langtype"+suserid)
+    if modeR==int(1):
+      r="r"
+      suserid=""
     if inittp==1:
       try:
-        cfg0=IO.Load(True,"gcenb"+suserid)
-        cfg1=IO.Load(True,"novid"+suserid)
-        cfg2=IO.Load(True,"dev"+suserid)
-        cfg3=IO.Load(True,"dr"+suserid)
-        cfg4=IO.Load(True,"usemod"+suserid)
-        cfg5=IO.Load(True,"autoloadmod"+suserid)
-        cfg6=IO.Load(True,"arogmmd"+suserid)
-        cfg7=IO.Load(True,"ignoreverchk"+suserid)
-        cfg8=IO.Load(True,"showbar"+suserid)
-        openingtype=IO.Load(True,"optp"+suserid)
-        permissionlvl=int(IO.Load(True,"permlvl"+suserid))
-        erxt=IO.Load(True,"erxt"+suserid)
-        langtype=IO.Load(True,"langtype"+suserid)
+        cfg0=IO.Load(True,r+"gcenb"+suserid)
+        cfg1=IO.Load(True,r+"novid"+suserid)
+        cfg2=IO.Load(True,r+"dev"+suserid)
+        cfg3=IO.Load(True,r+"dr"+suserid)
+        cfg4=IO.Load(True,r+"usemod"+suserid)
+        cfg5=IO.Load(True,r+"autoloadmod"+suserid)
+        cfg6=IO.Load(True,r+"arogmmd"+suserid)
+        cfg7=IO.Load(True,r+"ignoreverchk"+suserid)
+        cfg8=IO.Load(True,r+"showbar"+suserid)
+        openingtype=IO.Load(True,r+"optp"+suserid)
+        erxt=IO.Load(True,r+"erxt"+suserid)
         released=IO.Load(True,"released")
-        scrgeometx=IO.Load(True,"scgx"+suserid)
-        scrgeomety=IO.Load(True,"scgy"+suserid)
-        scrgeometmx=IO.Load(True,"scgmx"+suserid)
-        scrgeometmy=IO.Load(True,"scgmy"+suserid)
-        modamount=IO.Load(True,"modamount"+suserid)
-        gcthresholdint=IO.Load(True,"gcthint"+suserid)
+        scrgeometx=IO.Load(True,r+"scgx"+suserid)
+        scrgeomety=IO.Load(True,r+"scgy"+suserid)
+        scrgeometmx=IO.Load(True,r+"scgmx"+suserid)
+        scrgeometmy=IO.Load(True,r+"scgmy"+suserid)
+        modamount=IO.Load(True,r+"modamount"+suserid)
+        gcthresholdint=IO.Load(True,r+"gcthint"+suserid)
         if cfg0==1:gcenb=True
         else:gcenb=False
         if cfg1==1:novid=True
@@ -566,6 +579,7 @@ class Kernel:#Code base class.
         if r=="y":
           released=1
           IO.Save(True,"released",released)
+          Kernel.SaveCfg(True)
           Kernel.Cout.Console("Your game have been released,\nthis console will no longer launch at next startup.")
         else:Kernel.Cout.Console("User cancelled.")
         del r
@@ -640,7 +654,7 @@ class Kernel:#Code base class.
       elif g=="help 6"and permissionlvl>=1:
         Kernel.Cout.Msg("IlChelcciCore engine help page 6:\nsay:say a string.\nignoreverchkonmod:toggle mod version check.\nsetapptitle:set a new app title.\ntogglebar:toggles title bar.\nban:ban an user by userid.\nunban:unban an user by userid.\nop:give an user op permission.\ndeop:remove an user's op permission.\nuser:check an user's permission level.")
       elif g=="help 7"and permissionlvl>=1:
-        Kernel.Cout.Msg("IlChelcciCore engine help page 7:\nisbanned:check ban state of given user ID.\npardon:same as unban.\nperm:set an user's permission level manually.\nconnvar:change a Nspire var.\ngetnvar:get a Nspire var.\nwarn:issue a warn to player.\nunwarn:cancel warn to player\nwarns:check player's warning(s).")
+        Kernel.Cout.Msg("IlChelcciCore engine help page 7:\nisbanned:check ban state of given user ID.\npardon:same as unban.\nperm:set an user's permission level manually.\nconnvar:change a Nspire var.\ngetnvar:get a Nspire var.\nwarn:issue a warn to player.\nunwarn:cancel warn to player\nwarns:check player's warning.")
       elif g=="connvar"and permissionlvl>=4:
         v=str(input("variable(input 0 to cancel):"))
         if v=="0":continue
@@ -659,9 +673,12 @@ class Kernel:#Code base class.
           Kernel.Cout.Error("Unable to get var."+str(e))
         del getv
       elif g=="isbanned" and permissionlvl >=4:
-        a=int(input("userid to check ban state(input 0 to cancel):"))
+        a=int(input("User ID to check ban state(input 0 to cancel):"))
         if Permission.IsValid(a) is False or a==0:
           Kernel.Cout.Console("User ID does not exist.")
+          continue
+        if Permission.IsBanned(a) is False and Permission.IsBanned(a,True)!=0:
+          Kernel.Cout.Info("User %s has not been banned. Latest ban to this player was issued by moderator %s."%(a,str(Permission.IsBanned(a,True))))
           continue
         if Permission.IsBanned(a) is False:
           Kernel.Cout.Info("User %s has not been banned."%(a))
@@ -711,17 +728,23 @@ class Kernel:#Code base class.
       elif g=="warns" and permissionlvl>=1:
         if permissionlvl<4:
           userwarn,wmod=Permission.Warns(userid)
+          if int(userwarn)==0 and int(wmod)!=0:
+            Kernel.Cout.Msg("You have no active warning. latest warning on you was issued by moderator:%s."%(str(wmod)))
+            continue
           if userwarn==0:
             Kernel.Cout.Msg("You have no active warning.")
             continue
-          Kernel.Cout.Msg("Your warning(s):%s, issued by moderator:%s."%(str(userwarn),str(wmod)))
+          Kernel.Cout.Msg("Your warning:%s, issued by moderator:%s."%(str(userwarn),str(wmod)))
           continue
         a=str(input("User ID to check(input 0 to cancel):"))
         userwarn,wmod=Permission.Warns(a)
-        if not userwarn:
+        if int(userwarn)==0 and int(wmod)!=0:
+          Kernel.Cout.Msg("Player %s have no active warning. latest warning to this player was issued by moderator:%s."%(a,str(wmod)))
+          continue
+        if not int(userwarn):
           Kernel.Cout.Msg("This player have no active warning.")
           continue
-        Kernel.Cout.Msg("Player %s's warning(s):%s,issued by moderator:%s."%(a,str(userwarn),str(wmod)))
+        Kernel.Cout.Msg("Player %s's warning:%s,issued by moderator:%s."%(a,str(userwarn),str(wmod)))
         continue
       elif g=="user"and permissionlvl>=4:
         a=int(input("User ID(input 0 to cancel):"))
@@ -1090,7 +1113,7 @@ class Permission:#permission level class.
       return 1
     return IO.Load(True,"permlvl"+str(id),False,False)
   @staticmethod
-  def Warns(id):#built-in function, check given player's warning(s).
+  def Warns(id):#built-in function, check given player's warning.
     if not Permission.IsValid(id):
       Kernel.Cout.Error("Current user does not exist.")
       Kernel.ErrChk(1,"Current user does not exist.")
@@ -1107,8 +1130,7 @@ class Permission:#permission level class.
       Kernel.Cout.Msg("This user has not been warned.")
       return 1
     IO.Save(True,"warn"+str(id),0,False,True)
-    IO.Save(True,"wmodid"+str(id),0,False,False)
-    Kernel.Cout.Msg("Moderator %s canceled warnings of player %s"%(Kernel.GetVar("userid"),id))
+    Kernel.Cout.Msg("Moderator %s canceled warning of player %s."%(Kernel.GetVar("userid"),id))
     return 0
   @staticmethod
   def Warn(id):#built-in function, issue a warning to given id.
@@ -1178,7 +1200,7 @@ class Permission:#permission level class.
       return 1
     IO.Save(True,"banned"+str(id),1,False,True)
     IO.Save(True,"bmodid"+str(id),int(Kernel.GetVar("userid")),False,False)
-    Kernel.Cout.Msg("Banned user ID '%s'."%(id))
+    Kernel.Cout.Msg("Moderator %s banned player '%s'."%(str(Kernel.GetVar("userid")),id))
     return 0
   @staticmethod
   def Unban(id):#built-in function, unban an user by userid.
@@ -1190,8 +1212,7 @@ class Permission:#permission level class.
       Kernel.Cout.Msg("This user has not been banned.")
       return 1
     IO.Save(True,"banned"+str(id),0,False,True)
-    IO.Save(True,"bmodid"+str(id),0,False,False)
-    Kernel.Cout.Msg("Unbanned user ID '%s'."%(id))
+    Kernel.Cout.Msg("Moderator %s unbanned player '%s'."%(str(Kernel.GetVar("userid")),id))
     return 0
   @staticmethod
   def IsBanned(id,getmodid=False):#built-in function, check if an user is banned by userid.
@@ -2706,5 +2727,5 @@ if (__name__=="__main__"):#all program starts from here.
     IO.Save(True,"newuser"+str(userid),0)
   del newuser,banned
   Kernel.Init(2)
-  Kernel.Init(1)
+  Kernel.Init(1,Kernel.GetVar("released",False,True))
   Kernel._GameLauncher()
