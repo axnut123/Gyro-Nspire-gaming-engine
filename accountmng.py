@@ -2,7 +2,7 @@ from ti_system import *
 import binascii as asc
 import sys
 
-version="1.4.4"
+version="1.4.5"
 perm=1
 
 def cout(text):
@@ -140,6 +140,8 @@ class Accounts:
         cout(">>help page 2(1/2)\n-cpw: change your password\n-cls: clear history.")
       elif g=="sudo":
         cout(">>Usage: sudo.<command>.\n>>To execute commands with admin privileges.")
+      elif g=="cls":
+        clear_history()
       elif g=="login":
         a=int(input(">Your ID(input 0 to cancel):"))
         if a==0:continue
