@@ -63,13 +63,14 @@ psx=int(0);
 psy=int(0);
 v_hev=int(0);
 PI=float(3.14159265358980);
-GAMEVER=str("IlChelcciCore 43 Build(0180)");
-VERINT=int(180);
-DEBUGDATE=str("2026/03/09");
+GAMEVER=str("IlChelcciCore 43 Build(0181)");
+VERINT=int(181);
+DEBUGDATE=str("2026/03/16");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2026, all rights reserved.");
 wpnslt=int(0);
+autobantrd=int(2);
 permissionlvl=int(1);
 item_suit=int(0);
 weapon_crb=int(0);
@@ -554,7 +555,7 @@ class Kernel:#Code base class.
   def _Console():#built-in function,for console.
     global arogmmd,runprgm,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,ingamemod,modscripts,usemod,vtk,erxt,novid,mod,dev,dr,langtype,usemod,modamount,autoloadmod,gcthresholdint,kingignores,released,GAMEVER,DEBUGDATE,GAMETITLE,openingtype,COMPANY,COPYRIGHT,permissionlvl,ignoreverchk
     Kernel.Cout.Preload("Console is created because game is in debug state.")
-    Kernel.Cout.Console("Welcome to ILCC console!\nTo get help, type help <page(1-7)>.")
+    Kernel.Cout.Console("Welcome to ILCC console!\nTo get help, type help <page(1-8)>.")
     gc.collect()
     while True:
       g=str(input("]"))
@@ -642,7 +643,7 @@ class Kernel:#Code base class.
       elif g=="savecfg"and permissionlvl>=1:
         Kernel.SaveCfg()
       elif g=="help 1"and permissionlvl>=1:
-        Kernel.Cout.Msg("IlChelcciCore engine help page 1:\nrun:start engine.\nhelp <page(1-7)>:get help.\nquit:stop engine and console.\nsetgeomet:set a new resolution for screen.\nforceexitonerror:forcibly stop whole engine when encounting any error and warn.\nversion:get engine version and credits.\nstatus:get hardware info.\ncls:clear screen.")
+        Kernel.Cout.Msg("IlChelcciCore engine help page 1:\nrun:start engine.\nhelp <page(1-8)>:get help.\nquit:stop engine and console.\nsetgeomet:set a new resolution for screen.\nforceexitonerror:forcibly stop whole engine when encounting any error and warn.\nversion:get engine version and credits.\nstatus:get hardware info.\ncls:clear screen.")
       elif g=="help 2"and permissionlvl>=1:
         Kernel.Cout.Msg("IlChelcciCore engine help page 2:\nloadgame:load game from saved file.\ndeletesave:delete saved game.\nmodinit:init installed mod.\nrunmod:start mod.\nmodver:get version for mod.\ndisablemod:disable mod.(pop)\nadjustthreshold:change the value for\ngc.threshold()\ndev: toggle developer mode.")
       elif g=="help 3"and permissionlvl>=1:
@@ -654,7 +655,9 @@ class Kernel:#Code base class.
       elif g=="help 6"and permissionlvl>=1:
         Kernel.Cout.Msg("IlChelcciCore engine help page 6:\nsay:say a string.\nignoreverchkonmod:toggle mod version check.\nsetapptitle:set a new app title.\ntogglebar:toggles title bar.\nban:ban an user by userid.\nunban:unban an user by userid.\nop:give an user op permission.\ndeop:remove an user's op permission.\nuser:check an user's permission level.")
       elif g=="help 7"and permissionlvl>=1:
-        Kernel.Cout.Msg("IlChelcciCore engine help page 7:\nisbanned:check ban state of given user ID.\npardon:same as unban.\nperm:set an user's permission level manually.\nconnvar:change a Nspire var.\ngetnvar:get a Nspire var.\nwarn:issue a warn to player.\nunwarn:cancel warn to player\nwarns:check player's warning.")
+        Kernel.Cout.Msg("IlChelcciCore engine help page 7:\nisbanned:check ban state of given user ID.\npardon:same as unban.\nperm:set an user's permission level manually.\nconnvar:change a Nspire var.\ngetnvar:get a Nspire var.\nwarn:issue a warn to player.\nunwarn:cancel warn to player\nwarns:check player's warning.\nsetautobanthreshold:set how many warns to auto ban.")
+      elif g=="help 8"and permissionlvl>=1:
+        Kernel.Cout.Msg("IlChelcciCore engine help page 8:\ngetautobanthreshold:get current auto ban threshold.")
       elif g=="connvar"and permissionlvl>=4:
         v=str(input("variable(input 0 to cancel):"))
         if v=="0":continue
@@ -672,10 +675,26 @@ class Kernel:#Code base class.
         except Exception as e:
           Kernel.Cout.Error("Unable to get var."+str(e))
         del getv
+      elif g=="setautobanthreshold" and permissionlvl>=4:
+        while True:
+          k=int(input("Auto ban after how many warnings?:"))
+          if k==0:
+            Kernel.Cout.Info("Cancelled.")
+            break
+          try:
+            Permission.SetAutoBanThreshold(int(k-1))
+            break
+          except:
+            Kernel.Cout.Error("Failed to set threshold.")
+            Kernel.ErrChk(1,"Failed to set threshold.")
+            break
+      elif g=="getautobanthreshold"and permissionlvl>=4:
+        Kernel.Cout.Info("Auto ban threshold is:%s."%(Permission.GetAutoBanThreshold()+1))
       elif g=="isbanned" and permissionlvl >=4:
         a=int(input("User ID to check ban state(input 0 to cancel):"))
+        if a==0:continue
         if Permission.IsValid(a) is False or a==0:
-          Kernel.Cout.Console("User ID does not exist.")
+          Kernel.Cout.Error("User ID does not exist.")
           continue
         if Permission.IsBanned(a) is False and Permission.IsBanned(a,True)!=0:
           Kernel.Cout.Info("User %s has not been banned. Latest ban to this player was issued by moderator %s."%(a,str(Permission.IsBanned(a,True))))
@@ -737,6 +756,7 @@ class Kernel:#Code base class.
           Kernel.Cout.Msg("Your warning:%s, issued by moderator:%s."%(str(userwarn),str(wmod)))
           continue
         a=str(input("User ID to check(input 0 to cancel):"))
+        if a=="0":continue
         userwarn,wmod=Permission.Warns(a)
         if int(userwarn)==0 and int(wmod)!=0:
           Kernel.Cout.Msg("Player %s have no active warning. latest warning to this player was issued by moderator:%s."%(a,str(wmod)))
@@ -852,7 +872,7 @@ class Kernel:#Code base class.
       elif g=="loadgame"and permissionlvl>=1:
         IO.Load()
       elif g=="help"and permissionlvl>=1:
-        Kernel.Cout.Msg("ILCC Command help.\nUsage: help <page 1-7>\nexample: help 1 for page 1.")
+        Kernel.Cout.Msg("ILCC Command help.\nUsage: help <page 1-8>\nexample: help 1 for page 1.")
       elif permissionlvl>=1 and g=="cls"or permissionlvl>=1 and g=="clr" or g=="clear"and permissionlvl>=1:
         clear_history()
       elif permissionlvl>=4 and g=="dev"or g=="developer"and permissionlvl>=4:
@@ -878,7 +898,7 @@ class Kernel:#Code base class.
           del g
           Kernel.quit(0)
       elif g=="":pass
-      else:Kernel.Cout.Console("Unknown command or lacking\npermission on command:"+str(g)+".\nType help <page(1-7)> to get help.")
+      else:Kernel.Cout.Console("Unknown command or lacking\npermission on command:"+str(g)+".\nType help <page(1-8)> to get help.")
     return 0
   @staticmethod
   def Opening(optp=1):#the engine opening.
@@ -1143,10 +1163,10 @@ class Permission:#permission level class.
       Kernel.ErrChk(1,"Cannot execute to yourself.")
       return 1
     warn=IO.Load(True,"warn"+str(id),False,True)
-    if warn==0:
+    if Permission.IsReachedAutoBanThreshold(warn) is False:
       warn+=1
       Kernel.Cout.Msg("Moderator %s issued a warning to player %s."%(Kernel.GetVar("userid"),id))
-    elif warn==1:
+    elif Permission.IsReachedAutoBanThreshold(warn) is True:
       warn=0
       Kernel.Cout.Msg("Moderator %s issued final warning to player %s."%(Kernel.GetVar("userid"),id))
       Permission.Ban(id)
@@ -1231,6 +1251,23 @@ class Permission:#permission level class.
   @staticmethod
   def Pardon(id):#built-in function, pardon an user by userid.
     Permission.Unban(id)
+  @staticmethod
+  def SetAutoBanThreshold(count,logout=False):#built-in function, change the auto ban threshold when warnings touches the threshold.
+    if count<1:
+      Kernel.Cout.Warn("Threshold cannot below 1, set to 1 automatically.")
+      count=1
+    IO.Save(True,"autobantrd",count,False)
+    Kernel.ConVar("autobantrd",count)
+    if logout is True:
+      Kernel.Cout.Info("Set auto ban threshold to:%s."%(count))
+    return 0
+  @staticmethod
+  def GetAutoBanThreshold():#bulit-in function. get auto ban threshold.
+    return IO.Load(True,"autobantrd",False,True)
+  @staticmethod
+  def IsReachedAutoBanThreshold(count):#built-in function. detect is input touches the threshold.
+    if count==int(Permission.GetAutoBanThreshold()):return True
+    else:return False
 class UniFX:#Universal VFX class.
   def __init__(self):pass
   @staticmethod

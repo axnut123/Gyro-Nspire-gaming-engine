@@ -2,7 +2,7 @@ from ti_system import *
 import binascii as asc
 import sys
 
-version="1.4.5"
+version="1.4.6"
 perm=1
 
 def cout(text):
@@ -112,6 +112,7 @@ class Accounts:
       ignorepw=True
     else:
       ignorepw=False
+    if ignorepw:password=Encrypt.DecryptStr(recall_value("pw"+str(ids)))
     if Accounts.Login(ids,password,True,ignorepw)!=0:return 1
     store_value("user"+str(ids),0)
     store_value("pw"+str(ids),0)
