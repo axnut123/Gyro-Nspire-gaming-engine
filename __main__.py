@@ -63,9 +63,9 @@ psx=int(0);
 psy=int(0);
 v_hev=int(0);
 PI=float(3.14159265358980);
-GAMEVER=str("IlChelcciCore 43 Build(0181)");
-VERINT=int(181);
-DEBUGDATE=str("2026/03/16");
+GAMEVER=str("IlChelcciCore 43 Build(0182)");
+VERINT=int(182);
+DEBUGDATE=str("2026/03/26");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2026, all rights reserved.");
@@ -101,6 +101,9 @@ gcenb=None;
 banned=int(0);
 newuser=int(0);
 emptysave=int(1);#True or False does not work.
+pushedtext={};
+queuetexts=str("");
+id=int(0);
 def Help(hptp=0):#built-in function, help infos. fill your own help in here.
   if hptp==0:
     return "Welcome to IlChelcciCore for TI-Nspire. For further information, please go to page 1.1."
@@ -957,6 +960,116 @@ class Kernel:#Code base class.
       paint_buffer()
     sleep(1.7)
     return optp
+class ConHost:#in-game console class.
+  stop=False
+  def __init__(self):pass
+  @staticmethod
+  def stopConsole():#built-in function. for quit console.
+    global id
+    pushedtext.clear()
+    id=0
+    ConHost.stop=True
+  @staticmethod
+  def Clear():#built-in function. for clear screen.
+    global id
+    pushedtext.clear()
+    id=0
+  @staticmethod
+  def queueText(inputs):#built-in function. for input lines.
+    global queuetexts
+    if inputs == "enter":
+      ConHost.pushText(queuetexts)
+      queuetexts=""
+      return 0
+    elif inputs=="del":
+      queuetexts=queuetexts[:-1]
+      return 0
+    elif inputs=="esc":
+      ConHost.stopConsole()
+      return 0
+    queuetexts=queuetexts+str(inputs)
+  @staticmethod
+  def pushText(queue):#built-in function. for submit input in buffer.
+    global pushedtext,id
+    pushedtext[id]=queue
+    id+=1
+    return 0
+  @staticmethod
+  def drawConsole(r=55,g=55,b=55):#built-in function. for draw console panel.
+    clear()
+    set_color(r,g,b)
+    set_pen("thin","solid")
+    fill_rect(0,0,320,300)
+  @staticmethod
+  def drawConsoleText(r=255,g=255,b=255):#built-in function. for draw console texts.
+    global pushedtext
+    textposy=185
+    set_color(r,g,b)
+    keys=list(pushedtext)
+    for index in range(len(keys) -1,-1,-1):
+      disptext=pushedtext.get(index)
+      draw_text(25,textposy,str(disptext))
+      textposy-=15
+      if textposy<=35:
+        return 0
+  @staticmethod
+  def drawConsoleInput():#built-in function. for drawing input lines.
+    global queuetexts
+    set_color(255,255,255)
+    draw_text(25,205,"]"+queuetexts)
+    return 0
+  @staticmethod
+  def GetPossibleCommand(inputs):#built-in function. for scanning possible commands.
+    global id,pushedtext#bruh im so lazy to fill up all commands, as you can see you can add command by adding elif.
+    if not inputs:return 1
+    if inputs=="stop":
+      ConHost.stopConsole()
+      return 0
+    elif inputs=="help":
+      ConHost.printf("Usage: help <pages>.")
+    elif inputs=="quit":
+      Kernel.quit(0)
+    elif inputs=="help 1":
+      helptexts={1:"dev: toggle dev mode.",
+      2:"cls: clear screen.",
+      3:"help <pages>: get command help.",
+      4:"stop: stop the console.",
+      5:"quit: quit engine"}
+      for i in helptexts:
+        ConHost.printf(helptexts.get(i))
+    elif inputs=="version" or inputs=="ver":
+      ConHost.printf("Game version:%s."%(Kernel.GetVar("GAMEVER")))
+    elif inputs=="cls":
+      ConHost.Clear()
+    elif inputs=="dev":
+      if Kernel.GetVar("dev") is False:
+        Kernel.ConVar("dev",True)
+        ConHost.printf("Dev is on.","[DEBUG]")
+      else:
+        Kernel.ConVar("dev",False)
+        ConHost.printf("Dev is off.","[DEBUG]")
+    else:
+      ConHost.printf("Unknown command:%s."%(inputs),"[CONSOLE]")
+    ConHost.pushText("")
+  @staticmethod
+  def printf(text,prefix=""):#built-in function. for print a text.
+    ConHost.pushText(prefix+text)
+    return 0
+  def main():#built-in function. main function for conhost.
+    global id,pushedtext
+    use_buffer()
+    while True:
+      if ConHost.stop is True:
+        ConHost.stop=False
+        return 0
+      k=get_key()
+      ConHost.queueText(k)
+      ConHost.drawConsole()
+      ConHost.drawConsoleInput()
+      ConHost.drawConsoleText(255,255,255)
+      ConHost.GetPossibleCommand(pushedtext.get(id-1))
+      paint_buffer()
+    k=get_key()
 class IO:#Input-Output class.
   def __init__(self):pass
   @staticmethod
@@ -1604,6 +1717,7 @@ class ActionUI:#UI class.
     "reso":"Resolution:",
     "set":"tab:settings",
     "titset":"Settings(press to toggle)",
+    "titcons":"Press var to open console",
     "erxt":"force exit on error",
     "gcisenb":"Is gc enabled",
     "totalmem":"Total Mem:",
@@ -1632,6 +1746,7 @@ class ActionUI:#UI class.
     "usemod":"启用模组",
     "lang":"简体中文",
     "erxt":"发生错误时退出",
+    "titcons":"按var来呼出控制台",
     "set":"tab:设置",
     "savecfg":"s:保存设置",
     "dbdate":"测试日期:",
@@ -1835,7 +1950,8 @@ class ActionUI:#UI class.
       draw_text(56,142,str(ActionUI.DispLanguage("357")))
     elif wintp==14:
       set_color(250,250,250)
-      draw_text(10,40,str(ActionUI.DispLanguage("titset")))
+      draw_text(10,20,str(ActionUI.DispLanguage("titset")))
+      draw_text(10,40,str(ActionUI.DispLanguage("titcons")))
       if not dev:set_color(190,190,190)
       else:set_color(250,250,250)
       ActionUI.CheckBox(10,45,dr);draw_text(30,60,"a:"+str(ActionUI.DispLanguage("dr")));set_color(250,250,250)
@@ -2456,6 +2572,8 @@ class Prgm:#program class.
               elif k=="f" and dev:Kernel.ToggleGcState()
               elif k=="s":
                 Kernel.SaveCfg()
+              elif k=="var":
+                ConHost.main()
               elif k=="esc":
                 ActionUI.DispUi(0,0,9)
                 if Kernel.GetVar("menuslt",False)==1:Assets.MainMenu1()
@@ -2571,6 +2689,9 @@ class Prgm:#program class.
             paint_buffer()
             sleep(0.1)
             break
+          elif k=="var":
+            ConHost.stop=False
+            ConHost.main()
           elif k=="f":
             if wpnslt==3:#Dont be afraid from lambda, its just letting the method waiting for wait function.
               StdUtil.WaitStart(150,lambda:Wbase.WeaponClip(1))
@@ -2685,6 +2806,8 @@ class Prgm:#program class.
                       elif k=="f" and dev:Kernel.ToggleGcState()
                       elif k=="s":
                         Kernel.SaveCfg()
+                      elif k=="var":
+                        ConHost.main()
                       elif k=="esc":
                         ActionUI.DispUi(0,0,9)
                         paint_buffer()
