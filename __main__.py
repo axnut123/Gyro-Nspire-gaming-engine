@@ -63,9 +63,9 @@ psx=int(0);
 psy=int(0);
 v_hev=int(0);
 PI=float(3.14159265358980);
-GAMEVER=str("IlChelcciCore 43 Build(0182)");
-VERINT=int(182);
-DEBUGDATE=str("2026/03/26");
+GAMEVER=str("IlChelcciCore 43 Build(0183)");
+VERINT=int(183);
+DEBUGDATE=str("2026/04/11");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2026, all rights reserved.");
@@ -1013,9 +1013,9 @@ class ConHost:#in-game console class.
       if textposy<=35:
         return 0
   @staticmethod
-  def drawConsoleInput():#built-in function. for drawing input lines.
+  def drawConsoleInput(r=255,g=255,b=255):#built-in function. for drawing input lines.
     global queuetexts
-    set_color(255,255,255)
+    set_color(r,g,b)
     draw_text(25,205,"]"+queuetexts)
     return 0
   @staticmethod
@@ -2040,8 +2040,8 @@ class StdUtil:#Builtins class, Standard utilities.
     action=callback
   @staticmethod
   def TriggerOnce(minx,miny,maxx,maxy,trgtp,show=False):#built-in function. trigger that only run once.
-    global v_live,psy,psx
-    if show:
+    global v_live,psy,psx,dev
+    if show and dev:
       set_pen("thick","dashed")
       set_color(0,0,250)
       draw_rect(minx,miny,maxx-minx,maxy-miny)
@@ -2060,8 +2060,8 @@ class StdUtil:#Builtins class, Standard utilities.
         return -1
   @staticmethod
   def Trigger(minx,miny,maxx,maxy,trgtp,show=False):#built-in function,for trigger a specific event.
-    global v_live,mapslt,psx,psy#map selection needs global var
-    if show:
+    global v_live,mapslt,psx,psy,dev#map selection needs global var
+    if show and dev:
       set_pen("thick","dashed")
       set_color(250,0,0)
       draw_rect(minx,miny,maxx-minx,maxy-miny)
@@ -2831,7 +2831,7 @@ class Prgm:#program class.
                     ActionUI.DispUi(0,0,9)
                     StdUtil.InMenu(True)
                     break
-                  elif k=="u":
+                  elif k=="u" and dev:
                     Kernel.ReverseGivenVar("debugs",True)
                 break
               break
