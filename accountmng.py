@@ -2,7 +2,7 @@ from ti_system import *
 import binascii as asc
 import sys
 
-version="1.4.6"
+version="1.4.7"
 perm=1
 
 def cout(text):
@@ -43,9 +43,9 @@ class Accounts:
       LoadedBannedStatus=recall_value("banned"+str(ids))
       LoadedWarnStatus=recall_value("warn"+str(ids))
       if LoadedBannedStatus==1 and not ignoreban:
-        cout(">>This account have been banned!")
+        cout(">>This account has been banned!")
       if LoadedWarnStatus==1 and not ignoreban:
-        cout(">>This account have an active warning.")
+        cout(">>This account has sevral active warnings.")
     except:
       cout(">>User ID or password incorrect!")
       return 1

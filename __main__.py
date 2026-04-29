@@ -39,6 +39,7 @@ apptitle=str("Half-Life 2");
 novid=bool(False);
 arogmmd=bool(False);
 modamount=int(100);
+keydown=str("");
 endtick=None;
 langtype=int(1);
 active=bool(False);
@@ -63,9 +64,9 @@ psx=int(0);
 psy=int(0);
 v_hev=int(0);
 PI=float(3.14159265358980);
-GAMEVER=str("IlChelcciCore 43 Build(0183)");
-VERINT=int(183);
-DEBUGDATE=str("2026/04/11");
+GAMEVER=str("IlChelcciCore 44 Build(0186)");
+VERINT=int(186);
+DEBUGDATE=str("2026/04/29");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2026, all rights reserved.");
@@ -109,12 +110,12 @@ def Help(hptp=0):#built-in function, help infos. fill your own help in here.
     return "Welcome to IlChelcciCore for TI-Nspire. For further information, please go to page 1.1."
 def version(vertype=0):#built-in function, version output. fill your version here.
   global GAMEVER,DEBUGDATE,GAMETITLE,COMPANY,COPYRIGHT
-  if vertype==0:return GAMEVER
-  elif vertype==1:return DEBUGDATE
-  elif vertype==2:return GAMETITLE
-  elif vertype==3:return COPYRIGHT
-  elif vertype==4:return COMPANY
-  elif vertype==5:return VERINT
+  if vertype==0 or vertype=="version":return GAMEVER
+  elif vertype==1 or vertype=="debugdate":return DEBUGDATE
+  elif vertype==2 or vertype=="title":return GAMETITLE
+  elif vertype==3 or vertype=="copyright":return COPYRIGHT
+  elif vertype==4 or vertype=="company":return COMPANY
+  elif vertype==5 or vertype=="verint":return VERINT
   else:raise ValueError("Unknown arguments.")
 class CfgError(Exception):pass
 class BadArguments(Exception):pass
@@ -124,6 +125,18 @@ class IOError(Exception):pass#MicroPy does not have this.
 class GameError(Exception):pass#Error classes.
 class Kernel:#Code base class.
   def __init__(self):pass
+  @staticmethod
+  def ReadKeyDown():#reads keyboard.
+    global keydown
+    keydown=get_key()
+    return keydown
+  @staticmethod
+  def ReadFile(filename):#built-in function. read a specified python file.
+    return _recall_py_file(filename)
+  @staticmethod
+  def ExecPyFile(filename):#built-in function. execute a specified python file.
+    exec(Kernel.ReadFile(filename))
+    return 0
   @staticmethod
   def ReverseGivenVar(var,logout=False):#built-in function, reverse true and false in a given var.
     if Kernel.GetVar(var) is not True and Kernel.GetVar(var) is not False:
@@ -166,8 +179,9 @@ class Kernel:#Code base class.
     while True:blocks.append(bytearray(1024*1024))
   @staticmethod
   def quit(code=None):#built-in function, in nspire cx ii python the quit function is not defined.
-    StdUtil.ConsoleLog(3,code)
+    Kernel.Cout.Info("Collecting garbage.")
     gc.collect()
+    StdUtil.ConsoleLog(3,code)
     raise SystemExit(code)
   @staticmethod
   def GetTotalMem(logout=False):#built-in function, for getting total memory.
@@ -204,12 +218,12 @@ class Kernel:#Code base class.
       if logout:Kernel.Cout.DevInfo("Gc enabled.")
       return True
   @staticmethod
-  def SaveCfg(modeR=False):#built-in function, saving cfg variable to nspire document.
+  def SaveCfg(modeR=False,doNotSavePerm=False):#built-in function, saving cfg variable to nspire document.
     global userid,arogmmd,ignoreverchk,scrgeometx,scrgeomety,scrgeometmx,scrgeometmy,gcthresholdint,autoloadmod,langtype,dev,dr,usemod,novid,modamount,erxt,openingtype,gcenb,showbar
     r=""
     suserid=str(userid)
     try:
-      IO.Save(True,"permlvl"+suserid,permissionlvl)
+      if doNotSavePerm is False:IO.Save(True,"permlvl"+suserid,permissionlvl)
       if langtype==1:
         IO.Save(True,"langtype"+suserid,1)
       elif langtype==2:
@@ -584,7 +598,7 @@ class Kernel:#Code base class.
           released=1
           IO.Save(True,"released",released)
           Kernel.SaveCfg(True)
-          Kernel.Cout.Console("Your game have been released,\nthis console will no longer launch at next startup.")
+          Kernel.Cout.Console("Your game has been released,\nthis console will no longer launch at next startup.")
         else:Kernel.Cout.Console("User cancelled.")
         del r
       elif g=="cancelrelease"and permissionlvl>=4:
@@ -595,7 +609,7 @@ class Kernel:#Code base class.
         if r=="y":
           released=0
           IO.Save(True,"released",released)
-          Kernel.Cout.Console("Game releasing have been\ncancelled.")
+          Kernel.Cout.Console("The game has been pulled.")
         else:Kernel.Cout.Console("User cancelled.")
         del r
       elif g=="getvar"and permissionlvl>=4:
@@ -660,7 +674,15 @@ class Kernel:#Code base class.
       elif g=="help 7"and permissionlvl>=1:
         Kernel.Cout.Msg("IlChelcciCore engine help page 7:\nisbanned:check ban state of given user ID.\npardon:same as unban.\nperm:set an user's permission level manually.\nconnvar:change a Nspire var.\ngetnvar:get a Nspire var.\nwarn:issue a warn to player.\nunwarn:cancel warn to player\nwarns:check player's warning.\nsetautobanthreshold:set how many warns to auto ban.")
       elif g=="help 8"and permissionlvl>=1:
-        Kernel.Cout.Msg("IlChelcciCore engine help page 8:\ngetautobanthreshold:get current auto ban threshold.")
+        Kernel.Cout.Msg("IlChelcciCore engine help page 8:\ngetautobanthreshold:get current auto ban threshold.\nexecf:execute a python file.")
+      elif g=="execf" and permissionlvl>=4:
+        f=input("enter file name(0 to cancel):")
+        if f==0 or f=="0":continue
+        try:
+          Kernel.ExecPyFile(str(f))
+        except Exception as e:
+          Kernel.Cout.Error("Error while reading file. %s"%(e))
+          Kernel.ErrChk(1,"Error while reading file.")
       elif g=="connvar"and permissionlvl>=4:
         v=str(input("variable(input 0 to cancel):"))
         if v=="0":continue
@@ -686,6 +708,7 @@ class Kernel:#Code base class.
             break
           try:
             Permission.SetAutoBanThreshold(int(k-1))
+            Kernel.Cout.Info("Done.")
             break
           except:
             Kernel.Cout.Error("Failed to set threshold.")
@@ -707,24 +730,24 @@ class Kernel:#Code base class.
           continue
         Kernel.Cout.Info("User ID %s's ban state is: '%s', banned by moderator: %s."%(a,Permission.IsBanned(a),str(Permission.IsBanned(a,True))))
       elif g=="ban"and permissionlvl>=4:
-        a=int(input("userid to ban(input 0 to cancel):"))
+        a=int(input("user ID to ban(input 0 to cancel):"))
         if a==0:continue
         Permission.Ban(a)
       elif g=="perm" and permissionlvl>=4 or g=="permission" and permissionlvl>=4:
-        a=int(input("userid(input 0 to cancel):"))
+        a=int(input("user ID(input 0 to cancel):"))
         if a==0:continue
         b=int(input("permission level to set:"))
         Permission.SetGroup(a,b)
       elif g=="unban"and permissionlvl>=4 or g=="pardon" and permissionlvl>=4:
-        a=int(input("userid to unban(input 0 to cancel):"))
+        a=int(input("user ID to unban(input 0 to cancel):"))
         if a==0:continue
         Permission.Unban(a)
       elif g=="op"and permissionlvl>=4:
-        a=int(input("userid to op(input 0 to cancel):"))
+        a=int(input("user ID to op(input 0 to cancel):"))
         if a==0:continue
         Permission.SetGroup(a,4)
       elif g=="deop"and permissionlvl>=4 or g=="pardon"and permissionlvl>=4:
-        a=int(input("userid to deop(input 0 to cancel):"))
+        a=int(input("user ID to deop(input 0 to cancel):"))
         if a==0:continue
         Permission.RemoveGroup(a)
       elif g=="togglebar"and permissionlvl>=1:
@@ -754,28 +777,28 @@ class Kernel:#Code base class.
             Kernel.Cout.Msg("You have no active warning. latest warning on you was issued by moderator:%s."%(str(wmod)))
             continue
           if userwarn==0:
-            Kernel.Cout.Msg("You have no active warning.")
+            Kernel.Cout.Msg("You have no active warnings.")
             continue
-          Kernel.Cout.Msg("Your warning:%s, issued by moderator:%s."%(str(userwarn),str(wmod)))
+          Kernel.Cout.Msg("Your warning(s):%s, issued by moderator:%s."%(str(userwarn),str(wmod)))
           continue
         a=str(input("User ID to check(input 0 to cancel):"))
         if a=="0":continue
         userwarn,wmod=Permission.Warns(a)
         if int(userwarn)==0 and int(wmod)!=0:
-          Kernel.Cout.Msg("Player %s have no active warning. latest warning to this player was issued by moderator:%s."%(a,str(wmod)))
+          Kernel.Cout.Msg("Player %s has no active warnings. latest warning to this player was issued by moderator:%s."%(a,str(wmod)))
           continue
         if not int(userwarn):
-          Kernel.Cout.Msg("This player have no active warning.")
+          Kernel.Cout.Msg("This player has no active warnings.")
           continue
-        Kernel.Cout.Msg("Player %s's warning:%s,issued by moderator:%s."%(a,str(userwarn),str(wmod)))
+        Kernel.Cout.Msg("Player %s's warning(s):%s,issued by moderator:%s."%(a,str(userwarn),str(wmod)))
         continue
       elif g=="user"and permissionlvl>=4:
         a=int(input("User ID(input 0 to cancel):"))
         if a==0:continue
         if Permission.IsValid(a) is False:
-          Kernel.Cout.Console("User ID does not exist.")
+          Kernel.Cout.Msg("User ID does not exist.")
           continue
-        Kernel.Cout.Console("User ID %s's permission level is: %s."%(a,Permission.User(a)))
+        Kernel.Cout.Msg("User ID %s's permission level is: %s."%(a,Permission.User(a)))
       elif g=="convar"and permissionlvl>=4:
         v=str(input("variable(input 0 to cancel):"))
         if v=="0":continue
@@ -788,7 +811,7 @@ class Kernel:#Code base class.
         del v,f
       elif g=="gc"and permissionlvl>=4:
         gc.collect()
-        Kernel.Cout.Console("Gc collect completed.")
+        Kernel.Cout.Console("Gc completed.")
       elif permissionlvl>=1 and g=="quit"or permissionlvl>=1 and g=="stop"or permissionlvl>=1 and g=="exit"or g=="esc"and permissionlvl>=1:
         del g
         Kernel.quit(0)
@@ -1056,20 +1079,19 @@ class ConHost:#in-game console class.
     ConHost.pushText(prefix+text)
     return 0
   def main():#built-in function. main function for conhost.
-    global id,pushedtext
+    global id,pushedtext,keydown
     use_buffer()
     while True:
       if ConHost.stop is True:
         ConHost.stop=False
         return 0
-      k=get_key()
-      ConHost.queueText(k)
+      Kernel.ReadKeyDown()
+      ConHost.queueText(keydown)
       ConHost.drawConsole()
       ConHost.drawConsoleInput()
       ConHost.drawConsoleText(255,255,255)
       ConHost.GetPossibleCommand(pushedtext.get(id-1))
       paint_buffer()
-    k=get_key()
 class IO:#Input-Output class.
   def __init__(self):pass
   @staticmethod
@@ -1526,7 +1548,7 @@ class Actors:#entity class.
       return 0
     @staticmethod
     def Status(*ignoretp):#built-in function, checking player status.
-      global v_live,item_suit
+      global v_live,item_suit,keydown
 #Do not let "ignoredisable" mixed with other argument,
 #same as "ignoreall".
       if "ignoredisable"in ignoretp:
@@ -1541,8 +1563,7 @@ class Actors:#entity class.
         paint_buffer()
         StdUtil.ConsoleLog(7)
         while True:
-           k=get_key()
-           if k=="enter":
+           if keydown=="enter":
              IO.Load()
              break
       if "ignorehud"not in ignoretp and item_suit:#hud.
@@ -2060,7 +2081,7 @@ class StdUtil:#Builtins class, Standard utilities.
         return -1
   @staticmethod
   def Trigger(minx,miny,maxx,maxy,trgtp,show=False):#built-in function,for trigger a specific event.
-    global v_live,mapslt,psx,psy,dev#map selection needs global var
+    global v_live,mapslt,psx,psy,dev,keydown#map selection needs global var
     if show and dev:
       set_pen("thick","dashed")
       set_color(250,0,0)
@@ -2068,9 +2089,10 @@ class StdUtil:#Builtins class, Standard utilities.
       set_pen("thin","solid")
     if psx>=minx and psx<=maxx and psy>=miny and psy<=maxy:
       if trgtp==1:
-        ActionUI.Title(120,80,1)
-        Kernel.Cout.Info("Trigger executed.")
-        return 1
+        if StdUtil.AfterEvents.System.GetKeyDown("e",keydown):
+          ActionUI.Title(120,80,1)
+          Kernel.Cout.Info("Trigger executed.")
+          return 1
       elif trgtp==2:
         mapslt=1
         StdUtil.ResetTrigger("gtemp1")
@@ -2086,6 +2108,31 @@ class StdUtil:#Builtins class, Standard utilities.
         Kernel.Cout.Info("Trigger is not defined.")
         Kernel.ErrChk(1,"Unknown trigger.")
         return -1
+  class AfterEvents:#after events listener.
+    def __init__(self):pass
+    class System:#sub-class system.
+      @staticmethod
+      def GetKeyDown(specifiedKey,getKey="None"):#detects keys.
+        global keydown
+        if getKey=="None":Kernel.ReadKeyDown()
+        if keydown==specifiedKey:
+          return True
+        else:return False
+    class Player:#sub-class player.
+      def __init__(self):pass
+      @staticmethod
+      def IsPlayerDead():#detects is player dead or not.
+        if int(Kernel.GetVar("v_live"))<=0:
+          return True
+        else:return False
+      @staticmethod
+      def IsPlayerAlive():#detects is player alive.
+        if StdUtil.AfterEvents.Player.IsPlayerDied() is True:
+          return False
+        else: return True
+  @staticmethod
+  def GetCurrentWorld():#gets current world.
+    return Kernel.GetVar("mapslt")
   @staticmethod
   def MouseBox(minx,miny,maxx,maxy,enabled):#built-in function.for checking mouse position.
 #Warn:better use keyboard to operate menu, using
@@ -2126,6 +2173,7 @@ class StdUtil:#Builtins class, Standard utilities.
     global mapslt
     if mapslt==0:
       Assets.c1a0()
+      StdUtil.Trigger(150,10,200,60,1,debugs)
       StdUtil.Trigger(0,0,20,50,2,debugs)
       StdUtil.TriggerOnce(150,50,300,150,1,debugs)
       return 0
@@ -2480,7 +2528,7 @@ class Prgm:#program class.
   @staticmethod
   def Main():#main function.It's a very standard template for engine.
     StdUtil.InMenu(True)
-    global userid,ingamemod,released,erxt,modscripts,langtype,mapslt,dev,dr,emptysave,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_pcn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,usemod,plspd,plw,plh,plr,plg,plb,kingignores
+    global userid,ingamemod,released,erxt,modscripts,langtype,mapslt,dev,dr,emptysave,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_pcn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,usemod,plspd,plw,plh,plr,plg,plb,kingignores,keydown
     suserid=str(userid)
     StdUtil.ConsoleLog(4)
     while True:#game logic loop.
@@ -2494,8 +2542,8 @@ class Prgm:#program class.
         gc.collect()
         paint_buffer()
         while True:#main menu.
-          k=get_key()
-          if k=="enter":
+          Kernel.ReadKeyDown()
+          if keydown=="enter":
             Assets.gmanintro()
             StdUtil.InMenu(False)
             Actors.King.Init(1,0,0,0)
@@ -2513,7 +2561,7 @@ class Prgm:#program class.
             Actors.King.Init(13,5)
             Actors.King.Init(14,"ignoredisable")
             break
-          elif k=="b":
+          elif keydown=="b":
             for i in range(2):
               if emptysave==1:IO.Load()
             if emptysave==1:continue
@@ -2521,16 +2569,16 @@ class Prgm:#program class.
             emptysave=0
             StdUtil.InMenu(False)
             break
-          elif k=="c":
+          elif keydown=="c":
             IO.Delete()
-          elif k=="menu":
+          elif keydown=="menu":
             ActionUI.DispUi(0,0,9)
             Kernel.ConVar("menuslt",randint(1,2),True)
             if Kernel.GetVar("menuslt",False)==1:Assets.MainMenu1()
             else:Assets.MainMenu2()
             ActionUI.DispUi(0,0,4)
             paint_buffer()
-          elif k=="a":
+          elif keydown=="a":
             Assets.gmanintlol()
             StdUtil.InMenu(False)
             emptysave=1
@@ -2549,91 +2597,91 @@ class Prgm:#program class.
             Actors.King.Init(13,5)
             Actors.King.Init(14,"ignoredisable")
             break
-          elif k=="tab":
+          elif keydown=="tab":
             while True:
-              k=get_key()
               clear()
               StdUtil.SettingMenu()
               paint_buffer()
-              if k=="a" and dev:
+              Kernel.ReadKeyDown()
+              if keydown=="a" and dev:
                 Kernel.ReverseGivenVar("dr")
-              elif k=="b" and not released:
+              elif keydown=="b" and not released:
                 Kernel.ReverseGivenVar("dev")
-              elif k=="c":#add more conditions if you have more language.
+              elif keydown=="c":#add more conditions if you have more language.
                 if langtype==1:
                   langtype=2
                 elif langtype==2:
                   langtype=1
-              elif k=="d":
+              elif keydown=="d":
                 Kernel.ReverseGivenVar("usemod")
-              elif k=="e" and dev:
+              elif keydown=="e" and dev:
                 if erxt==1:erxt=0
                 else:erxt=1
-              elif k=="f" and dev:Kernel.ToggleGcState()
-              elif k=="s":
+              elif keydown=="f" and dev:Kernel.ToggleGcState()
+              elif keydown=="s":
                 Kernel.SaveCfg()
-              elif k=="var":
+              elif keydown=="var":
                 ConHost.main()
-              elif k=="esc":
+              elif keydown=="esc":
                 ActionUI.DispUi(0,0,9)
                 if Kernel.GetVar("menuslt",False)==1:Assets.MainMenu1()
                 else:Assets.MainMenu2()
                 ActionUI.DispUi(0,0,4)
                 paint_buffer()
                 break
-          elif k=="esc":
+          elif keydown=="esc":
             Kernel.quit(0)
         clear()
         gc.collect()
       if dr:StdUtil.ConsoleLog(1)#print a log when screen update.
       StdUtil.MapStat()#logic check in here,define your trigger in this function.
       for key in ["None"]:
-        while k!=key and not StdUtil.IsInMenu():
-          k=get_key()
+        while keydown!=key and not StdUtil.IsInMenu():
           Kernel.WaitUpdate()
+          Kernel.ReadKeyDown()
           StdUtil.MapStat()
           ActionUI.DispUi(0,0,2)
           Kernel._ModHandler(5)
           Actors.King.Draw()
           Actors.King.Status(kingignores)
-          if k=="u" and dev:
+          if keydown=="u" and dev:
             Kernel.ReverseGivenVar("debugs",True)
             break
-          elif k=="right":
+          elif keydown=="right":
             Actors.King.Move(0,"right",plspd)
             break
-          elif k=="left":
+          elif keydown=="left":
             Actors.King.Move(0,"left",plspd)
             break
-          elif k=="up":
+          elif keydown=="up":
             Actors.King.Move(0,"up",plspd)
             break
-          elif k=="down":
+          elif keydown=="down":
             Actors.King.Move(0,"down",plspd)
             break
-          elif k=="p" and dev:
+          elif keydown=="p" and dev:
             Actors.King.Kick()
-          elif k=="t" and dev:
+          elif keydown=="t" and dev:
             Actors.King.ModifyVal("damage","v_hev",10,True)
             break
-          elif k=="s"and dev:
+          elif keydown=="s"and dev:
             Actors.King.ModifyVal("heal","v_hev",10,True)
             break
-          elif k=="z"and dev:
+          elif keydown=="z"and dev:
             Actors.King.ModifyVal("damage","v_live",10,True)
             break
-          elif k=="h"and dev:
+          elif keydown=="h"and dev:
             Wbase.EventAmmoPick(1,18)
             Wbase.EventAmmoPick(2,6)
             break
-          elif k=="y"and dev:
+          elif keydown=="y"and dev:
             Actors.King.ModifyVal("heal","v_live",10,True)
             break
-          elif k=="tab" and dev:
+          elif keydown=="tab" and dev:
             gc.collect()
             Kernel.Cout.Debug("gc collect completed.")
             break
-          elif k=="d":
+          elif keydown=="d":
             if wpnslt==3 and weapon_pst==1 and inclip9!=0:
               inclip9-=1
               UniFX.BulletFX.BltFlr(1)
@@ -2647,7 +2695,7 @@ class Prgm:#program class.
             paint_buffer()
             sleep(0.1)
             break
-          elif k=="r":
+          elif keydown=="r":
             if wpnslt==3 and weapon_pst==1 and inclip9!=0:
               inclip9-=1
               UniFX.BulletFX.BltFlr(5)
@@ -2661,7 +2709,7 @@ class Prgm:#program class.
             paint_buffer()
             sleep(0.1)
             break
-          elif k=="j":
+          elif keydown=="j":
             if wpnslt==3 and weapon_pst==1 and inclip9!=0:
               inclip9-=1
               UniFX.BulletFX.BltFlr(9)
@@ -2675,7 +2723,7 @@ class Prgm:#program class.
             paint_buffer()
             sleep(0.1)
             break
-          elif k=="l":
+          elif keydown=="l":
             if wpnslt==3 and weapon_pst==1 and inclip9!=0:
               inclip9-=1
               UniFX.BulletFX.BltFlr(13)
@@ -2689,24 +2737,24 @@ class Prgm:#program class.
             paint_buffer()
             sleep(0.1)
             break
-          elif k=="var":
+          elif keydown=="var":
             ConHost.stop=False
             ConHost.main()
-          elif k=="f":
+          elif keydown=="f":
             if wpnslt==3:#Dont be afraid from lambda, its just letting the method waiting for wait function.
               StdUtil.WaitStart(150,lambda:Wbase.WeaponClip(1))
             elif wpnslt==4:
               StdUtil.WaitStart(300,lambda:Wbase.WeaponClip(2))
             break
-          elif k=="w"and dev:
+          elif keydown=="w"and dev:
             Actors.King.Kill()
-          elif k=="menu"and dev:
+          elif keydown=="menu"and dev:
             Actors.King.Init(8,1)
             Actors.King.Init(9,1)
             Actors.King.Init(10,1)
             Actors.King.Init(11,1)
             Actors.King.Init(12,1)
-          elif k=="1":
+          elif keydown=="1":
             if item_suit==1:pass
             else:break
             ActionUI.DispUi(0,0,5)
@@ -2715,26 +2763,26 @@ class Prgm:#program class.
             if weapon_pcn==1:
               ActionUI.DispUi(0,0,11)
             paint_buffer()
-            while k!="0":
-              k=get_key()
-              if k=="0":
+            while keydown!="0":
+              Kernel.ReadKeyDown()
+              if keydown=="0":
                 clear()
                 StdUtil.MapStat()
                 Actors.King.Draw()
                 break
-              elif k=="1" and weapon_crb==1:
+              elif keydown=="1" and weapon_crb==1:
                 Wbase.SelectWeapon(1)
                 clear()
                 StdUtil.MapStat()
                 Actors.King.Draw()
                 break
-              elif k=="2" and weapon_pcn==1:
+              elif keydown=="2" and weapon_pcn==1:
                 Wbase.SelectWeapon(2)
                 clear()
                 StdUtil.MapStat()
                 Actors.King.Draw()
                 break
-          elif k=="2":
+          elif keydown=="2":
             if item_suit==1:pass
             else:break
             ActionUI.DispUi(0,0,5)
@@ -2743,20 +2791,20 @@ class Prgm:#program class.
             if weapon_357==1:
               ActionUI.DispUi(0,0,13)
             paint_buffer()
-            while k!="0":
-              k=get_key()
-              if k=="0":
+            while keydown!="0":
+              Kernel.ReadKeyDown()
+              if keydown=="0":
                 clear()
                 StdUtil.MapStat()
                 Actors.King.Draw()
                 break
-              elif k=="1" and weapon_pst==1 and ammo9!=0:
+              elif keydown=="1" and weapon_pst==1 and ammo9!=0:
                 Wbase.SelectWeapon(3)
                 clear()
                 StdUtil.MapStat()
                 Actors.King.Draw()
                 break
-              elif k=="2" and weapon_357==1 and ammo357!=0:
+              elif keydown=="2" and weapon_357==1 and ammo357!=0:
                 Wbase.SelectWeapon(4)
                 clear()
                 StdUtil.MapStat()
@@ -2764,60 +2812,61 @@ class Prgm:#program class.
                 break
               paint_buffer()
             break
-          elif k=="esc":
+          elif keydown=="esc":
             while True:#pause menu.
               StdUtil.PauseMenu()
               ky="0"
               paint_buffer()
               for ky in["None"]:
-                while k!=ky:
+                Kernel.ReadKeyDown()
+                while keydown!=ky:
                   clear()
                   StdUtil.PauseMenu()
-                  k=get_key()
                   emptysave=IO.Load(True,"emptysave"+suserid,False)
                   ActionUI.DispUi(0,0,2)
                   paint_buffer()
-                  if k=="esc":
+                  Kernel.ReadKeyDown()
+                  if keydown=="esc":
                     clear()
                     break
-                  elif k=="q":
+                  elif keydown=="q":
                     Kernel.quit(0)
                     break
-                  elif k=="tab":
+                  elif keydown=="tab":
                     while True:
-                      k=get_key()
+                      Kernel.ReadKeyDown()
                       clear()
                       StdUtil.SettingMenu()
                       paint_buffer()
-                      if k=="a" and dev:
+                      if keydown=="a" and dev:
                         Kernel.ReverseGivenVar("dr")
-                      elif k=="b" and not released:
+                      elif keydown=="b" and not released:
                         Kernel.ReverseGivenVar("dev")
-                      elif k=="c":#add more conditions if you have more language.
+                      elif keydown=="c":#add more conditions if you have more language.
                         if langtype==1:
                           langtype=2
                         elif langtype==2:
                           langtype=1
-                      elif k=="d":
+                      elif keydown=="d":
                         Kernel.ReverseGivenVar("usemod")
-                      elif k=="e" and dev:
+                      elif keydown=="e" and dev:
                         if erxt==1:erxt=0
                         else:erxt=1
-                      elif k=="f" and dev:Kernel.ToggleGcState()
-                      elif k=="s":
+                      elif keydown=="f" and dev:Kernel.ToggleGcState()
+                      elif keydown=="s":
                         Kernel.SaveCfg()
-                      elif k=="var":
+                      elif keydown=="var":
                         ConHost.main()
-                      elif k=="esc":
+                      elif keydown=="esc":
                         ActionUI.DispUi(0,0,9)
                         paint_buffer()
                         clear()
                         break
-                  elif k=="d":
+                  elif keydown=="d":
                     IO.Delete()
-                  elif k=="s":
+                  elif keydown=="s":
                     IO.Save()
-                  elif k=="l":
+                  elif keydown=="l":
                     if emptysave==1:
                       for i in range(2):
                         if emptysave==1:IO.Load()
@@ -2825,13 +2874,13 @@ class Prgm:#program class.
                     emptysave=0
                     IO.Load()
                     break
-                  elif k=="menu":
+                  elif keydown=="menu":
                     Kernel.Cout.Info("Return to main menu.")
                     Kernel.ConVar("menuslt",randint(1,2),False)
                     ActionUI.DispUi(0,0,9)
                     StdUtil.InMenu(True)
                     break
-                  elif k=="u" and dev:
+                  elif keydown=="u" and dev:
                     Kernel.ReverseGivenVar("debugs",True)
                 break
               break
@@ -2850,6 +2899,7 @@ if (__name__=="__main__"):#all program starts from here.
   try:#import check.
     from ti_system import *#normally,gui tools are also included in ti_system.
     import micropython as mp
+    from ti_st import _recall_py_file
     if get_platform()=="pc":
       import gcc as gc
       import tkinter as tk
@@ -2879,10 +2929,10 @@ if (__name__=="__main__"):#all program starts from here.
   banned=int(IO.Load(True,"banned"+str(userid),False,True))
   newuser=int(IO.Load(True,"newuser"+str(userid),False,True))
   if banned==1 or banned=="1":
-    Kernel.Cout.Fatal("Your account have been banned from\nthis game.\nBanned by moderator:%s."%(str(Permission.IsBanned(userid,True))))
+    Kernel.Cout.Fatal("Your account has been banned from\nthis game.\nBanned by moderator:%s."%(str(Permission.IsBanned(userid,True))))
     Kernel.quit(1)
   if newuser==1 or newuser=="1":
-    Kernel.SaveCfg()
+    Kernel.SaveCfg(False,True)
     IO.Delete()
     IO.Save(True,"newuser"+str(userid),0)
   del newuser,banned
