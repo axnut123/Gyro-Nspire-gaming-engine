@@ -64,9 +64,9 @@ psx=int(0);
 psy=int(0);
 v_hev=int(0);
 PI=float(3.14159265358980);
-GAMEVER=str("IlChelcciCore 44 Build(0186)");
+GAMEVER=str("IlChelcciCore 44 Build(0187)");
 VERINT=int(186);
-DEBUGDATE=str("2026/04/29");
+DEBUGDATE=str("2026/05/04");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2026, all rights reserved.");
@@ -125,6 +125,11 @@ class IOError(Exception):pass#MicroPy does not have this.
 class GameError(Exception):pass#Error classes.
 class Kernel:#Code base class.
   def __init__(self):pass
+  @staticmethod
+  def _ReplaceOutput(inputs,outputs="There is nothing yet."):#replacing 0, "0", None to a dedicated text.
+    if inputs==0 or inputs is None or inputs=="0":
+      return outputs
+    else:return inputs
   @staticmethod
   def ReadKeyDown():#reads keyboard.
     global keydown
@@ -700,9 +705,10 @@ class Kernel:#Code base class.
         except Exception as e:
           Kernel.Cout.Error("Unable to get var."+str(e))
         del getv
-      elif g=="setautobanthreshold" and permissionlvl>=4:
+      elif g=="setautobanthreshold" and permissionlvl>=3:
         while True:
-          k=int(input("Auto ban after how many warnings?:"))
+          Kernel.Cout.Msg("(input 0 to cancel)")
+          k=int(input("Auto ban after how many warnings:"))
           if k==0:
             Kernel.Cout.Info("Cancelled.")
             break
@@ -714,22 +720,22 @@ class Kernel:#Code base class.
             Kernel.Cout.Error("Failed to set threshold.")
             Kernel.ErrChk(1,"Failed to set threshold.")
             break
-      elif g=="getautobanthreshold"and permissionlvl>=4:
+      elif g=="getautobanthreshold"and permissionlvl>=3:
         Kernel.Cout.Info("Auto ban threshold is:%s."%(Permission.GetAutoBanThreshold()+1))
-      elif g=="isbanned" and permissionlvl >=4:
+      elif g=="isbanned" and permissionlvl >=3:
         a=int(input("User ID to check ban state(input 0 to cancel):"))
         if a==0:continue
         if Permission.IsValid(a) is False or a==0:
           Kernel.Cout.Error("User ID does not exist.")
           continue
         if Permission.IsBanned(a) is False and Permission.IsBanned(a,True)!=0:
-          Kernel.Cout.Info("User %s has not been banned. Latest ban to this player was issued by moderator %s."%(a,str(Permission.IsBanned(a,True))))
+          Kernel.Cout.Msg("User %s has not been banned. Latest ban to this player was issued by moderator %s."%(a,str(Permission.IsBanned(a,True))))
           continue
         if Permission.IsBanned(a) is False:
-          Kernel.Cout.Info("User %s has not been banned."%(a))
+          Kernel.Cout.Msg("User %s has not been banned."%(a))
           continue
-        Kernel.Cout.Info("User ID %s's ban state is: '%s', banned by moderator: %s."%(a,Permission.IsBanned(a),str(Permission.IsBanned(a,True))))
-      elif g=="ban"and permissionlvl>=4:
+        Kernel.Cout.Msg("User ID %s has been banned by moderator: %s."%(a,str(Permission.IsBanned(a,True))))
+      elif g=="ban"and permissionlvl>=3:
         a=int(input("user ID to ban(input 0 to cancel):"))
         if a==0:continue
         Permission.Ban(a)
@@ -738,7 +744,7 @@ class Kernel:#Code base class.
         if a==0:continue
         b=int(input("permission level to set:"))
         Permission.SetGroup(a,b)
-      elif g=="unban"and permissionlvl>=4 or g=="pardon" and permissionlvl>=4:
+      elif g=="unban"and permissionlvl>=3 or g=="pardon" and permissionlvl>=3:
         a=int(input("user ID to unban(input 0 to cancel):"))
         if a==0:continue
         Permission.Unban(a)
@@ -760,18 +766,18 @@ class Kernel:#Code base class.
         Kernel.ConVar("apptitle",s)
         Kernel.Cout.Console("New title is: %s."%(Kernel.GetVar("apptitle")))
       elif g=="me"and permissionlvl>=1:
-        Kernel.Cout.Msg("Current user is: %s."%(Kernel.GetVar("userid")))
+        Kernel.Cout.Msg("Current user is: %s."%(Kernel._ReplaceOutput(Kernel.GetVar("userid"),"Not logged in.")))
         Kernel.Cout.Msg("Your current permission level is: %s."%(permissionlvl))
-      elif g=="warn" and permissionlvl>=4:
+      elif g=="warn" and permissionlvl>=3:
         a=str(input("User ID(input 0 to cancel):"))
         if a=="0":continue
         Permission.Warn(a)
-      elif g=="unwarn" and permissionlvl>=4:
+      elif g=="unwarn" and permissionlvl>=3:
         a=str(input("User ID(input 0 to cancel):"))
         if a=="0":continue
         Permission.UnWarn(a)
       elif g=="warns" and permissionlvl>=1:
-        if permissionlvl<4:
+        if permissionlvl<3:
           userwarn,wmod=Permission.Warns(userid)
           if int(userwarn)==0 and int(wmod)!=0:
             Kernel.Cout.Msg("You have no active warning. latest warning on you was issued by moderator:%s."%(str(wmod)))
@@ -792,13 +798,13 @@ class Kernel:#Code base class.
           continue
         Kernel.Cout.Msg("Player %s's warning(s):%s,issued by moderator:%s."%(a,str(userwarn),str(wmod)))
         continue
-      elif g=="user"and permissionlvl>=4:
+      elif g=="user"and permissionlvl>=3:
         a=int(input("User ID(input 0 to cancel):"))
         if a==0:continue
         if Permission.IsValid(a) is False:
           Kernel.Cout.Msg("User ID does not exist.")
           continue
-        Kernel.Cout.Msg("User ID %s's permission level is: %s."%(a,Permission.User(a)))
+        Kernel.Cout.Msg("User ID %s's permission level is: %s."%(a,Kernel._ReplaceOutput(Permission.User(a),"Does not have any permissions yet.")))
       elif g=="convar"and permissionlvl>=4:
         v=str(input("variable(input 0 to cancel):"))
         if v=="0":continue
@@ -1088,7 +1094,7 @@ class ConHost:#in-game console class.
       Kernel.ReadKeyDown()
       ConHost.queueText(keydown)
       ConHost.drawConsole()
-      ConHost.drawConsoleInput()
+      ConHost.drawConsoleInput(150,255,150)
       ConHost.drawConsoleText(255,255,255)
       ConHost.GetPossibleCommand(pushedtext.get(id-1))
       paint_buffer()
@@ -1261,6 +1267,15 @@ class Permission:#permission level class.
       return False
     else: return True
   @staticmethod
+  def AutoCorrectState(id):#preventing warned, banned by user id 0.
+    if int(IO.Load(True,"warn"+str(id),False,True))!=0 and int(IO.Load(True,"wmodid"+str(id),False,True))==0:
+      IO.Save(True,"warn"+str(id),0,False)
+      Kernel.Cout.Info("Invalid warning state detected, auto unwarn success.")
+    if int(IO.Load(True,"banned"+str(id),False,True))!=0 and int(IO.Load(True,"bmodid"+str(id),False,True))==0:
+      IO.Save(True,"banned"+str(id),0,False)
+      Kernel.Cout.Info("Invalid ban state detected, auto unban success.")
+    return 0
+  @staticmethod
   def User(id):#built-in function, get current permission level.
     if not Permission.IsValid(id):
       Kernel.Cout.Error("Current user does not exist.")
@@ -1275,7 +1290,7 @@ class Permission:#permission level class.
       return 0,0#return code meaning:(0,0) does not exist.
     return IO.Load(True,"warn"+str(id),False,True),IO.Load(True,"wmodid"+str(id),False,True)
   @staticmethod
-  def UnWarn(id):#built-in function, cancel warnings to given id.
+  def UnWarn(id,customName=0):#built-in function, cancel warnings to given id.
     if not Permission.IsValid(id):
       Kernel.Cout.Error("Current user does not exist.")
       Kernel.ErrChk(1,"Current user does not exist.")
@@ -1285,7 +1300,10 @@ class Permission:#permission level class.
       Kernel.Cout.Msg("This user has not been warned.")
       return 1
     IO.Save(True,"warn"+str(id),0,False,True)
-    Kernel.Cout.Msg("Moderator %s canceled warning of player %s."%(Kernel.GetVar("userid"),id))
+    if customName==0 or customName=="0":
+      name=str(Kernel.GetVar("userid"))
+    else:name=str(customName)
+    Kernel.Cout.Msg("Moderator %s canceled warning of player %s."%(name,id))
     return 0
   @staticmethod
   def Warn(id):#built-in function, issue a warning to given id.
@@ -1358,7 +1376,7 @@ class Permission:#permission level class.
     Kernel.Cout.Msg("Moderator %s banned player '%s'."%(str(Kernel.GetVar("userid")),id))
     return 0
   @staticmethod
-  def Unban(id):#built-in function, unban an user by userid.
+  def Unban(id,customName=0):#built-in function, unban an user by userid.
     if not Permission.IsValid(id):
       Kernel.Cout.Error("Current user does not exist.")
       Kernel.ErrChk(1,"Current user does not exist.")
@@ -1367,7 +1385,10 @@ class Permission:#permission level class.
       Kernel.Cout.Msg("This user has not been banned.")
       return 1
     IO.Save(True,"banned"+str(id),0,False,True)
-    Kernel.Cout.Msg("Moderator %s unbanned player '%s'."%(str(Kernel.GetVar("userid")),id))
+    if customName==0 or customName=="0":
+      name=str(Kernel.GetVar("userid"))
+    else:name=str(customName)
+    Kernel.Cout.Msg("Moderator %s unbanned player '%s'."%(name,id))
     return 0
   @staticmethod
   def IsBanned(id,getmodid=False):#built-in function, check if an user is banned by userid.
@@ -1401,7 +1422,7 @@ class Permission:#permission level class.
     return IO.Load(True,"autobantrd",False,True)
   @staticmethod
   def IsReachedAutoBanThreshold(count):#built-in function. detect is input touches the threshold.
-    if count==int(Permission.GetAutoBanThreshold()):return True
+    if count>=int(Permission.GetAutoBanThreshold()):return True
     else:return False
 class UniFX:#Universal VFX class.
   def __init__(self):pass
@@ -2926,6 +2947,7 @@ if (__name__=="__main__"):#all program starts from here.
   if userid==0 or userid=="0":
     Kernel.Cout.Error("You need an account to play this\ngame!")
     Kernel.quit(1)
+  Permission.AutoCorrectState(userid)
   banned=int(IO.Load(True,"banned"+str(userid),False,True))
   newuser=int(IO.Load(True,"newuser"+str(userid),False,True))
   if banned==1 or banned=="1":

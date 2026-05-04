@@ -2,7 +2,7 @@ from ti_system import *
 import binascii as asc
 import sys
 
-version="1.4.7"
+version="1.4.8"
 perm=1
 
 def cout(text):
@@ -12,7 +12,12 @@ def cout(text):
 def cvar(var,val):
   globals()[var]=val
   return var,val
-  
+
+def replaceout(inputs,outputs="There is nothing yet."):#replacing 0, "0", None to a dedicated text.
+  if inputs==0 or inputs is None or inputs=="0":
+    return outputs
+  else:return inputs
+
 def gvar(var):
   return globals().get(var)
   
@@ -45,7 +50,7 @@ class Accounts:
       if LoadedBannedStatus==1 and not ignoreban:
         cout(">>This account has been banned!")
       if LoadedWarnStatus==1 and not ignoreban:
-        cout(">>This account has sevral active warnings.")
+        cout(">>This account has several active warnings.")
     except:
       cout(">>User ID or password incorrect!")
       return 1
@@ -191,7 +196,7 @@ class Accounts:
             continue
           if Accounts.CPassword(d,str(Encrypt.DecryptStr(str(recall_value("pw"+str(d))))),a,True)==0:break
       elif g=="me":
-        cout(">>Current user ID is: %s.\nPermission level is:%s."%(recall_value("loggedinuser"),perm))
+        cout(">>Current user ID is: %s.\nPermission level is:%s."%(replaceout(recall_value("loggedinuser"),"Not logged in yet..."),perm))
       elif g=="stop" or g=="exit" or g=="quit" or g=="esc":
         quit(0)
       elif g=="help":
