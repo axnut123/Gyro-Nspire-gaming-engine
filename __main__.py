@@ -64,9 +64,9 @@ psx=int(0);
 psy=int(0);
 v_hev=int(0);
 PI=float(3.14159265358980);
-GAMEVER=str("IlChelcciCore 44 Build(0188)");
-VERINT=int(188);
-DEBUGDATE=str("2026/05/05");
+GAMEVER=str("IlChelcciCore 44 Build(0189)");
+VERINT=int(189);
+DEBUGDATE=str("2026/05/06");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2026, all rights reserved.");
@@ -679,7 +679,7 @@ class Kernel:#Code base class.
       elif g=="help 7"and permissionlvl>=1:
         Kernel.Cout.Msg("IlChelcciCore engine help page 7:\nisbanned:check ban state of given user ID.\npardon:same as unban.\nperm:set an user's permission level manually.\nconnvar:change a Nspire var.\ngetnvar:get a Nspire var.\nwarn:issue a warn to player.\nunwarn:cancel warn to player\nwarns:check player's warning.\nsetautobanthreshold:set how many warns to auto ban.")
       elif g=="help 8"and permissionlvl>=1:
-        Kernel.Cout.Msg("IlChelcciCore engine help page 8:\ngetautobanthreshold:get current auto ban threshold.\nexecf:execute a python file.")
+        Kernel.Cout.Msg("IlChelcciCore engine help page 8:\ngetautobanthreshold:get current auto ban threshold.\nexecf:execute a python file.\ngroup:show groups info.\nlogout:logout and stop game instance.")
       elif g=="execf" and permissionlvl>=4:
         f=input("enter file name(0 to cancel):")
         if f==0 or f=="0":continue
@@ -691,8 +691,7 @@ class Kernel:#Code base class.
       elif g=="connvar"and permissionlvl>=4:
         v=str(input("variable(input 0 to cancel):"))
         if v=="0":continue
-        f=input("value(input 0 to cancel):")
-        if f==0:continue
+        f=input("value:")
         try:
           Kernel.ConVar(v,int(f),True,True)
         except Exception as e:
@@ -765,6 +764,10 @@ class Kernel:#Code base class.
         if s=="0":continue
         Kernel.ConVar("apptitle",s)
         Kernel.Cout.Console("New title is: %s."%(Kernel.GetVar("apptitle")))
+      elif g=="group" and permissionlvl>=1:
+        Kernel.Cout.Msg("ILCC Permission Groups:\n1. Player\n2. Assistant\n3. Moderator/Admin\n4. Operator\n5. SYSTEM (Protected user)")
+      elif g=="logout" and permissionlvl>=1:
+        Permission.Logout()
       elif g=="me"and permissionlvl>=1:
         Kernel.Cout.Msg("Current user is: %s."%(Kernel._ReplaceOutput(Kernel.GetVar("userid"),"Not logged in.")))
         Kernel.Cout.Msg("Your current permission level is: %s."%(permissionlvl))
@@ -810,8 +813,7 @@ class Kernel:#Code base class.
       elif g=="convar"and permissionlvl>=4:
         v=str(input("variable(input 0 to cancel):"))
         if v=="0":continue
-        f=str(input("value(input 0 to cancel):"))
-        if f=="0":continue
+        f=str(input("value:"))
         try:
           Kernel.ConVar(v,f,True)
         except Exception as e:
@@ -1263,6 +1265,15 @@ class IO:#Input-Output class.
 class Permission:#permission level class.
   def __init__(self):pass
   @staticmethod
+  def Logout():#logout.
+    IO.Save(True,"loggedinuser",0,False)
+    Kernel.Cout.Msg("Session ended, game instance will be terminated.")
+    Kernel.quit(0)
+  @staticmethod
+  def _ProtectedUser():#show a message.
+    Kernel.Cout.Msg("You cannot issue any commands to this user.")
+    return 0
+  @staticmethod
   def IsValid(id):#built-in function, validate given id.
     if id==int(110679):return True
     a=int(IO.Load(True,"user"+str(id),False,True))
@@ -1281,6 +1292,7 @@ class Permission:#permission level class.
   @staticmethod
   def User(id):#built-in function, get current permission level.
     if id==int(110679):
+      Permission._ProtectedUser()
       return 5
     if not Permission.IsValid(id):
       Kernel.Cout.Error("Current user does not exist.")
@@ -1289,7 +1301,9 @@ class Permission:#permission level class.
     return IO.Load(True,"permlvl"+str(id),False,False)
   @staticmethod
   def Warns(id):#built-in function, check given player's warning.
-    if id==int(110679):return (0,0)
+    if id==int(110679):
+      Permission._ProtectedUser()
+      return (0,0)
     if not Permission.IsValid(id):
       Kernel.Cout.Error("Current user does not exist.")
       Kernel.ErrChk(1,"Current user does not exist.")
@@ -1297,7 +1311,9 @@ class Permission:#permission level class.
     return IO.Load(True,"warn"+str(id),False,True),IO.Load(True,"wmodid"+str(id),False,True)
   @staticmethod
   def UnWarn(id,customName=0):#built-in function, cancel warnings to given id.
-    if id==int(110679):return 1
+    if id==int(110679):
+      Permission._ProtectedUser()
+      return 1
     if not Permission.IsValid(id):
       Kernel.Cout.Error("Current user does not exist.")
       Kernel.ErrChk(1,"Current user does not exist.")
@@ -1314,7 +1330,9 @@ class Permission:#permission level class.
     return 0
   @staticmethod
   def Warn(id,customName=0):#built-in function, issue a warning to given id.
-    if id==int(110679):return 1
+    if id==int(110679):
+      Permission._ProtectedUser()
+      return 1
     if not Permission.IsValid(id):
       Kernel.Cout.Error("Current user does not exist.")
       Kernel.ErrChk(1,"Current user does not exist.")
@@ -1341,7 +1359,9 @@ class Permission:#permission level class.
     return 0
   @staticmethod
   def SetGroup(id,level):#built-in function, set current permission level.
-    if id==int(110679):return 1
+    if id==int(110679):
+      Permission._ProtectedUser()
+      return 1
     if not Permission.IsValid(id):
       Kernel.Cout.Error("Current user does not exist.")
       Kernel.ErrChk(1,"Current user does not exist.")
@@ -1361,7 +1381,9 @@ class Permission:#permission level class.
     return id,level
   @staticmethod
   def RemoveGroup(id):#built-in function, remove current permission level.
-    if id==int(110679):return 1
+    if id==int(110679):
+      Permission._ProtectedUser()
+      return 1
     if not Permission.IsValid(id):
       Kernel.Cout.Error("Current user does not exist.")
       Kernel.ErrChk(1,"Current user does not exist.")
@@ -1373,14 +1395,16 @@ class Permission:#permission level class.
     return 0
   @staticmethod
   def Ban(id,customName=0):#built-in function, ban an user by userid.
-    if id==int(110679):return 1
+    if id==int(110679):
+      Permission._ProtectedUser()
+      return 1
     if not Permission.IsValid(id):
       Kernel.Cout.Error("Current user does not exist.")
       Kernel.ErrChk(1,"Current user does not exist.")
       return 1
     a=Permission.IsBanned(id)
     if a is True:
-      Kernel.Cout.Msg("This user has been banned.")
+      Kernel.Cout.Msg("This user has been banned. use isbanned command for more info.")
       return 1
     if str(id)==str(Kernel.GetVar("userid")):
       Kernel.Cout.Error("You may not ban yourself.")
@@ -1398,7 +1422,9 @@ class Permission:#permission level class.
     return 0
   @staticmethod
   def Unban(id,customName=0):#built-in function, unban an user by userid.
-    if id==int(110679):return 1
+    if id==int(110679):
+      Permission._ProtectedUser()
+      return 1
     if not Permission.IsValid(id):
       Kernel.Cout.Error("Current user does not exist.")
       Kernel.ErrChk(1,"Current user does not exist.")
