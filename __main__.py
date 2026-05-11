@@ -64,9 +64,9 @@ psx=int(0);
 psy=int(0);
 v_hev=int(0);
 PI=float(3.14159265358980);
-GAMEVER=str("IlChelcciCore 44 Build(0189)");
-VERINT=int(189);
-DEBUGDATE=str("2026/05/06");
+GAMEVER=str("IlChelcciCore 45 Build(0190)");
+VERINT=int(190);
+DEBUGDATE=str("2026/05/11");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2026, all rights reserved.");
@@ -807,7 +807,7 @@ class Kernel:#Code base class.
         if Permission.IsValid(a) is False and a!=int(110679):
           Kernel.Cout.Msg("User ID does not exist.")
           continue
-        elif a==int(110679):
+        elif a==Permission.PROTECTEDID:
           pass
         Kernel.Cout.Msg("User ID %s's permission level is: %s."%(a,Kernel._ReplaceOutput(Permission.User(a),"Does not have any permissions yet.")))
       elif g=="convar"and permissionlvl>=4:
@@ -1263,6 +1263,7 @@ class IO:#Input-Output class.
         if ReturnZeroOnNull:return 0
         else:return None
 class Permission:#permission level class.
+  PROTECTEDID=int(110679)
   def __init__(self):pass
   @staticmethod
   def Logout():#logout.
@@ -1275,7 +1276,7 @@ class Permission:#permission level class.
     return 0
   @staticmethod
   def IsValid(id):#built-in function, validate given id.
-    if id==int(110679):return True
+    if id==Permission.PROTECTEDID:return True
     a=int(IO.Load(True,"user"+str(id),False,True))
     if a==0 or a=="0":
       return False
@@ -1291,7 +1292,7 @@ class Permission:#permission level class.
     return 0
   @staticmethod
   def User(id):#built-in function, get current permission level.
-    if id==int(110679):
+    if id==Permission.PROTECTEDID:
       Permission._ProtectedUser()
       return 5
     if not Permission.IsValid(id):
@@ -1301,7 +1302,7 @@ class Permission:#permission level class.
     return IO.Load(True,"permlvl"+str(id),False,False)
   @staticmethod
   def Warns(id):#built-in function, check given player's warning.
-    if id==int(110679):
+    if id==Permission.PROTECTEDID:
       Permission._ProtectedUser()
       return (0,0)
     if not Permission.IsValid(id):
@@ -1311,7 +1312,7 @@ class Permission:#permission level class.
     return IO.Load(True,"warn"+str(id),False,True),IO.Load(True,"wmodid"+str(id),False,True)
   @staticmethod
   def UnWarn(id,customName=0):#built-in function, cancel warnings to given id.
-    if id==int(110679):
+    if id==Permission.PROTECTEDID:
       Permission._ProtectedUser()
       return 1
     if not Permission.IsValid(id):
@@ -1330,7 +1331,7 @@ class Permission:#permission level class.
     return 0
   @staticmethod
   def Warn(id,customName=0):#built-in function, issue a warning to given id.
-    if id==int(110679):
+    if id==Permission.PROTECTEDID:
       Permission._ProtectedUser()
       return 1
     if not Permission.IsValid(id):
@@ -1344,7 +1345,7 @@ class Permission:#permission level class.
     if customName==0 or customName=="0":
       name=str(Kernel.GetVar("userid"))
       warnid=int(Kernel.GetVar("userid"))
-    else:name=str(customName);warnid=110679
+    else:name=str(customName);warnid=Permission.PROTECTEDID
     warn=IO.Load(True,"warn"+str(id),False,True)
     if Permission.IsReachedAutoBanThreshold(warn) is False:
       warn+=1
@@ -1359,7 +1360,7 @@ class Permission:#permission level class.
     return 0
   @staticmethod
   def SetGroup(id,level):#built-in function, set current permission level.
-    if id==int(110679):
+    if id==Permission.PROTECTEDID:
       Permission._ProtectedUser()
       return 1
     if not Permission.IsValid(id):
@@ -1381,7 +1382,7 @@ class Permission:#permission level class.
     return id,level
   @staticmethod
   def RemoveGroup(id):#built-in function, remove current permission level.
-    if id==int(110679):
+    if id==Permission.PROTECTEDID:
       Permission._ProtectedUser()
       return 1
     if not Permission.IsValid(id):
@@ -1395,7 +1396,7 @@ class Permission:#permission level class.
     return 0
   @staticmethod
   def Ban(id,customName=0):#built-in function, ban an user by userid.
-    if id==int(110679):
+    if id==Permission.PROTECTEDID:
       Permission._ProtectedUser()
       return 1
     if not Permission.IsValid(id):
@@ -1415,14 +1416,14 @@ class Permission:#permission level class.
       banid=int(Kernel.GetVar("userid"))
     else:
       name=str(customName)
-      banid=110679
+      banid=Permission.PROTECTEDID
     IO.Save(True,"banned"+str(id),1,False,True)
     IO.Save(True,"bmodid"+str(id),banid,False,False)
     Kernel.Cout.Msg("Moderator %s banned player '%s'."%(str(name),id))
     return 0
   @staticmethod
   def Unban(id,customName=0):#built-in function, unban an user by userid.
-    if id==int(110679):
+    if id==Permission.PROTECTEDID:
       Permission._ProtectedUser()
       return 1
     if not Permission.IsValid(id):
