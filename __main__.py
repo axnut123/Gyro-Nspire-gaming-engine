@@ -64,9 +64,9 @@ psx=int(0);
 psy=int(0);
 v_hev=int(0);
 PI=float(3.14159265358980);
-GAMEVER=str("IlChelcciCore 45 Build(0190)");
-VERINT=int(190);
-DEBUGDATE=str("2026/05/11");
+GAMEVER=str("IlChelcciCore 45 Build(0191)");
+VERINT=int(191);
+DEBUGDATE=str("2026/05/14");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2026, all rights reserved.");
@@ -543,6 +543,7 @@ class Kernel:#Code base class.
   def _GameLauncher():#Built-in function, for game loading process.
     global runmod,novid,usemod,mod,ingamemod,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,gcthresholdint,runprgm,released,GAMETITLE,DEBUGDATE,GAMEVER,openingtype,COMPANY,COPYRIGHT,gcenb,ignoreverchk
     Kernel.Cout.Preload("Starting console.")
+    Permission._SetProtectedUser(110679)
     if not released:Kernel._Console()
     else:
       Kernel.Cout.Console("Console is being ignore and closed because game is in release state.")
@@ -724,6 +725,9 @@ class Kernel:#Code base class.
       elif g=="isbanned" and permissionlvl >=3:
         a=int(input("User ID to check ban state(input 0 to cancel):"))
         if a==0:continue
+        if a==Permission.PROTECTEDID:
+          Permission._ProtectedUser()
+          continue
         if Permission.IsValid(a) is False or a==0:
           Kernel.Cout.Error("User ID does not exist.")
           continue
@@ -1263,8 +1267,12 @@ class IO:#Input-Output class.
         if ReturnZeroOnNull:return 0
         else:return None
 class Permission:#permission level class.
-  PROTECTEDID=int(110679)
+  PROTECTEDID=int(0)
   def __init__(self):pass
+  @staticmethod
+  def _SetProtectedUser(id):#set an user id protected.
+    Permission.PROTECTEDID=int(id)
+    return 0
   @staticmethod
   def Logout():#logout.
     IO.Save(True,"loggedinuser",0,False)
@@ -1276,7 +1284,7 @@ class Permission:#permission level class.
     return 0
   @staticmethod
   def IsValid(id):#built-in function, validate given id.
-    if id==Permission.PROTECTEDID:return True
+    if int(id)==Permission.PROTECTEDID:return True
     a=int(IO.Load(True,"user"+str(id),False,True))
     if a==0 or a=="0":
       return False
@@ -1292,7 +1300,7 @@ class Permission:#permission level class.
     return 0
   @staticmethod
   def User(id):#built-in function, get current permission level.
-    if id==Permission.PROTECTEDID:
+    if int(id)==Permission.PROTECTEDID:
       Permission._ProtectedUser()
       return 5
     if not Permission.IsValid(id):
@@ -1302,7 +1310,7 @@ class Permission:#permission level class.
     return IO.Load(True,"permlvl"+str(id),False,False)
   @staticmethod
   def Warns(id):#built-in function, check given player's warning.
-    if id==Permission.PROTECTEDID:
+    if int(id)==Permission.PROTECTEDID:
       Permission._ProtectedUser()
       return (0,0)
     if not Permission.IsValid(id):
@@ -1312,7 +1320,7 @@ class Permission:#permission level class.
     return IO.Load(True,"warn"+str(id),False,True),IO.Load(True,"wmodid"+str(id),False,True)
   @staticmethod
   def UnWarn(id,customName=0):#built-in function, cancel warnings to given id.
-    if id==Permission.PROTECTEDID:
+    if int(id)==Permission.PROTECTEDID:
       Permission._ProtectedUser()
       return 1
     if not Permission.IsValid(id):
@@ -1331,7 +1339,7 @@ class Permission:#permission level class.
     return 0
   @staticmethod
   def Warn(id,customName=0):#built-in function, issue a warning to given id.
-    if id==Permission.PROTECTEDID:
+    if int(id)==Permission.PROTECTEDID:
       Permission._ProtectedUser()
       return 1
     if not Permission.IsValid(id):
@@ -1360,7 +1368,7 @@ class Permission:#permission level class.
     return 0
   @staticmethod
   def SetGroup(id,level):#built-in function, set current permission level.
-    if id==Permission.PROTECTEDID:
+    if int(id)==Permission.PROTECTEDID:
       Permission._ProtectedUser()
       return 1
     if not Permission.IsValid(id):
@@ -1382,7 +1390,7 @@ class Permission:#permission level class.
     return id,level
   @staticmethod
   def RemoveGroup(id):#built-in function, remove current permission level.
-    if id==Permission.PROTECTEDID:
+    if int(id)==Permission.PROTECTEDID:
       Permission._ProtectedUser()
       return 1
     if not Permission.IsValid(id):
@@ -1396,7 +1404,7 @@ class Permission:#permission level class.
     return 0
   @staticmethod
   def Ban(id,customName=0):#built-in function, ban an user by userid.
-    if id==Permission.PROTECTEDID:
+    if int(id)==Permission.PROTECTEDID:
       Permission._ProtectedUser()
       return 1
     if not Permission.IsValid(id):
@@ -1441,6 +1449,9 @@ class Permission:#permission level class.
     return 0
   @staticmethod
   def IsBanned(id,getmodid=False):#built-in function, check if an user is banned by userid.
+    if int(id)==Permission.PROTECTEDID:
+      Kernel.Cout.Msg("SYSTEM account cannot be banned.")
+      return 1
     if not Permission.IsValid(id):
       Kernel.Cout.Error("Current user does not exist.")
       Kernel.ErrChk(1,"Current user does not exist.")
