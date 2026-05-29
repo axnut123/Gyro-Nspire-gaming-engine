@@ -64,9 +64,9 @@ psx=int(0);
 psy=int(0);
 v_hev=int(0);
 PI=float(3.14159265358980);
-GAMEVER=str("IlChelcciCore 45 Build(0191)");
-VERINT=int(191);
-DEBUGDATE=str("2026/05/14");
+GAMEVER=str("IlChelcciCore 45 Build(0192)");
+VERINT=int(192);
+DEBUGDATE=str("2026/05/29");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2026, all rights reserved.");
@@ -98,6 +98,7 @@ runmod=bool(False);
 runprgm=str("");
 released=int(0);
 totalmem=int(0);
+sessionid=int(0);
 gcenb=None;
 banned=int(0);
 newuser=int(0);
@@ -125,6 +126,17 @@ class IOError(Exception):pass#MicroPy does not have this.
 class GameError(Exception):pass#Error classes.
 class Kernel:#Code base class.
   def __init__(self):pass
+  @staticmethod
+  def _GenerateSID():#generate session ID.
+    Kernel.ConVar("sessionid",randint(111111,999999),True)
+    IO.Save(True,"sessionid",sessionid)
+    Kernel.Cout.Info("Session ID was generated. %s."%(Kernel.GetVar("sessionid")))
+    return 0
+  @staticmethod
+  def GetSID(returnOnly=False):#get current session ID.
+    if returnOnly is False:
+      Kernel.Cout.Msg("Session ID: %s."%(Kernel.GetVar("sessionid")))
+    return Kernel.GetVar("sessionid")
   @staticmethod
   def _ReplaceOutput(inputs,outputs="There is nothing yet."):#replacing 0, "0", None to a dedicated text.
     if inputs==0 or inputs is None or inputs=="0":
@@ -589,13 +601,13 @@ class Kernel:#Code base class.
         runprgm="Prgm.Main()"#You can change your main entry by editing this string.
         del g
         break
-      elif g=="begin"and permissionlvl>=3:
+      elif g=="begin"and permissionlvl>=4:
         Kernel.ConVar("runmod",False,True)
         runprgm=str(input("function name(input 0 to cancel):"))
         if runprgm=="0":continue
         del g
         break
-      elif g=="ignoreverchkonmod"and permissionlvl>=3:
+      elif g=="ignoreverchkonmod"and permissionlvl>=4:
         Kernel.ReverseGivenVar("ignoreverchk",True)
       elif g=="releasegame"and permissionlvl>=4:
         Kernel.Cout.Msg("Are you sure you want to release the game?\nOnce released, the console will no longer launch at startup.All dev-related configuration files will be preserved.Please review and update dev\nconfigs if necessary before proceeding. This\naction can only be undone by\nchanging the 'released' variable after console\nclosed or use 'cancelrelease' command before\nconsole closed.")
@@ -732,12 +744,12 @@ class Kernel:#Code base class.
           Kernel.Cout.Error("User ID does not exist.")
           continue
         if Permission.IsBanned(a) is False and Permission.IsBanned(a,True)!=0:
-          Kernel.Cout.Msg("User %s has not been banned. Latest ban to this player was issued by moderator %s."%(a,str(Permission.IsBanned(a,True))))
+          Kernel.Cout.Msg("User %s has not been banned.\nLatest ban:\nmoderator: %s.\nsession: %s."%(a,str(Permission.IsBanned(a,True)),str(Permission.GetBanSID(a))))
           continue
         if Permission.IsBanned(a) is False:
           Kernel.Cout.Msg("User %s has not been banned."%(a))
           continue
-        Kernel.Cout.Msg("User ID %s has been banned by moderator: %s."%(a,str(Permission.IsBanned(a,True))))
+        Kernel.Cout.Msg("User ID %s has been banned.\nmoderator: %s.\nsession: %s."%(a,str(Permission.IsBanned(a,True)),Permission.GetBanSID(int(a))))
       elif g=="ban"and permissionlvl>=3:
         a=int(input("user ID to ban(input 0 to cancel):"))
         if a==0:continue
@@ -787,23 +799,23 @@ class Kernel:#Code base class.
         if permissionlvl<3:
           userwarn,wmod=Permission.Warns(userid)
           if int(userwarn)==0 and int(wmod)!=0:
-            Kernel.Cout.Msg("You have no active warning. latest warning on you was issued by moderator:%s."%(str(wmod)))
+            Kernel.Cout.Msg("Active warnings:\nYou have no active warnings.\nWarnings history:\nLatest warning history:\nmoderator:%s.\nsession:%s."%(str(wmod),str(Permission.GetWarnSID(userid))))
             continue
           if userwarn==0:
-            Kernel.Cout.Msg("You have no active warnings.")
+            Kernel.Cout.Msg("Active warnings:\nYou have no active warnings.")
             continue
-          Kernel.Cout.Msg("Your warning(s):%s, issued by moderator:%s."%(str(userwarn),str(wmod)))
+          Kernel.Cout.Msg("Active warnings:\nYour warning(s):%s.\nmoderator:%s.\nsession: %s."%(str(userwarn),str(wmod),str(Permission.GetWarnSID(userid))))
           continue
         a=str(input("User ID to check(input 0 to cancel):"))
         if a=="0":continue
         userwarn,wmod=Permission.Warns(a)
         if int(userwarn)==0 and int(wmod)!=0:
-          Kernel.Cout.Msg("Player %s has no active warnings. latest warning to this player was issued by moderator:%s."%(a,str(wmod)))
+          Kernel.Cout.Msg("Active warnings:\nPlayer %s has no active warnings.\nWarnings history:\nLatest warning by\nmoderator:%s.\nsession: %s."%(a,str(wmod),Permission.GetWarnSID(a)))
           continue
         if not int(userwarn):
-          Kernel.Cout.Msg("This player has no active warnings.")
+          Kernel.Cout.Msg("Active warnings:\nThis player has no active warnings.")
           continue
-        Kernel.Cout.Msg("Player %s's warning(s):%s,issued by moderator:%s."%(a,str(userwarn),str(wmod)))
+        Kernel.Cout.Msg("Active warnings:\nPlayer %s's warning(s):%s.\nIssued by moderator:%s.\nsession: %s."%(a,str(userwarn),str(wmod),str(Permission.GetWarnSID(a))))
         continue
       elif g=="user"and permissionlvl>=3:
         a=int(input("User ID(input 0 to cancel):"))
@@ -899,7 +911,7 @@ class Kernel:#Code base class.
       elif g=="novid"and permissionlvl>=2:
         Kernel.ReverseGivenVar("novid",True)
       elif g=="status"and permissionlvl>=2:
-        Kernel.Cout.Msg("Version:"+str(GAMEVER))
+        Kernel.Cout.Msg("Version:"+str(GAMEVER)+"|"+"Session ID:"+str(Kernel.GetVar("sessionid")))
         Kernel.Cout.Msg("Platform:"+str(get_platform()))
         Kernel.Cout.Msg("mem free:"+str(gc.mem_free())+" | mem alloc:"+str(gc.mem_alloc()))
         Kernel.Cout.Msg("total mem:"+str(totalmem))
@@ -1057,7 +1069,7 @@ class ConHost:#in-game console class.
     return 0
   @staticmethod
   def GetPossibleCommand(inputs):#built-in function. for scanning possible commands.
-    global id,pushedtext#bruh im so lazy to fill up all commands, as you can see you can add command by adding elif.
+    global permissionlvl,id,pushedtext#bruh im so lazy to fill up all commands, as you can see you can add command by adding elif.
     if not inputs:return 1
     if inputs=="stop":
       ConHost.stopConsole()
@@ -1078,7 +1090,7 @@ class ConHost:#in-game console class.
       ConHost.printf("Game version:%s."%(Kernel.GetVar("GAMEVER")))
     elif inputs=="cls":
       ConHost.Clear()
-    elif inputs=="dev":
+    elif inputs=="dev" and permissionlvl>=4:
       if Kernel.GetVar("dev") is False:
         Kernel.ConVar("dev",True)
         ConHost.printf("Dev is on.","[DEBUG]")
@@ -1293,9 +1305,11 @@ class Permission:#permission level class.
   def AutoCorrectState(id):#preventing warned, banned by user id 0.
     if int(IO.Load(True,"warn"+str(id),False,True))!=0 and int(IO.Load(True,"wmodid"+str(id),False,True))==0:
       IO.Save(True,"warn"+str(id),0,False)
+      IO.Save(True,"wsid"+str(id),0,False)
       Kernel.Cout.Info("Invalid warning state detected, auto unwarn success.")
     if int(IO.Load(True,"banned"+str(id),False,True))!=0 and int(IO.Load(True,"bmodid"+str(id),False,True))==0:
       IO.Save(True,"banned"+str(id),0,False)
+      IO.Save(True,"bsid"+str(id),0,False)
       Kernel.Cout.Info("Invalid ban state detected, auto unban success.")
     return 0
   @staticmethod
@@ -1335,7 +1349,7 @@ class Permission:#permission level class.
     if customName==0 or customName=="0":
       name=str(Kernel.GetVar("userid"))
     else:name=str(customName)
-    Kernel.Cout.Msg("Moderator %s canceled warning of player %s."%(name,id))
+    Kernel.Cout.Msg("Moderator %s canceled warnings of player %s."%(name,id))
     return 0
   @staticmethod
   def Warn(id,customName=0):#built-in function, issue a warning to given id.
@@ -1365,6 +1379,7 @@ class Permission:#permission level class.
       Permission.RemoveGroup(id)
     IO.Save(True,"wmodid"+str(id),warnid,False,False)
     IO.Save(True,"warn"+str(id),warn,False,True)
+    IO.Save(True,"wsid"+str(id),Kernel.GetVar("sessionid"),False,True)
     return 0
   @staticmethod
   def SetGroup(id,level):#built-in function, set current permission level.
@@ -1427,6 +1442,7 @@ class Permission:#permission level class.
       banid=Permission.PROTECTEDID
     IO.Save(True,"banned"+str(id),1,False,True)
     IO.Save(True,"bmodid"+str(id),banid,False,False)
+    IO.Save(True,"bsid"+str(id),Kernel.GetVar("sessionid"),False,True)
     Kernel.Cout.Msg("Moderator %s banned player '%s'."%(str(name),id))
     return 0
   @staticmethod
@@ -1459,11 +1475,17 @@ class Permission:#permission level class.
     a=IO.Load(True,"bmodid"+str(id),False,True)
     b=IO.Load(True,"banned"+str(id),False,True)
     if getmodid is True:
-      return a
+      return str(a)
     if b==1:
       return True
     else:
       return False
+  @staticmethod
+  def GetWarnSID(id):#gets a player's warning session id.
+    return str(IO.Load(True,"wsid"+str(id)))
+  @staticmethod
+  def GetBanSID(id):#gets a player's ban session id.
+    return str(IO.Load(True,"bsid"+str(id)))
   @staticmethod
   def Pardon(id):#built-in function, pardon an user by userid.
     Permission.Unban(id)
@@ -1820,6 +1842,7 @@ class ActionUI:#UI class.
     "set":"tab:settings",
     "titset":"Settings(press to toggle)",
     "titcons":"Press var to open console",
+    "sid":"Session ID:",
     "erxt":"force exit on error",
     "gcisenb":"Is gc enabled",
     "totalmem":"Total Mem:",
@@ -1893,6 +1916,7 @@ class ActionUI:#UI class.
     "ammo":"弹药",
     "crb":"翘棍",
     "physcnn":"重力枪",
+    "sid":"会话ID:",
     "pst":"手枪",
     "357":".357 马格南",
     "load":"载入中...",
@@ -1928,7 +1952,7 @@ class ActionUI:#UI class.
       return False
   @staticmethod
   def DispUi(x,y,wintp):#built-in function,for display window, gui elements.
-    global emptysave,erxt,dev,mapslt,debugs,v_live,v_hev,wpnslt,usemod,ammo9,ammo357,inclip9,inclip357,weapon_pst,weapon_crb,weapon_pcn,weapon_357,dr,langtype,usemod,modamount,GAMETITLE
+    global emptysave,erxt,dev,mapslt,debugs,v_live,v_hev,wpnslt,usemod,ammo9,ammo357,inclip9,inclip357,weapon_pst,weapon_crb,weapon_pcn,weapon_357,dr,langtype,usemod,modamount,GAMETITLE,permissionlvl
     if wintp==1:
       set_color(135,135,135)
       fill_rect(x,y,120,40)
@@ -1948,8 +1972,8 @@ class ActionUI:#UI class.
         draw_text(10,115,str(ActionUI.DispLanguage("ppos"))+str(psx)+","+str(psy)+"|"+str(ActionUI.DispLanguage("mapid"))+str(mapslt))
         draw_text(10,130,str(ActionUI.DispLanguage("usemod"))+":"+str(usemod))
         draw_text(10,145,str(ActionUI.DispLanguage("ver"))+str(GAMEVER))
-        draw_text(10,160,str(ActionUI.DispLanguage("dbdate")+str(DEBUGDATE)))
-        draw_text(10,175,str(ActionUI.DispLanguage("platform"))+str(get_platform()))
+        draw_text(10,160,str(ActionUI.DispLanguage("dbdate"))+str(DEBUGDATE))
+        draw_text(10,175,str(ActionUI.DispLanguage("platform"))+str(get_platform())+"|"+str(ActionUI.DispLanguage("sid"))+str(Kernel.GetVar("sessionid")))
         draw_text(10,190,str(ActionUI.DispLanguage("reso"))+str(scrgeometx)+","+str(scrgeomety)+","+str(scrgeometmx)+","+str(scrgeometmy))
         draw_text(10,205,str(ActionUI.DispLanguage("modamount"))+str(modamount)+str(ActionUI.DispLanguage("noactulmodcnt")))
         paint_buffer()
@@ -2057,8 +2081,8 @@ class ActionUI:#UI class.
       if not dev:set_color(190,190,190)
       else:set_color(250,250,250)
       ActionUI.CheckBox(10,45,dr);draw_text(30,60,"a:"+str(ActionUI.DispLanguage("dr")));set_color(250,250,250)
-      if released:set_color(190,190,190)
-      else:set_color(250,250,250)
+      if not released and permissionlvl==4:set_color(250,250,250)
+      else:set_color(190,190,190)
       ActionUI.CheckBox(10,65,dev);draw_text(30,80,"b:"+str(ActionUI.DispLanguage("dev")));set_color(250,250,250)
       draw_text(10,100,"c:"+str(ActionUI.DispLanguage("langset"))+":"+str(ActionUI.DispLanguage("lang")))
       ActionUI.CheckBox(10,105,usemod);draw_text(30,120,"d:"+str(ActionUI.DispLanguage("usemod")))
@@ -2609,7 +2633,7 @@ class Prgm:#program class.
   @staticmethod
   def Main():#main function.It's a very standard template for engine.
     StdUtil.InMenu(True)
-    global userid,ingamemod,released,erxt,modscripts,langtype,mapslt,dev,dr,emptysave,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_pcn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,usemod,plspd,plw,plh,plr,plg,plb,kingignores,keydown
+    global userid,ingamemod,released,erxt,modscripts,langtype,mapslt,dev,dr,emptysave,psx,v_live,v_hev,psy,weapon_crb,debugs,v_hev,weapon_pcn,weapon_pst,weapon_357,wpnslt,ammo357,ammo9,inclip9,inclip357,item_suit,usemod,plspd,plw,plh,plr,plg,plb,kingignores,keydown,permissionlvl
     suserid=str(userid)
     StdUtil.ConsoleLog(4)
     while True:#game logic loop.
@@ -2686,7 +2710,7 @@ class Prgm:#program class.
               Kernel.ReadKeyDown()
               if keydown=="a" and dev:
                 Kernel.ReverseGivenVar("dr")
-              elif keydown=="b" and not released:
+              elif keydown=="b" and not released and permissionlvl==4:
                 Kernel.ReverseGivenVar("dev")
               elif keydown=="c":#add more conditions if you have more language.
                 if langtype==1:
@@ -2921,7 +2945,7 @@ class Prgm:#program class.
                       paint_buffer()
                       if keydown=="a" and dev:
                         Kernel.ReverseGivenVar("dr")
-                      elif keydown=="b" and not released:
+                      elif keydown=="b" and not released and permissionlvl==4:
                         Kernel.ReverseGivenVar("dev")
                       elif keydown=="c":#add more conditions if you have more language.
                         if langtype==1:
@@ -3018,6 +3042,7 @@ if (__name__=="__main__"):#all program starts from here.
     IO.Delete()
     IO.Save(True,"newuser"+str(userid),0)
   del newuser,banned
+  Kernel._GenerateSID()
   Kernel.Init(2)
   Kernel.Init(1,Kernel.GetVar("released",False,True))
   Kernel._GameLauncher()

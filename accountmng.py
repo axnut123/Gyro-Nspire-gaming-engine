@@ -2,7 +2,7 @@ from ti_system import *
 import binascii as asc
 import sys
 
-version="1.4.8"
+version="1.4.9"
 perm=1
 
 def cout(text):
@@ -55,7 +55,7 @@ class Accounts:
       cout(">>User ID or password incorrect!")
       return 1
     if LoadedUserPassword==0 and LoadedUserIds==0:
-      cout(">>Current user ID does not exist!")
+      cout(">>User ID or password incorrect!")
       return 2
     DUserPassword=str(Encrypt.DecryptStr(str(LoadedUserPassword)))
     if nopw:password=str(Encrypt.DecryptStr(str(LoadedUserPassword)))
@@ -94,6 +94,8 @@ class Accounts:
       cout(">> Password must contain at least 4 digits.")
       return 1
     store_value("user"+str(ids),int(ids))
+    store_value("bsid"+str(ids),0)
+    store_value("wsid"+str(ids),0)
     store_value("permlvl"+str(ids),1)
     store_value("banned"+str(ids),0)
     store_value("bmodid"+str(ids),0)
@@ -121,6 +123,8 @@ class Accounts:
     if Accounts.Login(ids,password,True,ignorepw)!=0:return 1
     store_value("user"+str(ids),0)
     store_value("pw"+str(ids),0)
+    store_value("bsid"+str(ids),0)
+    store_value("wsid"+str(ids),0)
     store_value("banned"+str(ids),0)
     store_value("bmodid"+str(ids),0)
     store_value("permlvl"+str(ids),1)
