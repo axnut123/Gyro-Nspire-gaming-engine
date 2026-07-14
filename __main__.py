@@ -64,9 +64,9 @@ psx=int(0);
 psy=int(0);
 v_hev=int(0);
 PI=float(3.14159265358980);
-GAMEVER=str("IlChelcciCore 46 Build(0196)");
-VERINT=int(196);
-DEBUGDATE=str("2026/07/01");
+GAMEVER=str("IlChelcciCore 46 Build(0197)");
+VERINT=int(197);
+DEBUGDATE=str("2026/07/15");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2026, all rights reserved.");
@@ -592,8 +592,13 @@ class Kernel:#Code base class.
     Kernel.Cout.Preload("Console is created because game is in debug state.")
     Kernel.Cout.Console("Welcome to ILCC console!\nTo get help, type help <page(1-8)>.")
     gc.collect()
+    lastcmd=""
     while True:
       g=str(input("]"))
+      if g != "" and g!= "l":
+        lastcmd=g
+      if g=="l" and permissionlvl>=1:
+        g=lastcmd
       permissionlvl=int(permissionlvl)
       if permissionlvl>=1 and g=="run"or permissionlvl>=1 and g=="start":
         Kernel.ConVar("runmod",False,True)
@@ -692,7 +697,7 @@ class Kernel:#Code base class.
       elif g=="help 7"and permissionlvl>=1:
         Kernel.Cout.Msg("IlChelcciCore engine help page 7:\nisbanned:check ban state of given user ID.\npardon:same as unban.\nperm:set an user's permission level manually.\nconnvar:change a Nspire var.\ngetnvar:get a Nspire var.\nwarn:issue a warn to player.\nunwarn:cancel warn to player\nwarns:check player's warning.\nsetautobanthreshold:set how many warns to auto ban.")
       elif g=="help 8"and permissionlvl>=1:
-        Kernel.Cout.Msg("IlChelcciCore engine help page 8:\ngetautobanthreshold:get current auto ban threshold.\nexecf:execute a python file.\ngroup:show groups info.\nlogout:logout and stop game instance.\nrmuser:remove an user's permission without warning.")
+        Kernel.Cout.Msg("IlChelcciCore engine help page 8:\ngetautobanthreshold:get current auto ban threshold.\nexecf:execute a python file.\ngroup:show groups info.\nlogout:logout and stop game instance.\nrmuser:remove an user's permission without warning.\nl:execute last command.")
       elif g=="execf" and permissionlvl>=4:
         f=input("enter file name(0 to cancel):")
         if f==0 or f=="0":continue
