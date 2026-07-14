@@ -790,6 +790,7 @@ class Kernel:#Code base class.
         Kernel.Cout.Msg("ILCC Permission Groups:\n1. Player\n2. Assistant\n3. Moderator\n4. Operator\n5. SYSTEM (Protected user)")
       elif g=="rmuser" and permissionlvl>=4:
         a=str(input("Remove:(0 to cancel)"))
+        if a=="0":continue
         Permission.RmUser(a)
         del a
       elif g=="logout" and permissionlvl>=1:
