@@ -2,16 +2,16 @@ from ti_system import *
 import binascii as asc
 import sys
 
-version="1.4.9"
+version="1.5"
 perm=1
 
 def cout(text):
   sys.stdout.write(text+"\n")
   sys.stdout.flush()
 
-def cvar(var,val):
-  globals()[var]=val
-  return var,val
+def replaceNum(num):
+  if int(num)==0:return 0
+  return {1:"Player",2:"Assistant",3:"Moderator",4:"Operator",5:"SYSTEM"}.get(int(num))
 
 def replaceout(inputs,outputs="There is nothing yet."):#replacing 0, "0", None to a dedicated text.
   if inputs==0 or inputs is None or inputs=="0":
@@ -200,7 +200,7 @@ class Accounts:
             continue
           if Accounts.CPassword(d,str(Encrypt.DecryptStr(str(recall_value("pw"+str(d))))),a,True)==0:break
       elif g=="me":
-        cout(">>Current user ID is: %s.\nPermission level is:%s."%(replaceout(recall_value("loggedinuser"),"Not logged in yet..."),perm))
+        cout(">>Current user ID is: %s.\nPermission level: %s."%(replaceout(recall_value("loggedinuser"),"Not logged in yet..."),replaceNum(perm)))
       elif g=="stop" or g=="exit" or g=="quit" or g=="esc":
         quit(0)
       elif g=="help":
