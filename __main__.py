@@ -64,9 +64,9 @@ psx=int(0);
 psy=int(0);
 v_hev=int(0);
 PI=float(3.14159265358980);
-GAMEVER=str("IlChelcciCore 45 Build(0192)");
-VERINT=int(192);
-DEBUGDATE=str("2026/05/29");
+GAMEVER=str("IlChelcciCore 46 Build(0196)");
+VERINT=int(196);
+DEBUGDATE=str("2026/07/01");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2026, all rights reserved.");
@@ -692,7 +692,7 @@ class Kernel:#Code base class.
       elif g=="help 7"and permissionlvl>=1:
         Kernel.Cout.Msg("IlChelcciCore engine help page 7:\nisbanned:check ban state of given user ID.\npardon:same as unban.\nperm:set an user's permission level manually.\nconnvar:change a Nspire var.\ngetnvar:get a Nspire var.\nwarn:issue a warn to player.\nunwarn:cancel warn to player\nwarns:check player's warning.\nsetautobanthreshold:set how many warns to auto ban.")
       elif g=="help 8"and permissionlvl>=1:
-        Kernel.Cout.Msg("IlChelcciCore engine help page 8:\ngetautobanthreshold:get current auto ban threshold.\nexecf:execute a python file.\ngroup:show groups info.\nlogout:logout and stop game instance.")
+        Kernel.Cout.Msg("IlChelcciCore engine help page 8:\ngetautobanthreshold:get current auto ban threshold.\nexecf:execute a python file.\ngroup:show groups info.\nlogout:logout and stop game instance.\nrmuser:remove an user's permission without warning.")
       elif g=="execf" and permissionlvl>=4:
         f=input("enter file name(0 to cancel):")
         if f==0 or f=="0":continue
@@ -743,7 +743,7 @@ class Kernel:#Code base class.
         if Permission.IsValid(a) is False or a==0:
           Kernel.Cout.Error("User ID does not exist.")
           continue
-        if Permission.IsBanned(a) is False and Permission.IsBanned(a,True)!=0:
+        if Permission.IsBanned(a) is False and int(Permission.IsBanned(a,True))!=0:
           Kernel.Cout.Msg("User %s has not been banned.\nLatest ban:\nmoderator: %s.\nsession: %s."%(a,str(Permission.IsBanned(a,True)),str(Permission.GetBanSID(a))))
           continue
         if Permission.IsBanned(a) is False:
@@ -770,6 +770,12 @@ class Kernel:#Code base class.
       elif g=="deop"and permissionlvl>=4 or g=="pardon"and permissionlvl>=4:
         a=int(input("user ID to deop(input 0 to cancel):"))
         if a==0:continue
+        if a==int(userid):
+          Kernel.Cout.Msg("If you deop yourself, you cannot use admin permissions and commands. Sure?")
+          if str(input("(y/n)")) == "y":
+            Permission.RemoveGroup(a)
+            continue
+          else:continue
         Permission.RemoveGroup(a)
       elif g=="togglebar"and permissionlvl>=1:
         if Kernel.GetVar("showbar"):Kernel.ConVar("showbar",False)
@@ -781,12 +787,16 @@ class Kernel:#Code base class.
         Kernel.ConVar("apptitle",s)
         Kernel.Cout.Console("New title is: %s."%(Kernel.GetVar("apptitle")))
       elif g=="group" and permissionlvl>=1:
-        Kernel.Cout.Msg("ILCC Permission Groups:\n1. Player\n2. Assistant\n3. Moderator/Admin\n4. Operator\n5. SYSTEM (Protected user)")
+        Kernel.Cout.Msg("ILCC Permission Groups:\n1. Player\n2. Assistant\n3. Moderator\n4. Operator\n5. SYSTEM (Protected user)")
+      elif g=="rmuser" and permissionlvl>=4:
+        a=str(input("Remove:(0 to cancel)"))
+        Permission.RmUser(a)
+        del a
       elif g=="logout" and permissionlvl>=1:
         Permission.Logout()
       elif g=="me"and permissionlvl>=1:
         Kernel.Cout.Msg("Current user is: %s."%(Kernel._ReplaceOutput(Kernel.GetVar("userid"),"Not logged in.")))
-        Kernel.Cout.Msg("Your current permission level is: %s."%(permissionlvl))
+        Kernel.Cout.Msg("Your current permission level is: %s."%(Permission._ReplaceNum(permissionlvl)))
       elif g=="warn" and permissionlvl>=3:
         a=str(input("User ID(input 0 to cancel):"))
         if a=="0":continue
@@ -825,7 +835,7 @@ class Kernel:#Code base class.
           continue
         elif a==Permission.PROTECTEDID:
           pass
-        Kernel.Cout.Msg("User ID %s's permission level is: %s."%(a,Kernel._ReplaceOutput(Permission.User(a),"Does not have any permissions yet.")))
+        Kernel.Cout.Msg("User ID %s's permission level is: %s."%(a,Kernel._ReplaceOutput(Permission._ReplaceNum(Permission.User(a)),"Does not have any permissions yet.")))
       elif g=="convar"and permissionlvl>=4:
         v=str(input("variable(input 0 to cancel):"))
         if v=="0":continue
@@ -1282,8 +1292,20 @@ class Permission:#permission level class.
   PROTECTEDID=int(0)
   def __init__(self):pass
   @staticmethod
+  def _ReplaceNum(num):#replace group number to string.
+    if int(num)==0:return 0
+    return {1:"Player",2:"Assistant",3:"Moderator",4:"Operator",5:"SYSTEM"}.get(int(num))
+  @staticmethod
   def _SetProtectedUser(id):#set an user id protected.
     Permission.PROTECTEDID=int(id)
+    return 0
+  @staticmethod
+  def RmUser(id):#remove an user's permission without warning them.
+    if Permission.IsValid(id) is False:
+      Kernel.Cout.Error("User does not exist.")
+      return 1
+    Permission.SetGroup(id,1)
+    Kernel.Cout.Msg("Removed user: %s."%(str(id)))
     return 0
   @staticmethod
   def Logout():#logout.
@@ -1375,7 +1397,7 @@ class Permission:#permission level class.
     elif Permission.IsReachedAutoBanThreshold(warn) is True:
       warn=0
       Kernel.Cout.Msg("Moderator %s issued final warning to player %s."%(name,id))
-      Permission.Ban(id,name)
+      Permission.Ban(id)
       Permission.RemoveGroup(id)
     IO.Save(True,"wmodid"+str(id),warnid,False,False)
     IO.Save(True,"warn"+str(id),warn,False,True)
@@ -1482,10 +1504,10 @@ class Permission:#permission level class.
       return False
   @staticmethod
   def GetWarnSID(id):#gets a player's warning session id.
-    return str(IO.Load(True,"wsid"+str(id)))
+    return str(IO.Load(True,"wsid"+str(id),False,True))
   @staticmethod
   def GetBanSID(id):#gets a player's ban session id.
-    return str(IO.Load(True,"bsid"+str(id)))
+    return str(IO.Load(True,"bsid"+str(id),False,True))
   @staticmethod
   def Pardon(id):#built-in function, pardon an user by userid.
     Permission.Unban(id)
@@ -1791,7 +1813,7 @@ class ActionUI:#UI class.
     "cp4":"software represents you agreed our terms.",
     "usemod":"Enable mod:",
     "lang":"English",
-    "gofuckyourself":"Go fuck your self!",
+    "gofuckyourself":"Go fuck yourself!",
     "riseandshine":"Rise and shine mister Freeman,rise and shine.",
     "sleepingonthejob":"No one is deserving to sleeping on the job,",
     "effortoftheworld":"But the effort of the world will have gone to waste untill...",
@@ -2232,7 +2254,7 @@ class StdUtil:#Builtins class, Standard utilities.
         else:return False
       @staticmethod
       def IsPlayerAlive():#detects is player alive.
-        if StdUtil.AfterEvents.Player.IsPlayerDied() is True:
+        if StdUtil.AfterEvents.Player.IsPlayerDead() is True:
           return False
         else: return True
   @staticmethod
