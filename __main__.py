@@ -64,9 +64,9 @@ psx=int(0);
 psy=int(0);
 v_hev=int(0);
 PI=float(3.14159265358980);
-GAMEVER=str("IlChelcciCore 46 Build(0197)");
+GAMEVER=str("IlChelcciCore 46 Build(0198)");
 VERINT=int(197);
-DEBUGDATE=str("2026/07/15");
+DEBUGDATE=str("2026/08/22");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2026, all rights reserved.");
@@ -3030,7 +3030,7 @@ if (__name__=="__main__"):#all program starts from here.
     Kernel.Cout.Msg(v)
   Kernel.Cout.Msg(texts.get(4))
   try:#import check.
-    from ti_system import *#normally,gui tools are also included in ti_system.
+    from ti_system import recall_value,store_value,fill_rect,draw_rect,draw_circle,fill_circle,draw_line,get_key,get_platform,get_mouse,clear_history,set_color,set_pen,set_window,get_screen_dim,draw_arc,use_buffer,paint_buffer,clear,draw_text,fill_arc
     import micropython as mp
     from ti_st import _recall_py_file
     if get_platform()=="pc":
