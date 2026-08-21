@@ -762,7 +762,8 @@ class Kernel:#Code base class.
       elif g=="perm" and permissionlvl>=4 or g=="permission" and permissionlvl>=4:
         a=int(input("user ID(input 0 to cancel):"))
         if a==0:continue
-        b=int(input("permission level to set:"))
+        b=int(input("permission level to set(0 to cancel):"))
+        if b==0:continue
         Permission.SetGroup(a,b)
       elif g=="unban"and permissionlvl>=3 or g=="pardon" and permissionlvl>=3:
         a=int(input("user ID to unban(input 0 to cancel):"))
