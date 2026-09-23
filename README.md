@@ -1,3 +1,5 @@
+<img width="1626" height="257" alt="ChatGPT Image 2026年9月23日 19_43_32" src="https://github.com/user-attachments/assets/980fe451-52e4-40e2-a588-c727a0c5dab3" />
+
 # IlChelcciCore(Gyro/ILCC)
 This is a gaming engine based on TI calculator,written on pure python.
 
