@@ -64,9 +64,9 @@ psx=int(0);
 psy=int(0);
 v_hev=int(0);
 PI=float(3.14159265358980);
-GAMEVER=str("IlChelcciCore 46 Build(0198)");
-VERINT=int(197);
-DEBUGDATE=str("2026/08/22");
+GAMEVER=str("IlChelcciCore 47 Build(0203)");
+VERINT=int(203);
+DEBUGDATE=str("2026/10/07");
 GAMETITLE=str("IlChelcciCore engine built-in example.");
 COMPANY=str("Made by axnut123");
 COPYRIGHT=str("(C)Haoriwa 2024-2026, all rights reserved.");
@@ -441,7 +441,7 @@ class Kernel:#Code base class.
         Kernel.Cout.Msg(mod.mod_type())
         Kernel.Cout.Msg(mod.mod_info(draw=False))
       else:
-        Kernel.Cout.Error("Mod is not found.")
+        Kernel.Cout.Error("Mod not found.")
         Kernel.ErrChk(4,"Mod not found.")
     elif hdtp==5:
       if ingamemod=="ingamemod" and mod.mod_type()=="ingamemod"and usemod and mod is not None and vtk:mod.mod_main(ignoreverchk)
@@ -555,6 +555,7 @@ class Kernel:#Code base class.
   def _GameLauncher():#Built-in function, for game loading process.
     global runmod,novid,usemod,mod,ingamemod,scrgeomety,scrgeometx,scrgeometmx,scrgeometmy,gcthresholdint,runprgm,released,GAMETITLE,DEBUGDATE,GAMEVER,openingtype,COMPANY,COPYRIGHT,gcenb,ignoreverchk
     Kernel.Cout.Preload("Starting console.")
+    Kernel.GetTotalMem()
     Permission._SetProtectedUser(110679)
     if not released:Kernel._Console()
     else:
@@ -592,29 +593,28 @@ class Kernel:#Code base class.
     Kernel.Cout.Preload("Console is created because game is in debug state.")
     Kernel.Cout.Console("Welcome to ILCC console!\nTo get help, type help <page(1-8)>.")
     gc.collect()
-    lastcmd=""
+    g=""
     while True:
-      g=str(input("]"))
-      if g != "" and g!= "l":
-        lastcmd=g
-      if g=="l" and permissionlvl>=1:
-        g=lastcmd
+      g=str(input("]")).split()
       permissionlvl=int(permissionlvl)
-      if permissionlvl>=1 and g=="run"or permissionlvl>=1 and g=="start":
+      if permissionlvl>=1 and "run" in g and g.index("run")==0 or permissionlvl>=1 and "start" in g and g.index("start")==0:
         Kernel.ConVar("runmod",False,True)
         Kernel.Cout.Console("Running engine.")
         runprgm="Prgm.Main()"#You can change your main entry by editing this string.
         del g
         break
-      elif g=="begin"and permissionlvl>=4:
+      elif "begin" in g and permissionlvl>=4 and g.index("begin")==0:
+        try:
+          cname,runprgm=g
+        except ValueError:
+          Kernel.Cout.Error("Error on parsing command. Not enough or too many argments.")
+          continue
         Kernel.ConVar("runmod",False,True)
-        runprgm=str(input("function name(input 0 to cancel):"))
-        if runprgm=="0":continue
         del g
         break
-      elif g=="ignoreverchkonmod"and permissionlvl>=4:
+      elif "ignoreverchkonmod" in g and permissionlvl>=4 and g.index("ignoreverchkonmod")==0:
         Kernel.ReverseGivenVar("ignoreverchk",True)
-      elif g=="releasegame"and permissionlvl>=4:
+      elif "releasegame" in g and permissionlvl>=4 and g.index("releasegame")==0:
         Kernel.Cout.Msg("Are you sure you want to release the game?\nOnce released, the console will no longer launch at startup.All dev-related configuration files will be preserved.Please review and update dev\nconfigs if necessary before proceeding. This\naction can only be undone by\nchanging the 'released' variable after console\nclosed or use 'cancelrelease' command before\nconsole closed.")
         r=str(input("Confirm. (y/n, 0 to cancel):"))
         if r=="y":
@@ -624,124 +624,319 @@ class Kernel:#Code base class.
           Kernel.Cout.Console("Your game has been released,\nthis console will no longer launch at next startup.")
         else:Kernel.Cout.Console("User cancelled.")
         del r
-      elif g=="cancelrelease"and permissionlvl>=4:
+      elif "cancelrelease" in g and permissionlvl>=4 and g.index("cancelrelease")==0:
         if released==0:
           Kernel.Cout.Info("Game is not released yet.")
           continue
-        r=str(input("Confirm for cancelling your releasegame\ncommand. (y/n, 0 to cancel):"))
+        r=str(input("Confirm cancelling your releasegame\ncommand. (y/n, 0 to cancel):"))
         if r=="y":
           released=0
           IO.Save(True,"released",released)
-          Kernel.Cout.Console("The game has been pulled.")
+          Kernel.Cout.Console("The release has undone.")
         else:Kernel.Cout.Console("User cancelled.")
         del r
-      elif g=="getvar"and permissionlvl>=4:
-        getv=str(input("variable name(input 0 to cancel):"))
-        if getv=="0":continue
-        try:Kernel.GetVar(getv,True)
+      elif "getvar" in g and permissionlvl>=4 and g.index("getvar")==0:
+        try:
+          cname,carg=g
+        except ValueError:
+          Kernel.Cout.Error("Error on parsing command. Not enough or too many argments.")
+          continue
+        try:Kernel.GetVar(carg,True)
         except Exception as e:
           Kernel.Cout.Error("Unable to get var."+str(e))
-        del getv
-      elif g=="delvar"and permissionlvl>=4:
-        delv=str(input("variable name(input 0 to cancel):"))
-        if delv=="0":continue
+        del cname,carg
+      elif "delvar" in g and permissionlvl>=4 and g.index("delvar")==0:
+        try:
+          cname,delv=g
+        except ValueError:
+          Kernel.Cout.Error("Error on parsing command. Not enough or too many argments.")
+          continue
         try:Kernel.DelObj(delv,True)
         except Exception as e:
           Kernel.Cout.Error("Unable to delete var:"+str(e)+".")
-      elif g=="togglegcstate"and permissionlvl>=4:
+        del cname,delv
+      elif "togglegcstate" in g and permissionlvl>=4 and g.index("togglegcstate")==0:
         Kernel.ToggleGcState()
-      elif g=="setlang"and permissionlvl>=1:
-        g=str(input("1:English,2:Simplified Chinese,3.Cancel"))
-        if g=="1":
+      elif "setlang" in g and permissionlvl>=1 and g.index("setlang")==0:
+        try:
+          cname,carg=g
+        except ValueError:
+          Kernel.Cout.Error("Error on parsing command. Not enough or too many argments.")
+          continue
+        if carg=="1":
           langtype=1
           Kernel.Cout.Console("Language set.")
-        elif g=="2":
+        elif carg=="2":
           langtype=2
           Kernel.Cout.Console("Language set.")
-        elif g=="3":pass
         else:
           Kernel.Cout.Error("Language type unknown, using default language.")
           langtype=1
           Kernel.ErrChk(3,"Language type unknown.")
-      elif g=="disablemod"and permissionlvl>=1:Kernel._ModHandler(1);Kernel.ConVar("runmod",False,True)
-      elif g=="autoloadmod"and permissionlvl>=1:
+      elif "disablemod" in g and permissionlvl>=1 and g.index("disablemod")==0:Kernel._ModHandler(1);Kernel.ConVar("runmod",False,True)
+      elif "autoloadmod" in g and permissionlvl>=1 and g.index("autoloadmod")==0:
         if autoloadmod:autoloadmod=False
         else:autoloadmod=True
         Kernel.Cout.Console("Auto mod load process is now:"+str(autoloadmod)+".")
-      elif g=="modinit"and permissionlvl>=1:Kernel._ModHandler(2)
-      elif g=="autorunoutgamemod"and permissionlvl>=1:
+      elif "modinit" in g and permissionlvl>=1:Kernel._ModHandler(2)
+      elif "autorunoutgamemod" in g and permissionlvl>=1 and g.index("autorunoutgamemod")==0:
         if arogmmd:arogmmd=False
         else:arogmmd=True
         Kernel.Cout.Console("auto run out game mod is now: %s."%(arogmmd))
-      elif g=="runmod"and permissionlvl>=1:
+      elif "runmod" in g and permissionlvl>=1 and g.index("runmod")==0:
         Kernel.ConVar("runmod",True,True)
         a=Kernel._ModHandler(3)
         if a==0:del a;break
         else:Kernel.ConVar("runmod",False,True)
-      elif g=="initcfg"and permissionlvl>=1:Kernel.Init(1)
-      elif g=="modver"and permissionlvl>=1:Kernel._ModHandler(4)
-      elif g=="savecfg"and permissionlvl>=1:
+      elif "initcfg" in g and permissionlvl>=1 and g.index("initcfg")==0:Kernel.Init(1)
+      elif "modver" in g and permissionlvl>=1 and g.index("modver")==0:Kernel._ModHandler(4)
+      elif "savecfg" in g and permissionlvl>=1 and g.index("savecfg")==0:
         Kernel.SaveCfg()
-      elif g=="help 1"and permissionlvl>=1:
-        Kernel.Cout.Msg("IlChelcciCore engine help page 1:\nrun:start engine.\nhelp <page(1-8)>:get help.\nquit:stop engine and console.\nsetgeomet:set a new resolution for screen.\nforceexitonerror:forcibly stop whole engine when encounting any error and warn.\nversion:get engine version and credits.\nstatus:get hardware info.\ncls:clear screen.")
-      elif g=="help 2"and permissionlvl>=1:
-        Kernel.Cout.Msg("IlChelcciCore engine help page 2:\nloadgame:load game from saved file.\ndeletesave:delete saved game.\nmodinit:init installed mod.\nrunmod:start mod.\nmodver:get version for mod.\ndisablemod:disable mod.(pop)\nadjustthreshold:change the value for\ngc.threshold()\ndev: toggle developer mode.")
-      elif g=="help 3"and permissionlvl>=1:
-        Kernel.Cout.Msg("IlChelcciCore engine help page 3:\nscuptoggle: toggle the output when screen \nupdate.\nexec:use exec() to execute python code.\nnovid:disable launch video.\ninitcfg:execute cfg init process manually.\nsavecfg:save current configs.\ngetcfgs:get current cfg status.\nsetmodamount:tell mod loader how many mods should be loaded.")
-      elif g=="help 4"and permissionlvl>=1:
-        Kernel.Cout.Msg("IlChelcciCore engine help page 4:\nautoloadmod:toggle the auto mod loading\nprocess.\nsetlang:set a language for engine.\nbegin:start a dedicated function,\ne.g. 'Prgm.Main()' for main function.\nreleasegame:release your game.\ncancelrelease:undo when you released game\nwith command 'releasegame'.\nchangegameinfo:change the infos of game temporarily.")
-      elif g=="help 5"and permissionlvl>=1:
-        Kernel.Cout.Msg("IlChelcciCore engine help page 5:\nconvar:change a global var.\ngetvar:get a value from a var.\ndelvar:delete a provided var.\nsetopening:allocate a new opening type.\ntogglegcstate:toggle gc state to True or False.\ngc:trigger garbage collect.\nautorunoutgamemod:toggles when game is\nreleased automatically run out game mod.\nme:get current user ID and current permission level.")
-      elif g=="help 6"and permissionlvl>=1:
-        Kernel.Cout.Msg("IlChelcciCore engine help page 6:\nsay:say a string.\nignoreverchkonmod:toggle mod version check.\nsetapptitle:set a new app title.\ntogglebar:toggles title bar.\nban:ban an user by userid.\nunban:unban an user by userid.\nop:give an user op permission.\ndeop:remove an user's op permission.\nuser:check an user's permission level.")
-      elif g=="help 7"and permissionlvl>=1:
-        Kernel.Cout.Msg("IlChelcciCore engine help page 7:\nisbanned:check ban state of given user ID.\npardon:same as unban.\nperm:set an user's permission level manually.\nconnvar:change a Nspire var.\ngetnvar:get a Nspire var.\nwarn:issue a warn to player.\nunwarn:cancel warn to player\nwarns:check player's warning.\nsetautobanthreshold:set how many warns to auto ban.")
-      elif g=="help 8"and permissionlvl>=1:
-        Kernel.Cout.Msg("IlChelcciCore engine help page 8:\ngetautobanthreshold:get current auto ban threshold.\nexecf:execute a python file.\ngroup:show groups info.\nlogout:logout and stop game instance.\nrmuser:remove an user's permission without warning.\nl:execute last command.")
-      elif g=="execf" and permissionlvl>=4:
-        f=input("enter file name(0 to cancel):")
-        if f==0 or f=="0":continue
+      elif "help" in g and permissionlvl>=1 and g.index("help")==0:
+        try:
+          cname,carg=g
+        except ValueError:
+          carg="help"
+        if carg=="1":Kernel.Cout.Msg("IlChelcciCore engine help page 1:\nrun:start engine.\nhelp <page(1-8)>:get help.\nquit:stop engine and console.\nsetgeomet:set a new resolution for screen.\nforceexitonerror:forcibly stop whole engine when encounting any error and warn.\nversion:get engine version and credits.\nstatus:get hardware info.\ncls:clear screen.")
+        elif carg=="2":Kernel.Cout.Msg("IlChelcciCore engine help page 2:\nloadgame:load game from saved file.\ndeletesave:delete saved game.\nmodinit:init installed mod.\nrunmod:start mod.\nmodver:get version for mod.\ndisablemod:disable mod.(pop)\nadjustthreshold:change the value for\ngc.threshold()\ndev: toggle developer mode.")
+        elif carg=="3":Kernel.Cout.Msg("IlChelcciCore engine help page 3:\nscuptoggle: toggle the output when screen \nupdate.\nexec:use exec() to execute python code.\nnovid:disable launch video.\ninitcfg:execute cfg init process manually.\nsavecfg:save current configs.\ngetcfgs:get current cfg status.\nsetmodamount:tell mod loader how many mods should be loaded.")
+        elif carg=="4":Kernel.Cout.Msg("IlChelcciCore engine help page 4:\nautoloadmod:toggle the auto mod loading\nprocess.\nsetlang:set a language for engine.\nbegin:start a dedicated function,\ne.g. 'Prgm.Main()' for main function.\nreleasegame:release your game.\ncancelrelease:undo when you released game\nwith command 'releasegame'.\nchangegameinfo:change the infos of game temporarily.")
+        elif carg=="5":Kernel.Cout.Msg("IlChelcciCore engine help page 5:\nconvar:change a global var.\ngetvar:get a value from a var.\ndelvar:delete a provided var.\nsetopening:allocate a new opening type.\ntogglegcstate:toggle gc state to True or False.\ngc:trigger garbage collect.\nautorunoutgamemod:toggles when game is\nreleased automatically run out game mod.\nme:get current user ID and current permission level.")
+        elif carg=="6":Kernel.Cout.Msg("IlChelcciCore engine help page 6:\nsay:say a string.\nignoreverchkonmod:toggle mod version check.\nsetapptitle:set a new app title.\ntogglebar:toggles title bar.\nban:ban an user by userid.\nunban:unban an user by userid.\nop:give an user op permission.\ndeop:remove an user's op permission.\nuser:check an user's permission level.")
+        elif carg=="7":Kernel.Cout.Msg("IlChelcciCore engine help page 7:\nisbanned:check ban state of given user ID.\npardon:same as unban.\nperm:set an user's permission level manually.\nconnvar:change a Nspire var.\ngetnvar:get a Nspire var.\nwarn:issue a warn to player.\nunwarn:cancel warn to player\nwarns:check player's warning.\nsetautobanthreshold:set how many warns to auto ban.")
+        elif carg=="8":Kernel.Cout.Msg("IlChelcciCore engine help page 8:\ngetautobanthreshold:get current auto ban threshold.\nexecf:execute a python file.\ngroup:show groups info.\nlogout:logout and stop game instance.\nrmuser:remove an user's permission without warning.")
+        elif carg=="help":
+          Kernel.Cout.Msg("help: Get command help or list avaliable commands.")
+          Kernel.Cout.Msg("- help <page:int|command:str>")
+        elif carg=="run" or carg=="start":
+          Kernel.Cout.Msg("run: Run the engine. Also called \"start\".")
+          Kernel.Cout.Msg("- run")
+        elif carg=="begin":
+          Kernel.Cout.Msg("begin: Begin a given function.")
+          Kernel.Cout.Msg("- begin <funcName:str>")
+        elif carg=="version" or carg=="ver":
+          Kernel.Cout.Msg("version: Get engine's version. Also called \"ver\".")
+          Kernel.Cout.Msg("- version")
+        elif carg=="quit" or carg=="esc" or carg=="stop" or carg=="exit":
+          Kernel.Cout.Msg("quit: Stop the engine instance. Also called \"stop\",\"exit\",\"esc\".")
+          Kernel.Cout.Msg("- quit")
+        elif carg=="setgeomet":
+          Kernel.Cout.Msg("setgeomet: Set a new resolution for engine.")
+          Kernel.Cout.Msg("- setgeomet <minX:int> <maxX:int> <minY:int> <maxY:int>")
+        elif carg=="forceexitonerror":
+          Kernel.Cout.Msg("forceexitonerror: Exit the engine forcibly when engine occurs any error.")
+          Kernel.Cout.Msg("- forceexitonerror")
+        elif carg=="status":
+          Kernel.Cout.Msg("status: Get hardware status. Old name: hwinfo.")
+          Kernel.Cout.Msg("- status")
+        elif carg=="cls" or carg=="clr" or carg=="clear":
+          Kernel.Cout.Msg("cls: Clear console.")
+          Kernel.Cout.Msg("- cls")
+        elif carg=="loadgame":
+          Kernel.Cout.Msg("loadgame: Load saved data to current runtime.")
+          Kernel.Cout.Msg("- loadgame")
+        elif carg=="deletesave":
+          Kernel.Cout.Msg("deletesave: Delete saved data.")
+          Kernel.Cout.Msg("- deletesave")
+        elif carg=="modinit":
+          Kernel.Cout.Msg("modinit: Load mod from PyLib.")
+          Kernel.Cout.Msg("- modinit")
+        elif carg=="runmod":
+          Kernel.Cout.Msg("runmod: Run out-game mod.")
+          Kernel.Cout.Msg("- runmod")
+        elif carg=="modver":
+          Kernel.Cout.Msg("modver: Get versions of loaded mods.")
+          Kernel.Cout.Msg("- modver")
+        elif carg=="disablemod":
+          Kernel.Cout.Msg("disablemod: Remove loaded mods from this runtime.")
+          Kernel.Cout.Msg("- disablemod")
+        elif carg=="adjustthreshold":
+          Kernel.Cout.Msg("adjustthreshold: Adjust gc threshold.")
+          Kernel.Cout.Msg("- adjustthreshold <threshold:int>")
+        elif carg=="dev" or carg=="developer":
+          Kernel.Cout.Msg("dev: Toggle developer mode.")
+          Kernel.Cout.Msg("- dev")
+        elif carg=="scuptoggle":
+          Kernel.Cout.Msg("scuptoggle: Toggle log output when screen updates.")
+          Kernel.Cout.Msg("- scuptoggle")
+        elif carg=="exec" or carg=="execute":
+          Kernel.Cout.Msg("exec: Execute given function using exec(). Also called \"execute\".")
+          Kernel.Cout.Msg("- exec <funcName:str>")
+        elif carg=="novid":
+          Kernel.Cout.Msg("novid: Toggle opening video of engine.")
+          Kernel.Cout.Msg("- novid")
+        elif carg=="initcfg":
+          Kernel.Cout.Msg("initcfg: Execute cfg init process manually.")
+          Kernel.Cout.Msg("- initcfg")
+        elif carg=="savecfg":
+          Kernel.Cout.Msg("savecfg: Save your config to file.")
+          Kernel.Cout.Msg("- savecfg")
+        elif carg=="getcfgs":
+          Kernel.Cout.Msg("getcfgs: Get config of current runtime.")
+          Kernel.Cout.Msg("- getcfgs")
+        elif carg=="setmodamount":
+          Kernel.Cout.Msg("setmodamount: Set maxium mod amount for loader.")
+          Kernel.Cout.Msg("- setmodamount <amount:int>")
+        elif carg=="autoloadmod":
+          Kernel.Cout.Msg("autoloadmod: Toggle automatic loading process of mod when you boot the game.")
+          Kernel.Cout.Msg("- autoloadmod")
+        elif carg=="setlang":
+          Kernel.Cout.Msg("setlang: Set language for game.")
+          Kernel.Cout.Msg("- setlang <language:1/2>")
+        elif carg=="releasegame":
+          Kernel.Cout.Msg("releasegame: Release your game.")
+          Kernel.Cout.Msg("- releasegame")
+        elif carg=="cancelrelease":
+          Kernel.Cout.Msg("cancelrelease: Cancel release.")
+          Kernel.Cout.Msg("- cancelrelease")
+        elif carg=="changegameinfo":
+          Kernel.Cout.Msg("changegameinfo: Changes the info of game temporarily")
+          Kernel.Cout.Msg("- changegameinfo")
+        elif carg=="convar":
+          Kernel.Cout.Msg("convar: Changes a global variable with given value")
+          Kernel.Cout.Msg("- convar <varName:str> <value:any>")
+        elif carg=="getvar":
+          Kernel.Cout.Msg("getvar: Gets a global variable.")
+          Kernel.Cout.Msg("- getvar <varName:str>")
+        elif carg=="delvar":
+          Kernel.Cout.Msg("delvar: Delete a given global var.")
+          Kernel.Cout.Msg("- delvar <varName:str>")
+        elif carg=="setopening":
+          Kernel.Cout.Msg("setopening: Allocate a new opening video.")
+          Kernel.Cout.Msg("- setopening <opType:1/2>")
+        elif carg=="togglegcstate":
+          Kernel.Cout.Msg("togglegcstate: Toggle gc.")
+          Kernel.Cout.Msg("- togglegcstate")
+        elif carg=="gc":
+          Kernel.Cout.Msg("gc: Trigger gc.")
+          Kernel.Cout.Msg("- gc")
+        elif carg=="autorunoutgamemod":
+          Kernel.Cout.Msg("autorunoutgamemod: Auto run out-game mod on start up.")
+          Kernel.Cout.Msg("- autorunoutgamemod")
+        elif carg=="me":
+          Kernel.Cout.Msg("me: Gets your user ID, permission level.")
+          Kernel.Cout.Msg("- me")
+        elif carg=="say":
+          Kernel.Cout.Msg("say: Say a string.")
+          Kernel.Cout.Msg("- say <rawMsg:str>")
+        elif carg=="ignoreverchkonmod":
+          Kernel.Cout.Msg("ignoreverchkonmod: Ignore version check on mod.")
+          Kernel.Cout.Msg("- ignoreverchkonmod")
+        elif carg=="setapptitle":
+          Kernel.Cout.Msg("setapptitle: Set a new title for engine.")
+          Kernel.Cout.Msg("- setapptitle <name:str>")
+        elif carg=="togglebar":
+          Kernel.Cout.Msg("togglebar: Toggle title bar.")
+          Kernel.Cout.Msg("- togglebar")
+        elif carg=="ban":
+          Kernel.Cout.Msg("ban: Ban a given player.")
+          Kernel.Cout.Msg("- ban <userid:int>")
+        elif carg=="unban":
+          Kernel.Cout.Msg("unban: Unban a given player")
+          Kernel.Cout.Msg("- unban <userid:int>")
+        elif carg=="op":
+          Kernel.Cout.Msg("op: Set a user to operator.")
+          Kernel.Cout.Msg("- op <userid:int>")
+        elif carg=="deop":
+          Kernel.Cout.Msg("deop: Remove an operator.")
+          Kernel.Cout.Msg("- deop <userid:int>")
+        elif carg=="user":
+          Kernel.Cout.Msg("user: Check the given user's permission level.")
+          Kernel.Cout.Msg("- user <userid:int>")
+        elif carg=="isbanned":
+          Kernel.Cout.Msg("isbanned: Check given user's ban state.")
+          Kernel.Cout.Msg("- isbanned <userid:int>")
+        elif carg=="perm" or carg=="permission":
+          Kernel.Cout.Msg("perm: Set a user's permission level manually. Also called \"permission\".")
+          Kernel.Cout.Msg("- perm <userid:int> <permLvl:int>")
+        elif carg=="connvar":
+          Kernel.Cout.Msg("connvar: Changes a nspire variable.")
+          Kernel.Cout.Msg("- connvar <varName:str> <value:int>")
+        elif carg=="getnvar":
+          Kernel.Cout.Msg("getnvar: Gets a nspire variable.")
+          Kernel.Cout.Msg("- getnvar <varName:str>")
+        elif carg=="warn":
+          Kernel.Cout.Msg("warn: Issue a warning to given player.")
+          Kernel.Cout.Msg("- warn <userid:int>")
+        elif carg=="unwarn":
+          Kernel.Cout.Msg("unwarn: Cancel all warnings of given player.")
+          Kernel.Cout.Msg("- unwarn <userid:int>")
+        elif carg=="warns":
+          Kernel.Cout.Msg("warns: List active/history warnings of given player.")
+          Kernel.Cout.Msg("- warns <userid:int>")
+        elif carg=="setautobanthreshold":
+          Kernel.Cout.Msg("setautobanthreshold: Set auto ban threshold of warning.")
+          Kernel.Cout.Msg("- setautobanthreshold <value:int>")
+        elif carg=="getautobanthreshold":
+          Kernel.Cout.Msg("getautobanthreshold: Get auto ban threshold.")
+          Kernel.Cout.Msg("- getautobanthreshold")
+        elif carg=="execf":
+          Kernel.Cout.Msg("execf: Execute a python source file.")
+          Kernel.Cout.Msg("- execf <fileName:str>")
+        elif carg=="group":
+          Kernel.Cout.Msg("group: Show information about permission levels.")
+          Kernel.Cout.Msg("- group")
+        elif carg=="logout":
+          Kernel.Cout.Msg("logout: Logout and stop the engine instance.")
+          Kernel.Cout.Msg("- logout")
+        elif carg=="rmuser":
+          Kernel.Cout.Msg("rmuser: Remove a user's permission level")
+          Kernel.Cout.Msg("- rmuser <userid:int>")
+        else:
+          Kernel.Cout.Msg("Command %s not found."%(carg))
+      elif "execf" in g and permissionlvl>=4:
+        try:
+          cname,f=g
+        except ValueError:
+          Kernel.Cout.Error("Error on parsing command. Not enough or too many argments.")
+          continue
         try:
           Kernel.ExecPyFile(str(f))
         except Exception as e:
           Kernel.Cout.Error("Error while reading file. %s"%(e))
           Kernel.ErrChk(1,"Error while reading file.")
-      elif g=="connvar"and permissionlvl>=4:
-        v=str(input("variable(input 0 to cancel):"))
-        if v=="0":continue
-        f=input("value:")
+      elif "connvar" in g and permissionlvl>=4:
         try:
-          Kernel.ConVar(v,int(f),True,True)
+          cname,carg1,carg2=g
+        except ValueError:
+          Kernel.Cout.Error("Error on parsing command. Not enough or too many argments.")
+          continue
+        try:
+          Kernel.ConVar(carg1,int(carg2),True,True)
         except Exception as e:
           Kernel.Cout.Error("Variable operation failed. %s"%(e))
-        del v,f
-      elif g=="getnvar" and permissionlvl>=4:
-        getv=str(input("variable name(input 0 to cancel):"))
-        if getv=="0":continue
+      elif "getnvar" in g and permissionlvl>=4:
+        try:
+          cname,getv=g
+        except ValueError:
+          Kernel.Cout.Error("Error on parsing command. Not enough or too many argments.")
+          continue
         try:Kernel.GetVar(getv,True,True)
         except Exception as e:
           Kernel.Cout.Error("Unable to get var."+str(e))
         del getv
-      elif g=="setautobanthreshold" and permissionlvl>=3:
-        while True:
-          Kernel.Cout.Msg("(input 0 to cancel)")
-          k=int(input("Auto ban after how many warnings:"))
-          if k==0:
-            Kernel.Cout.Info("Cancelled.")
-            break
-          try:
-            Permission.SetAutoBanThreshold(int(k-1))
-            Kernel.Cout.Info("Done.")
-            break
-          except:
-            Kernel.Cout.Error("Failed to set threshold.")
-            Kernel.ErrChk(1,"Failed to set threshold.")
-            break
-      elif g=="getautobanthreshold"and permissionlvl>=3:
+      elif "setautobanthreshold" in g and permissionlvl>=3 and g.index("setautobanthreshold")==0:
+        try:
+          cname,k=g
+        except ValueError:
+          Kernel.Cout.Error("Error on parsing command. Not enough or too many argments.")
+          continue
+        try:
+          Permission.SetAutoBanThreshold(int(k-1))
+          Kernel.Cout.Info("Done.")
+          break
+        except:
+          Kernel.Cout.Error("Failed to set threshold.")
+          Kernel.ErrChk(1,"Failed to set threshold.")
+          break
+      elif "getautobanthreshold" in g and permissionlvl>=3 and g.index("getautobanthreshold")==0:
         Kernel.Cout.Info("Auto ban threshold is:%s."%(Permission.GetAutoBanThreshold()+1))
-      elif g=="isbanned" and permissionlvl >=3:
-        a=int(input("User ID to check ban state(input 0 to cancel):"))
-        if a==0:continue
+      elif "isbanned" in g and permissionlvl >=3 and g.index("isbanned")==0:
+        try:
+          cname,a=g
+        except ValueError:
+          Kernel.Cout.Error("Error on parsing command. Not enough or too many argments.")
+          continue
         if a==Permission.PROTECTEDID:
           Permission._ProtectedUser()
           continue
@@ -755,27 +950,40 @@ class Kernel:#Code base class.
           Kernel.Cout.Msg("User %s has not been banned."%(a))
           continue
         Kernel.Cout.Msg("User ID %s has been banned.\nmoderator: %s.\nsession: %s."%(a,str(Permission.IsBanned(a,True)),Permission.GetBanSID(int(a))))
-      elif g=="ban"and permissionlvl>=3:
-        a=int(input("user ID to ban(input 0 to cancel):"))
-        if a==0:continue
+      elif "ban" in g and permissionlvl>=3 and g.index("ban")==0:
+        try:
+          cname,a=g
+        except ValueError:
+          Kernel.Cout.Error("Error on parsing command. Not enough or too many argments.")
+          continue
         Permission.Ban(a)
-      elif g=="perm" and permissionlvl>=4 or g=="permission" and permissionlvl>=4:
-        a=int(input("user ID(input 0 to cancel):"))
-        if a==0:continue
-        b=int(input("permission level to set(0 to cancel):"))
-        if b==0:continue
+      elif "perm" in g and permissionlvl>=4 and g.index("perm")==0 or g=="permission" and permissionlvl>=4 and g.index("permission")==0:
+        try:
+          cname,a,b=g
+        except ValueError:
+          Kernel.Cout.Error("Error on parsing command. Not enough or too many argments.")
+          continue
         Permission.SetGroup(a,b)
-      elif g=="unban"and permissionlvl>=3 or g=="pardon" and permissionlvl>=3:
-        a=int(input("user ID to unban(input 0 to cancel):"))
-        if a==0:continue
+      elif "unban"in g and permissionlvl>=3 and g.index("unban")==0 or "pardon"in g and permissionlvl>=3 and g.index("pardon")==0:
+        try:
+          cname,a=g
+        except ValueError:
+          Kernel.Cout.Error("Error on parsing command. Not enough or too many argments.")
+          continue
         Permission.Unban(a)
-      elif g=="op"and permissionlvl>=4:
-        a=int(input("user ID to op(input 0 to cancel):"))
-        if a==0:continue
+      elif "op"in g and permissionlvl>=4 and g.index("op")==0:
+        try:
+          cname,a=g
+        except ValueError:
+          Kernel.Cout.Error("Error on parsing command. Not enough or too many argments.")
+          continue
         Permission.SetGroup(a,4)
-      elif g=="deop"and permissionlvl>=4 or g=="pardon"and permissionlvl>=4:
-        a=int(input("user ID to deop(input 0 to cancel):"))
-        if a==0:continue
+      elif "deop"in g and permissionlvl>=4 and g.index("deop")==0:
+        try:
+          cname,a=g
+        except ValueError:
+          Kernel.Cout.Error("Error on parsing command. Not enough or too many argments.")
+          continue
         if a==int(userid):
           Kernel.Cout.Msg("If you deop yourself, you cannot use admin permissions and commands. Sure?")
           if str(input("(y/n)")) == "y":
@@ -783,36 +991,48 @@ class Kernel:#Code base class.
             continue
           else:continue
         Permission.RemoveGroup(a)
-      elif g=="togglebar"and permissionlvl>=1:
+      elif "togglebar" in g and permissionlvl>=1 and g.index("togglebar")==0:
         if Kernel.GetVar("showbar"):Kernel.ConVar("showbar",False)
         else:Kernel.ConVar("showbar",True)
         Kernel.Cout.Console("Show title bar is now: %s."%(Kernel.GetVar("showbar")))
-      elif g=="setapptitle"and permissionlvl>=4:
-        s=str(input("New app title(input 0 to cancel):"))
-        if s=="0":continue
+      elif "setapptitle"in g and permissionlvl>=4 and g.index("setapptitle")==0:
+        try:
+          cname,s=g
+        except ValueError:
+          Kernel.Cout.Error("Error on parsing command. Not enough or too many argments.")
+          continue
         Kernel.ConVar("apptitle",s)
         Kernel.Cout.Console("New title is: %s."%(Kernel.GetVar("apptitle")))
-      elif g=="group" and permissionlvl>=1:
+      elif "group" in g and permissionlvl>=1 and g.index("group")==0:
         Kernel.Cout.Msg("ILCC Permission Groups:\n1. Player\n2. Assistant\n3. Moderator\n4. Operator\n5. SYSTEM (Protected user)")
-      elif g=="rmuser" and permissionlvl>=4:
-        a=str(input("Remove:(0 to cancel)"))
-        if a=="0":continue
+      elif "rmuser" in g and permissionlvl>=4 and g.index("rmuser")==0:
+        try:
+          cname,a=g
+        except ValueError:
+          Kernel.Cout.Error("Error on parsing command. Not enough or too many argments.")
+          continue
         Permission.RmUser(a)
         del a
-      elif g=="logout" and permissionlvl>=1:
+      elif "logout"in g and permissionlvl>=1 and g.index("logout")==0:
         Permission.Logout()
-      elif g=="me"and permissionlvl>=1:
+      elif "me" in g and permissionlvl>=1 and g.index("me")==0:
         Kernel.Cout.Msg("Current user is: %s."%(Kernel._ReplaceOutput(Kernel.GetVar("userid"),"Not logged in.")))
         Kernel.Cout.Msg("Your current permission level is: %s."%(Permission._ReplaceNum(permissionlvl)))
-      elif g=="warn" and permissionlvl>=3:
-        a=str(input("User ID(input 0 to cancel):"))
-        if a=="0":continue
+      elif "warn" in g and permissionlvl>=3 and g.index("warn")==0:
+        try:
+          cname,a=g
+        except ValueError:
+          Kernel.Cout.Error("Error on parsing command. Not enough or too many argments.")
+          continue
         Permission.Warn(a)
-      elif g=="unwarn" and permissionlvl>=3:
-        a=str(input("User ID(input 0 to cancel):"))
-        if a=="0":continue
+      elif "unwarn" in g and permissionlvl>=3 and g.index("unwarn")==0:
+        try:
+          cname,a=g
+        except ValueError:
+          Kernel.Cout.Error("Error on parsing command. Not enough or too many argments.")
+          continue
         Permission.UnWarn(a)
-      elif g=="warns" and permissionlvl>=1:
+      elif "warns"in g and permissionlvl>=1 and g.index("warns")==0:
         if permissionlvl<3:
           userwarn,wmod=Permission.Warns(userid)
           if int(userwarn)==0 and int(wmod)!=0:
@@ -823,8 +1043,11 @@ class Kernel:#Code base class.
             continue
           Kernel.Cout.Msg("Active warnings:\nYour warning(s):%s.\nmoderator:%s.\nsession: %s."%(str(userwarn),str(wmod),str(Permission.GetWarnSID(userid))))
           continue
-        a=str(input("User ID to check(input 0 to cancel):"))
-        if a=="0":continue
+        try:
+          cname,a=g
+        except ValueError:
+          Kernel.Cout.Error("Error on parsing command. Not enough or too many argments.")
+          continue
         userwarn,wmod=Permission.Warns(a)
         if int(userwarn)==0 and int(wmod)!=0:
           Kernel.Cout.Msg("Active warnings:\nPlayer %s has no active warnings.\nWarnings history:\nLatest warning by\nmoderator:%s.\nsession: %s."%(a,str(wmod),Permission.GetWarnSID(a)))
@@ -834,36 +1057,44 @@ class Kernel:#Code base class.
           continue
         Kernel.Cout.Msg("Active warnings:\nPlayer %s's warning(s):%s.\nIssued by moderator:%s.\nsession: %s."%(a,str(userwarn),str(wmod),str(Permission.GetWarnSID(a))))
         continue
-      elif g=="user"and permissionlvl>=3:
-        a=int(input("User ID(input 0 to cancel):"))
-        if a==0:continue
+      elif "user"in g and permissionlvl>=3 and g.index("user")==0:
+        try:
+          cname,a=g
+        except ValueError:
+          Kernel.Cout.Error("Error on parsing command. Not enough or too many argments.")
+          continue
         if Permission.IsValid(a) is False and a!=int(110679):
           Kernel.Cout.Msg("User ID does not exist.")
           continue
         elif a==Permission.PROTECTEDID:
           pass
         Kernel.Cout.Msg("User ID %s's permission level is: %s."%(a,Kernel._ReplaceOutput(Permission._ReplaceNum(Permission.User(a)),"Does not have any permissions yet.")))
-      elif g=="convar"and permissionlvl>=4:
-        v=str(input("variable(input 0 to cancel):"))
-        if v=="0":continue
-        f=str(input("value:"))
+      elif "convar"in g and permissionlvl>=4 and g.index("convar")==0:
+        try:
+          cname,v,f=g
+        except ValueError:
+          Kernel.Cout.Error("Error on parsing command. Not enough or too many argments.")
+          continue
         try:
           Kernel.ConVar(v,f,True)
         except Exception as e:
           Kernel.Cout.Error("Variable operation failed. %s"%(e))
         del v,f
-      elif g=="gc"and permissionlvl>=4:
+      elif "gc" in g and permissionlvl>=4 and g.index("gc")==0:
         gc.collect()
         Kernel.Cout.Console("Gc completed.")
-      elif permissionlvl>=1 and g=="quit"or permissionlvl>=1 and g=="stop"or permissionlvl>=1 and g=="exit"or g=="esc"and permissionlvl>=1:
+      elif permissionlvl>=1 and "quit"in g and g.index("quit")==0 or permissionlvl>=1 and "stop"in g and g.index("stop")==0 or permissionlvl>=1 and "exit"in g and g.index("exit")==0 or "esc"in g and permissionlvl>=1 and g.index("esc")==0:
         del g
         Kernel.quit(0)
         break
-      elif permissionlvl>=1 and g=="say":
-        s=str(input("string(input 0 to cancel):"))
-        if s=="0":continue
+      elif permissionlvl>=1 and "say"in g and g.index("say")==0:
+        try:
+          cname,s=g
+        except ValueError:
+          Kernel.Cout.Error("Error on parsing command. Not enough or too many argments.")
+          continue
         sys.stdout.write(s+"\n")
-      elif g=="changegameinfo"and permissionlvl>=4:
+      elif "changegameinfo" in g and permissionlvl>=4 and g.index("changegameinfo")==0:
         Kernel.Cout.Console("Change info(1.version/2.debug date/3.company/4.copyright/5.game title/0.cancel.):")
         while True:
           g=get_key()
@@ -890,22 +1121,22 @@ class Kernel:#Code base class.
           elif g=="0":
             Kernel.Cout.Console("Cancelled.")
             break
-      elif g=="setmodamount"and permissionlvl>=1:
-        modamount=input("how many mods should engine load:")
-        Kernel.Cout.Console(str(modamount)+" mods will be trying to load at next time.")
-      elif g=="scuptoggle"and permissionlvl>=2:
-        Kernel.ReverseGivenVar("dr",True)
-      elif g=="setgeomet"and permissionlvl>=2:
+      elif "setmodamount"in g and permissionlvl>=1 and g.index("setmodamount")==0:
         try:
-          scrgeometx=int(input("xmin:"))
-          scrgeomety=int(input("ymin:"))
-          scrgeometmx=int(input("xmax:"))
-          scrgeometmy=int(input("ymax:"))
-          Kernel.Cout.Console("Resolution set to:"+str(scrgeometx)+","+str(scrgeomety)+","+str(scrgeometmx)+","+str(scrgeometmy))
-        except Exception as e:
-          Kernel.Cout.Error("Setting was failed. "+str(e))
-          Kernel.ErrChk(1,"Bad arguments.")
-      elif g=="getcfgs"and permissionlvl>=1:
+          cname,modamount=g
+        except ValueError:
+          Kernel.Cout.Error("Error on parsing command. Not enough or too many argments.")
+          continue
+        Kernel.Cout.Console(str(modamount)+" mods will be trying to load at next time.")
+      elif "scuptoggle"in g and permissionlvl>=2 and g.index("scuptoggle")==0:
+        Kernel.ReverseGivenVar("dr",True)
+      elif "setgeomet"in g and permissionlvl>=2 and g.index("setgeomet")==0:
+        try:
+          cname,scrgeometx,scrgeometmx,scrgeomety,scrgeometmy=g
+        except ValueError as e:
+          Kernel.Cout.Error("Error on parsing command:"+str(e))
+          continue
+      elif "getcfgs"in g and permissionlvl>=1 and g.index("getcfgs")==0:
         Kernel.Cout.Msg("exit on error:"+str(erxt)+" | gc threshold:"+str(gcthresholdint))
         Kernel.Cout.Msg("novid:"+str(novid)+" | log output on screen draw:"+str(dr))
         Kernel.Cout.Msg("dev:"+str(dev)+" | lang:"+str(ActionUI.DispLanguage("lang")))
@@ -913,52 +1144,56 @@ class Kernel:#Code base class.
         Kernel.Cout.Msg("auto load mod:"+str(autoloadmod))
         Kernel.Cout.Msg("Resolution:"+str(scrgeometx)+","+str(scrgeomety)+","+str(scrgeometmx)+","+str(scrgeometmy))
         Kernel.Cout.Msg("Permission level:%s."%(permissionlvl)+" | show bar:%s."%(Kernel.GetVar("showbar")))
-      elif g=="forceexitonerror"and permissionlvl>=3:
+      elif "forceexitonerror"in g and permissionlvl>=3 and g.index("forceexitonerror")==0:
         if erxt==1:
           erxt=0
           Kernel.Cout.Console("Exit when error disabled.")
         else:
           erxt=1
           Kernel.Cout.Console("Exit when error enabled.")
-      elif g=="setopening"and permissionlvl>=1:
-        openingtype=int(input("new opening type(1/2):"))
+      elif "setopening"in g and permissionlvl>=1 and g.index("setopening")==0:
+        try:
+          cname,openingtype=g
+        except ValueError:
+          Kernel.Cout.Error("Error on parsing command. Not enough or too many argments.")
+          continue
         Kernel.Cout.Console("Opening type is now:%s."%(openingtype))
-      elif permissionlvl>=1 and g=="version"or g=="ver"and permissionlvl>=1:
+      elif permissionlvl>=1 and "version"in g and g.index("version")==0 or "ver"in g and permissionlvl>=1 and g.index("ver")==0:
         Kernel.Cout.Msg("IlChelcciCore 2D Gaming engine.\n"+str(GAMEVER)+"\nDebugged in:"+str(DEBUGDATE)+"\nMade by Alex_Nute aka axnut123.\nMade in China.\nyour Python version:"+str(sys.version)+"\nEngine built on Python 3.4.0.\nCopyright and company info:"+COPYRIGHT+","+COMPANY+".")
-      elif g=="novid"and permissionlvl>=2:
+      elif "novid"in g and permissionlvl>=2 and g.index("novid")==0:
         Kernel.ReverseGivenVar("novid",True)
-      elif g=="status"and permissionlvl>=2:
+      elif "status"in g and permissionlvl>=2 and g.index("status")==0:
         Kernel.Cout.Msg("Version:"+str(GAMEVER)+"|"+"Session ID:"+str(Kernel.GetVar("sessionid")))
         Kernel.Cout.Msg("Platform:"+str(get_platform()))
         Kernel.Cout.Msg("mem free:"+str(gc.mem_free())+" | mem alloc:"+str(gc.mem_alloc()))
-        Kernel.Cout.Msg("total mem:"+str(totalmem))
+        Kernel.Cout.Msg("total mem:"+str(gc.mem_free()+gc.mem_alloc()))
         Kernel.Cout.Msg("stack use:"+str(mp.stack_use())+" | pystack use:"+str(mp.pystack_use()))
         Kernel.Cout.Msg("cpu tick:"+str(ticks_cpu()))
         Kernel.Cout.Msg("local time:"+str(localtime()))
         Kernel.Cout.Msg("gc threshold:"+str(gcthresholdint)+" | gc is enabled:%s"%(gc.isenabled()))
-      elif g=="deletesave"and permissionlvl>=1:
+      elif "deletesave"in g and permissionlvl>=1 and g.index("deletesave")==0:
         IO.Delete()
-      elif g=="loadgame"and permissionlvl>=1:
+      elif "loadgame"in g and permissionlvl>=1 and g.index("loadgame")==0:
         IO.Load()
-      elif g=="help"and permissionlvl>=1:
-        Kernel.Cout.Msg("ILCC Command help.\nUsage: help <page 1-8>\nexample: help 1 for page 1.")
-      elif permissionlvl>=1 and g=="cls"or permissionlvl>=1 and g=="clr" or g=="clear"and permissionlvl>=1:
+      elif permissionlvl>=1 and "cls"in g and g.index("cls")==0 or permissionlvl>=1 and "clr"in g and g.index("clr")==0 or "clear"in g and g.index("clear")==0 and permissionlvl>=1:
         clear_history()
-      elif permissionlvl>=4 and g=="dev"or g=="developer"and permissionlvl>=4:
+      elif permissionlvl>=4 and "dev"in g and g.index("dev")==0 or "developer"in g and g.index("developer")==0 and permissionlvl>=4:
         Kernel.ReverseGivenVar("dev",True)
-      elif g=="adjustthreshold"and permissionlvl>=4:
+      elif "adjustthreshold"in g and g.index("adjustthreshold")==0 and permissionlvl>=4:
         try:
-          gcthresholdint=int(input("gc.threshold(input 0 to cancel):"))
-          if gcthresholdint=="0":continue
+          cname,gcthresholdint=g
           gc.threshold(gcthresholdint)
           Kernel.Cout.Console("New value given.")
         except Exception as e:
           Kernel.Cout.Error("Failed. "+str(e))
-      elif permissionlvl>=4 and g=="exec"or g=="execute"and permissionlvl>=4:
-        g=str(input("execute(input 0 to cancel):"))
-        if g=="0":continue
+      elif permissionlvl>=4 and "exec"in g and g.index("exec")==0 or "execute"in g and permissionlvl>=4 and g.index("execute")==0:
         try:
-          exec(g)
+          cname,carg=g
+        except ValueError:
+          Kernel.Cout.Error("Error on parsing command. Not enough or too many argments.")
+          continue
+        try:
+          exec(carg)
           Kernel.Cout.Console("Executed code.")
         except Exception as e:
           Kernel.Cout.Error("Unable to execute code. "+str(e))
@@ -966,8 +1201,8 @@ class Kernel:#Code base class.
         except BaseException:
           del g
           Kernel.quit(0)
-      elif g=="":pass
-      else:Kernel.Cout.Console("Unknown command or lacking\npermission on command:"+str(g)+".\nType help <page(1-8)> to get help.")
+      elif not g:pass
+      else:Kernel.Cout.Msg("Unknown command or lacking\npermission on command:"+str(g[0])+".\nType help <page(1-8)> to get help.")
     return 0
   @staticmethod
   def Opening(optp=1):#the engine opening.
@@ -1625,9 +1860,103 @@ class UniFX:#Universal VFX class.
         Kernel.Cout.Error("Cannot find type of the VFX that dedicated.")
         Kernel.ErrChk(1,"VFX type not found.")
         return -1
+class CBox:#collition box class.
+  def __init__(self):pass
+  def Set(ctype,cid,x,y,w,h):#set up a new box.
+    w=w+x
+    h=h+y
+    if ctype not in ("up","down","left","right"):
+      Kernel.Cout.Error("Given ctype is not a valid direction.")
+      Kernel.ErrChk(1,"Given ctype is not a vaild direction.")
+      return -1
+    dctype={"up":1,
+    "down":2,
+    "left":3,
+    "right":4}.get(ctype)
+    IO.Save(True,"CB_X_"+str(cid),x)
+    IO.Save(True,"CB_Y_"+str(cid),y)
+    IO.Save(True,"CB_W_"+str(cid),w)
+    IO.Save(True,"CB_H_"+str(cid),h)
+    IO.Save(True,"CB_ID_"+str(cid),cid)
+    IO.Save(True,"CB_T_"+str(cid),dctype)
+    return 1
+  def Check():...
 class Actors:#entity class.
 #in Actors class, Draw method return 1 is not rendered,0 is rendered.
   def __init__(self):pass
+  class CombatCharacter:#Combat character class.
+    def __init__(self):pass
+    @staticmethod
+    def New(name,health,x,y,r=0,g=0,b=0,w=5,h=5):#Create a new combat character.
+      if len(str(name))<=0 or int(health)<=0:
+        Kernel.Cout.Error("Combat character's name or health cannot be empty.")
+        Kernel.ErrChk(1,"Comabt character's name or health was empty.")
+        return -1
+      if w<=0 or h<=0:
+        Kernel.Cout.Error("Combat character's height or width is 0 or\nunder 0!")
+        Kernel.ErrChk(5,"Combat character's height or width is 0 or\nunder 0.",True)
+        return -1
+      if Kernel.GetVar("CC_"+str(name))==name:
+        Kernel.Cout.Error("Combat character's name already exists.")
+        Kernel.ErrChk(1,"Comabt character's name already exists.")
+        return -1
+      Kernel.ConVar("CC_"+str(name),1)
+      Kernel.ConVar("CC_H_"+str(name),int(health))
+      Kernel.ConVar("CC_X_"+str(name),int(health))
+      Kernel.ConVar("CC_y_"+str(name),int(health))
+      Kernel.ConVar("CC_R_"+str(name),int(health))
+      Kernel.ConVar("CC_G_"+str(name),int(health))
+      Kernel.ConVar("CC_B_"+str(name),int(health))
+      Kernel.ConVar("CC_w_"+str(name),int(health))
+      Kernel.ConVar("CC_HE_"+str(name),int(health))
+      return 0
+    @staticmethod
+    def IsValid(name):#Check if CC is valid.
+      if Kernel.GetVar("CC_"+str(name)) is None:
+        return False
+      return True
+    @staticmethod
+    def GetHealth(name):#Get a CC's health.
+      if Actors.CombatCharacter.IsValid(name) is False:
+        Kernel.Cout.Error("CombatCharacter not found.")
+        Kernel.ErrChk("CombatCharacter not found.")
+        return -1
+      return Kernel.GetVar("CC_H_"+str(name))
+    @staticmethod
+    def GetFullVName(name):#Get a CC's full variable name.
+      if Actors.CombatCharacter.IsValid(name) is False:
+        Kernel.Cout.Error("CombatCharacter not found.")
+        Kernel.ErrChk("CombatCharacter not found.")
+        return -1
+      return "CC_"+str(name)
+    @staticmethod
+    def GetHealth(name):#Get a CC's health.
+      if Actors.CombatCharacter.IsValid(name) is False:
+        Kernel.Cout.Error("CombatCharacter not found.")
+        Kernel.ErrChk("CombatCharacter not found.")
+        return -1
+      return "CC_H_"+str(name)
+    @staticmethod
+    def GetPosition(name):#Get a CC's position, returns tuple.
+      if Actors.CombatCharacter.IsValid(name) is False:
+        Kernel.Cout.Error("CombatCharacter not found.")
+        Kernel.ErrChk("CombatCharacter not found.")
+        return -1
+      return "CC_X_"+str(name),"CC_Y_"+str(name)
+    def GetStyle(name):#Get a CC's style. returns tuple.
+      if Actors.CombatCharacter.IsValid(name) is False:
+        Kernel.Cout.Error("CombatCharacter not found.")
+        Kernel.ErrChk("CombatCharacter not found.")
+        return -1
+      return "CC_R_"+str(name),"CC_G_"+str(name),"CC_B_"+str(name),"CC_W_"+str(name),"CC_HE_"+str(name)
+    @staticmethod
+    def DamageCombatCharacter(name,damageInt):#Damage a CC.
+      if Actors.CombatCharacter.IsValid(name) is False:
+        Kernel.Cout.Error("CombatCharacter not found.")
+        Kernel.ErrChk("CombatCharacter not found.")
+        return -1
+      Kernel.ConVar("CC_H_"+str(name),Kernel.GetVar("CC_H_"+str(name))-damageInt)
+      return 1
   class King:#Player class.
     def __init__(self):pass
     @staticmethod
